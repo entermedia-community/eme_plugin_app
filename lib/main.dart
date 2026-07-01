@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 void main() {
@@ -54,7 +55,546 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const DashboardScreen(),
+      home: const AppEntry(),
+    );
+  }
+}
+
+class AppEntry extends StatefulWidget {
+  const AppEntry({super.key});
+
+  @override
+  State<AppEntry> createState() => _AppEntryState();
+}
+
+class _AppEntryState extends State<AppEntry> {
+  bool _isLoggedIn = false;
+  String _username = '';
+
+  void _handleLogin(String email) {
+    setState(() {
+      _isLoggedIn = true;
+      _username = email;
+    });
+  }
+
+  void _handleLogout() {
+    setState(() {
+      _isLoggedIn = false;
+      _username = '';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoggedIn) {
+      return DashboardScreen(
+        username: _username,
+        onLogout: _handleLogout,
+      );
+    } else {
+      return LoginScreen(onLoginSuccess: _handleLogin);
+    }
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  final Function(String) onLoginSuccess;
+
+  const LoginScreen({super.key, required this.onLoginSuccess});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController(text: 'demo@emeworld.com');
+  final _passwordController = TextEditingController(text: 'password123');
+  bool _obscurePassword = true;
+  bool _rememberMe = true;
+  bool _isLoading = false;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeController.forward();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  void _autofill(String email, String password) {
+    setState(() {
+      _emailController.text = email;
+      _passwordController.text = password;
+    });
+  }
+
+  void _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulate SSO handshake
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (mounted) {
+      widget.onLoginSuccess(_emailController.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 600;
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Decorative glowing elements
+            Positioned(
+              top: -size.height * 0.2,
+              right: -size.width * 0.1,
+              child: Container(
+                width: size.width * 0.6,
+                height: size.width * 0.6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF38B6FF).withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -size.height * 0.2,
+              left: -size.width * 0.1,
+              child: Container(
+                width: size.width * 0.6,
+                height: size.width * 0.6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF8A2387).withValues(alpha: 0.06),
+                ),
+              ),
+            ),
+            
+            // Main content
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isDesktop ? 450 : double.infinity,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161C24).withValues(alpha: 0.65),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.08),
+                                width: 1.5,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 40,
+                            ),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Logo Container
+                                  Center(
+                                    child: Container(
+                                      width: 64,
+                                      height: 64,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF38B6FF), Color(0xFF8A2387)],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFF38B6FF).withValues(alpha: 0.3),
+                                            blurRadius: 15,
+                                            spreadRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.vpn_key_rounded,
+                                        color: Colors.white,
+                                        size: 32,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  // Title
+                                  const Text(
+                                    'eME World',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.5,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Single Sign-On (SSO)',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF90A4AE),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  
+                                  // Email Address Input
+                                  const Text(
+                                    'Email Address',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildInputField(
+                                    controller: _emailController,
+                                    hintText: 'Enter your enterprise email',
+                                    prefixIcon: Icons.email_outlined,
+                                    validator: (val) {
+                                      if (val == null || val.trim().isEmpty) {
+                                        return 'Please enter your email';
+                                      }
+                                      if (!val.contains('@')) {
+                                        return 'Please enter a valid email address';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 20),
+                                  
+                                  // Password Input
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Password',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('SSO password reset must be completed through eME Admin portal.'),
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Forgot Password?',
+                                          style: TextStyle(
+                                            color: Color(0xFF38B6FF),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildInputField(
+                                    controller: _passwordController,
+                                    hintText: 'Enter your password',
+                                    prefixIcon: Icons.lock_outline_rounded,
+                                    obscureText: _obscurePassword,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword 
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        color: Colors.white38,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                    validator: (val) {
+                                      if (val == null || val.isEmpty) {
+                                        return 'Please enter your password';
+                                      }
+                                      if (val.length < 6) {
+                                        return 'Password must be at least 6 characters';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  
+                                  // Remember me checkbox
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: Checkbox(
+                                          value: _rememberMe,
+                                          activeColor: const Color(0xFF38B6FF),
+                                          checkColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          side: BorderSide(
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                          ),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              _rememberMe = val ?? false;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        'Remember my session',
+                                        style: TextStyle(
+                                          color: Color(0xFF90A4AE),
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 28),
+                                  
+                                  // Sign in Button
+                                  _isLoading 
+                                      ? const Center(
+                                          child: CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38B6FF)),
+                                          ),
+                                        )
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(14),
+                                            gradient: const LinearGradient(
+                                              colors: [Color(0xFF38B6FF), Color(0xFF8A2387)],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: const Color(0xFF38B6FF).withValues(alpha: 0.25),
+                                                blurRadius: 12,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: ElevatedButton(
+                                            onPressed: _submit,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.transparent,
+                                              shadowColor: Colors.transparent,
+                                              padding: const EdgeInsets.symmetric(vertical: 16),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(14),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'Sign In with eME World',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                  const SizedBox(height: 24),
+                                  
+                                  // Divider
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Divider(
+                                          color: Colors.white.withValues(alpha: 0.1),
+                                          thickness: 1,
+                                        ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        child: Text(
+                                          'DEMO ACCOUNTS',
+                                          style: TextStyle(
+                                            color: Colors.white24,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.0,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Divider(
+                                          color: Colors.white.withValues(alpha: 0.1),
+                                          thickness: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  
+                                  // Quick autofill buttons
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildAutofillButton(
+                                          label: 'Demo User',
+                                          email: 'demo@emeworld.com',
+                                          password: 'password123',
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: _buildAutofillButton(
+                                          label: 'Admin User',
+                                          email: 'admin@emeworld.com',
+                                          password: 'adminSecure123',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1319),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        validator: validator,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+          prefixIcon: Icon(prefixIcon, color: Colors.white38, size: 20),
+          prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 20),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          errorStyle: const TextStyle(color: Color(0xFFE94057), fontSize: 11),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAutofillButton({
+    required String label,
+    required String email,
+    required String password,
+  }) {
+    return InkWell(
+      onTap: () => _autofill(email, password),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.05),
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              email.split('@')[0],
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 10,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -139,7 +679,14 @@ final List<Course> mockCourses = [
 ];
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String username;
+  final VoidCallback? onLogout;
+
+  const DashboardScreen({
+    super.key,
+    required this.username,
+    this.onLogout,
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -147,6 +694,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String _activeEnvironment = 'CPECH DEMO';
   bool isGridView = true;
   String selectedTab = 'Catalog';
   String selectedFilter1 = 'All Subjects';
@@ -207,6 +756,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     final isDesktop = size.width > 900;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildDrawer(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -279,105 +830,161 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left side: Menu + Logo + User Badge
+          // Left side: Menu + Logo/Avatar
           Row(
             children: [
               IconButton(
                 icon: const Icon(Icons.menu_rounded, color: Colors.white70),
-                onPressed: () {},
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
               ),
               const SizedBox(width: 8),
-              // Beautiful Administrator Badge
+              // Profile Thumbnail Only
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFE94057).withValues(alpha: 0.15),
-                      const Color(0xFFF27121).withValues(alpha: 0.15),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFFE94057).withValues(alpha: 0.4),
-                    width: 1,
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE94057), Color(0xFFF27121)],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFE94057).withValues(alpha: 0.1),
-                      blurRadius: 10,
+                      color: const Color(0xFFE94057).withValues(alpha: 0.15),
+                      blurRadius: 8,
                       spreadRadius: 1,
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFE94057), Color(0xFFF27121)],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'A',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                child: Center(
+                  child: Text(
+                    widget.username.isNotEmpty ? widget.username[0].toUpperCase() : 'U',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Administrator',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
 
-          // Middle: CPECH DEMO Selector (Desktop only)
-          if (isDesktop) _buildDemoSelector(),
-
-          // Right side: Status icons
+          // Right side: Interactive Notifications + Analytics Status
           Row(
             children: [
-              if (!isDesktop) ...[
-                _buildDemoSelector(),
-                const SizedBox(width: 12),
-              ],
-              // Sleek system indicators
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.04),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
+              // Notifications Dropdown
+              PopupMenuButton<int>(
+                offset: const Offset(0, 48),
+                color: const Color(0xFF161C24),
+                elevation: 8,
+                shadowColor: Colors.black.withValues(alpha: 0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1.5),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.blur_circular_rounded,
-                    size: 18,
-                    color: Color(0xFF38B6FF),
-                  ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.04),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.08),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.notifications_outlined,
+                          size: 18,
+                          color: Color(0xFF38B6FF),
+                        ),
+                      ),
+                    ),
+                    // Live red dot badge indicating new notifications
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE94057),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                onSelected: (int val) {
+                  // Interactive notification action (e.g. click item)
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+                  PopupMenuItem<int>(
+                    value: -1,
+                    enabled: false,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Notifications',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE94057).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            '3 New',
+                            style: TextStyle(
+                              color: Color(0xFFE94057),
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(height: 1),
+                  PopupMenuItem<int>(
+                    value: 0,
+                    child: _buildNotificationItem(
+                      title: 'New Course Available',
+                      body: 'Mathematical Competence 2 has been unlocked.',
+                      time: '5m ago',
+                      isNew: true,
+                    ),
+                  ),
+                  PopupMenuItem<int>(
+                    value: 1,
+                    child: _buildNotificationItem(
+                      title: 'Achievement Unlocked',
+                      body: 'You completed 3 subject diagnostic tests.',
+                      time: '2h ago',
+                      isNew: true,
+                    ),
+                  ),
+                  PopupMenuItem<int>(
+                    value: 2,
+                    child: _buildNotificationItem(
+                      title: 'Forgetting Threshold',
+                      body: 'Physics effectiveness has dropped to Moderate.',
+                      time: '1d ago',
+                      isNew: false,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 10),
               Container(
@@ -405,45 +1012,348 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildDemoSelector() {
+  Widget _buildNotificationItem({
+    required String title,
+    required String body,
+    required String time,
+    required bool isNew,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E2631),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: InkWell(
-        onTap: () {},
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFF0072FF),
+      width: 280,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (isNew)
+                Container(
+                  margin: const EdgeInsets.only(right: 6),
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF38B6FF),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: isNew ? Colors.white : Colors.white70,
+                    fontWeight: isNew ? FontWeight.bold : FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              child: const Icon(Icons.school, size: 12, color: Colors.white),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'CPECH DEMO PREU',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                color: Colors.white70,
+              Text(
+                time,
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 10,
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 16,
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            body,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
               color: Colors.white54,
+              fontSize: 11,
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xFF0F1319),
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0B0F13), Color(0xFF141923)],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Drawer Header (Profile Info relocated here)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFE94057).withValues(alpha: 0.2),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.username.isNotEmpty ? widget.username[0].toUpperCase() : 'U',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.username.isNotEmpty ? widget.username.split('@')[0] : 'User',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.username.isNotEmpty ? widget.username : 'user@emeworld.com',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF90A4AE),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 2. Navigation Items (Middle)
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  children: [
+                    _buildDrawerItem(
+                      icon: Icons.dashboard_rounded,
+                      title: 'Catalog / Dashboard',
+                      selected: selectedTab == 'Catalog',
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          selectedTab = 'Catalog';
+                          _tabController.index = 1;
+                        });
+                      },
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.bubble_chart_rounded,
+                      title: 'Wall',
+                      selected: selectedTab == 'Wall',
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          selectedTab = 'Wall';
+                          _tabController.index = 0;
+                        });
+                      },
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.emoji_events_rounded,
+                      title: 'Achievements',
+                      selected: selectedTab == 'Achievements',
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          selectedTab = 'Achievements';
+                          _tabController.index = 2;
+                        });
+                      },
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.analytics_outlined,
+                      title: 'Performance Analytics',
+                      selected: false,
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 3. Bottom: Environment dropdown + Red Logout option
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'ENVIRONMENT',
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E2631),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _activeEnvironment,
+                          dropdownColor: const Color(0xFF1E2631),
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white54),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            color: Colors.white70,
+                          ),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _activeEnvironment = newValue;
+                              });
+                            }
+                          },
+                          items: <String>['CPECH DEMO', '4EM DEMO'].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: value == 'CPECH DEMO' ? const Color(0xFF0072FF) : const Color(0xFF8A2387),
+                                    ),
+                                    child: const Icon(Icons.school, size: 10, color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(value),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Logout Option
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        if (widget.onLogout != null) widget.onLogout!();
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE94057).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFE94057).withValues(alpha: 0.25),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.logout_rounded,
+                              size: 16,
+                              color: Color(0xFFE94057),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Log Out',
+                              style: TextStyle(
+                                color: Color(0xFFE94057),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: selected ? const Color(0xFF38B6FF).withValues(alpha: 0.08) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: selected ? const Color(0xFF38B6FF).withValues(alpha: 0.15) : Colors.transparent,
+        ),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: selected ? const Color(0xFF38B6FF) : Colors.white54,
+          size: 20,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: selected ? Colors.white : Colors.white70,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 14,
+          ),
+        ),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
