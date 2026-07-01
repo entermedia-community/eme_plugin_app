@@ -88,10 +88,7 @@ class _AppEntryState extends State<AppEntry> {
   @override
   Widget build(BuildContext context) {
     if (_isLoggedIn) {
-      return DashboardScreen(
-        username: _username,
-        onLogout: _handleLogout,
-      );
+      return DashboardScreen(username: _username, onLogout: _handleLogout);
     } else {
       return LoginScreen(onLoginSuccess: _handleLogin);
     }
@@ -107,7 +104,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'demo@emeworld.com');
   final _passwordController = TextEditingController(text: 'password123');
@@ -124,7 +122,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    );
     _fadeController.forward();
   }
 
@@ -145,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -200,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
               ),
             ),
-            
+
             // Main content
             Center(
               child: SingleChildScrollView(
@@ -218,7 +219,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF161C24).withValues(alpha: 0.65),
+                              color: const Color(
+                                0xFF161C24,
+                              ).withValues(alpha: 0.65),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.08),
@@ -243,13 +246,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         gradient: const LinearGradient(
-                                          colors: [Color(0xFF38B6FF), Color(0xFF8A2387)],
+                                          colors: [
+                                            Color(0xFF38B6FF),
+                                            Color(0xFF8A2387),
+                                          ],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color(0xFF38B6FF).withValues(alpha: 0.3),
+                                            color: const Color(
+                                              0xFF38B6FF,
+                                            ).withValues(alpha: 0.3),
                                             blurRadius: 15,
                                             spreadRadius: 2,
                                           ),
@@ -285,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     ),
                                   ),
                                   const SizedBox(height: 32),
-                                  
+
                                   // Email Address Input
                                   const Text(
                                     'Email Address',
@@ -311,10 +319,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     },
                                   ),
                                   const SizedBox(height: 20),
-                                  
+
                                   // Password Input
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text(
                                         'Password',
@@ -326,10 +335,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
-                                              content: Text('SSO password reset must be completed through eME Admin portal.'),
-                                              behavior: SnackBarBehavior.floating,
+                                              content: Text(
+                                                'SSO password reset must be completed through eME Admin portal.',
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
                                             ),
                                           );
                                         },
@@ -352,7 +366,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     obscureText: _obscurePassword,
                                     suffixIcon: IconButton(
                                       icon: Icon(
-                                        _obscurePassword 
+                                        _obscurePassword
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
                                         color: Colors.white38,
@@ -375,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     },
                                   ),
                                   const SizedBox(height: 16),
-                                  
+
                                   // Remember me checkbox
                                   Row(
                                     children: [
@@ -387,10 +401,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                           activeColor: const Color(0xFF38B6FF),
                                           checkColor: Colors.black,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
                                           ),
                                           side: BorderSide(
-                                            color: Colors.white.withValues(alpha: 0.2),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.2,
+                                            ),
                                           ),
                                           onChanged: (val) {
                                             setState(() {
@@ -410,25 +428,35 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     ],
                                   ),
                                   const SizedBox(height: 28),
-                                  
+
                                   // Sign in Button
-                                  _isLoading 
+                                  _isLoading
                                       ? const Center(
                                           child: CircularProgressIndicator(
-                                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38B6FF)),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Color(0xFF38B6FF),
+                                                ),
                                           ),
                                         )
                                       : Container(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(14),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
                                             gradient: const LinearGradient(
-                                              colors: [Color(0xFF38B6FF), Color(0xFF8A2387)],
+                                              colors: [
+                                                Color(0xFF38B6FF),
+                                                Color(0xFF8A2387),
+                                              ],
                                               begin: Alignment.centerLeft,
                                               end: Alignment.centerRight,
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: const Color(0xFF38B6FF).withValues(alpha: 0.25),
+                                                color: const Color(
+                                                  0xFF38B6FF,
+                                                ).withValues(alpha: 0.25),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -437,11 +465,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                           child: ElevatedButton(
                                             onPressed: _submit,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.transparent,
+                                              backgroundColor:
+                                                  Colors.transparent,
                                               shadowColor: Colors.transparent,
-                                              padding: const EdgeInsets.symmetric(vertical: 16),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 16,
+                                                  ),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(14),
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
                                               ),
                                             ),
                                             child: const Text(
@@ -455,18 +488,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                           ),
                                         ),
                                   const SizedBox(height: 24),
-                                  
+
                                   // Divider
                                   Row(
                                     children: [
                                       Expanded(
                                         child: Divider(
-                                          color: Colors.white.withValues(alpha: 0.1),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.1,
+                                          ),
                                           thickness: 1,
                                         ),
                                       ),
                                       const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
                                         child: Text(
                                           'DEMO ACCOUNTS',
                                           style: TextStyle(
@@ -479,14 +516,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       ),
                                       Expanded(
                                         child: Divider(
-                                          color: Colors.white.withValues(alpha: 0.1),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.1,
+                                          ),
                                           thickness: 1,
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 16),
-                                  
+
                                   // Quick autofill buttons
                                   Row(
                                     children: [
@@ -548,7 +587,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
           prefixIcon: Icon(prefixIcon, color: Colors.white38, size: 20),
-          prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 20),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 20,
+          ),
           suffixIcon: suffixIcon,
           border: InputBorder.none,
           errorStyle: const TextStyle(color: Color(0xFFE94057), fontSize: 11),
@@ -570,9 +612,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.05),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Column(
           children: [
@@ -587,10 +627,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             const SizedBox(height: 2),
             Text(
               email.split('@')[0],
-              style: const TextStyle(
-                color: Colors.white38,
-                fontSize: 10,
-              ),
+              style: const TextStyle(color: Colors.white38, fontSize: 10),
             ),
           ],
         ),
@@ -682,11 +719,7 @@ class DashboardScreen extends StatefulWidget {
   final String username;
   final VoidCallback? onLogout;
 
-  const DashboardScreen({
-    super.key,
-    required this.username,
-    this.onLogout,
-  });
+  const DashboardScreen({super.key, required this.username, this.onLogout});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -859,7 +892,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
                 child: Center(
                   child: Text(
-                    widget.username.isNotEmpty ? widget.username[0].toUpperCase() : 'U',
+                    widget.username.isNotEmpty
+                        ? widget.username[0].toUpperCase()
+                        : 'U',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -882,7 +917,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                 shadowColor: Colors.black.withValues(alpha: 0.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1.5),
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 1.5,
+                  ),
                 ),
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -939,9 +977,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE94057).withValues(alpha: 0.15),
+                            color: const Color(
+                              0xFFE94057,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
@@ -1048,10 +1091,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
               Text(
                 time,
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10,
-                ),
+                style: const TextStyle(color: Colors.white38, fontSize: 10),
               ),
             ],
           ),
@@ -1060,10 +1100,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             body,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 11,
-            ),
+            style: const TextStyle(color: Colors.white54, fontSize: 11),
           ),
         ],
       ),
@@ -1109,7 +1146,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFE94057).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFFE94057,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 12,
                             spreadRadius: 2,
                           ),
@@ -1117,7 +1156,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                       child: Center(
                         child: Text(
-                          widget.username.isNotEmpty ? widget.username[0].toUpperCase() : 'U',
+                          widget.username.isNotEmpty
+                              ? widget.username[0].toUpperCase()
+                              : 'U',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -1128,7 +1169,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      widget.username.isNotEmpty ? widget.username.split('@')[0] : 'User',
+                      widget.username.isNotEmpty
+                          ? widget.username.split('@')[0]
+                          : 'User',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1137,7 +1180,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.username.isNotEmpty ? widget.username : 'user@emeworld.com',
+                      widget.username.isNotEmpty
+                          ? widget.username
+                          : 'user@emeworld.com',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF90A4AE),
@@ -1146,11 +1191,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ],
                 ),
               ),
-              
+
               // 2. Navigation Items (Middle)
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 12,
+                  ),
                   children: [
                     _buildDrawerItem(
                       icon: Icons.dashboard_rounded,
@@ -1199,7 +1247,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ],
                 ),
               ),
-              
+
               // 3. Bottom: Environment dropdown + Red Logout option
               Container(
                 padding: const EdgeInsets.all(20),
@@ -1229,14 +1277,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E2631),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _activeEnvironment,
                           dropdownColor: const Color(0xFF1E2631),
                           isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white54),
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white54,
+                          ),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -1250,27 +1303,35 @@ class _DashboardScreenState extends State<DashboardScreen>
                               });
                             }
                           },
-                          items: <String>['CPECH DEMO', '4EM DEMO'].map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: value == 'CPECH DEMO' ? const Color(0xFF0072FF) : const Color(0xFF8A2387),
-                                    ),
-                                    child: const Icon(Icons.school, size: 10, color: Colors.white),
+                          items: <String>['CPECH DEMO', '4EM DEMO']
+                              .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: value == 'CPECH DEMO'
+                                              ? const Color(0xFF0072FF)
+                                              : const Color(0xFF8A2387),
+                                        ),
+                                        child: const Icon(
+                                          Icons.school,
+                                          size: 10,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(value),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(value),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              })
+                              .toList(),
                         ),
                       ),
                     ),
@@ -1283,12 +1344,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 14,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE94057).withValues(alpha: 0.08),
+                          color: const Color(
+                            0xFFE94057,
+                          ).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFFE94057).withValues(alpha: 0.25),
+                            color: const Color(
+                              0xFFE94057,
+                            ).withValues(alpha: 0.25),
                           ),
                         ),
                         child: const Row(
@@ -1331,10 +1399,14 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFF38B6FF).withValues(alpha: 0.08) : Colors.transparent,
+        color: selected
+            ? const Color(0xFF38B6FF).withValues(alpha: 0.08)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: selected ? const Color(0xFF38B6FF).withValues(alpha: 0.15) : Colors.transparent,
+          color: selected
+              ? const Color(0xFF38B6FF).withValues(alpha: 0.15)
+              : Colors.transparent,
         ),
       ),
       child: ListTile(
@@ -1352,9 +1424,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
         onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -1395,31 +1465,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildTitleAndControls(bool isDesktop) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth;
-        return maxWidth >= 700
-            ? SizedBox(
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildTitile(isDesktop),
-                    _buildViewSwitcher(isDesktop),
-                  ],
-                ),
-              )
-            : SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTitile(isDesktop),
-                    _buildViewSwitcher(isDesktop),
-                  ],
-                ),
-              );
-      },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [_buildTitile(isDesktop), _buildViewSwitcher(isDesktop)],
     );
   }
 
@@ -1496,15 +1544,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                       size: 16,
                       color: isGridView ? Colors.white : Colors.white38,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Cards',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isGridView ? Colors.white : Colors.white38,
+                    if (isDesktop) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        'Cards',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: isGridView ? Colors.white : Colors.white38,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -1537,15 +1587,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                       size: 16,
                       color: !isGridView ? Colors.white : Colors.white38,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'List',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: !isGridView ? Colors.white : Colors.white38,
+                    if (isDesktop) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        'List',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: !isGridView ? Colors.white : Colors.white38,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
