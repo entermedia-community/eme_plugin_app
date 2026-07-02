@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/course.dart';
+import '../screens/rehearse_screen.dart';
 
 class CourseCard extends StatefulWidget {
   final Course course;
@@ -303,7 +304,14 @@ class _CourseCardState extends State<CourseCard>
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RehearseScreen(course: widget.course),
+                        ),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white70,
                       side: BorderSide(
@@ -741,7 +749,14 @@ class _CourseCardState extends State<CourseCard>
               child: SizedBox(
                 height: 38,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RehearseScreen(course: widget.course),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1E2631),
                     foregroundColor: const Color(0xFF38B6FF),
