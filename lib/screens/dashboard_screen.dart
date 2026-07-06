@@ -124,6 +124,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                           : isGridView
                           ? _buildCourseGrid(isDesktop)
                           : _buildCourseList(isDesktop),
+
+                      const SizedBox(height: 40),
+                      const Center(
+                        child: Text(
+                          'Powered by eME.world',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white30,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -411,43 +423,67 @@ class _DashboardScreenState extends State<DashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF38B6FF,
-                            ).withValues(alpha: 0.2),
-                            blurRadius: 15,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: const Image(image: AssetImage('assets/logo.png')),
-                    ),
                     const SizedBox(height: 16),
-                    Text(
-                      widget.username.isNotEmpty
-                          ? widget.username.split('@')[0]
-                          : 'User',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.username.isNotEmpty
-                          ? widget.username
-                          : 'user@emeworld.com',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF90A4AE),
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFFE94057,
+                                ).withValues(alpha: 0.2),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.username.isNotEmpty
+                                  ? widget.username[0].toUpperCase()
+                                  : 'U',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.username.isNotEmpty
+                                  ? widget.username.split('@')[0]
+                                  : 'User',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.username.isNotEmpty
+                                  ? widget.username
+                                  : 'user@emeworld.com',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF90A4AE),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -638,6 +674,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Text(
+                        'Powered by eME.world',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white30,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
