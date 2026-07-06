@@ -308,7 +308,8 @@ class _CourseCardState extends State<CourseCard>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RehearseScreen(course: widget.course),
+                          builder: (context) =>
+                              RehearseScreen(course: widget.course),
                         ),
                       );
                     },
@@ -753,7 +754,8 @@ class _CourseCardState extends State<CourseCard>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RehearseScreen(course: widget.course),
+                        builder: (context) =>
+                            RehearseScreen(course: widget.course),
                       ),
                     );
                   },

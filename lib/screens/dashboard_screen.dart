@@ -122,8 +122,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                       filteredCourses.isEmpty
                           ? _buildEmptyState()
                           : isGridView
-                              ? _buildCourseGrid(isDesktop)
-                              : _buildCourseList(isDesktop),
+                          ? _buildCourseGrid(isDesktop)
+                          : _buildCourseList(isDesktop),
                     ],
                   ),
                 ),
@@ -166,28 +166,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                 height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE94057), Color(0xFFF27121)],
-                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFE94057).withValues(alpha: 0.15),
-                      blurRadius: 8,
-                      spreadRadius: 1,
+                      color: const Color(0xFF38B6FF).withValues(alpha: 0.2),
+                      blurRadius: 15,
+                      spreadRadius: 2,
                     ),
                   ],
                 ),
                 child: Center(
-                  child: Text(
-                    widget.username.isNotEmpty
-                        ? widget.username[0].toUpperCase()
-                        : 'U',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: const Image(image: AssetImage('assets/logo.png')),
                 ),
               ),
             ],
@@ -428,31 +416,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                       height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE94057), Color(0xFFF27121)],
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
-                              0xFFE94057,
+                              0xFF38B6FF,
                             ).withValues(alpha: 0.2),
-                            blurRadius: 12,
+                            blurRadius: 15,
                             spreadRadius: 2,
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Text(
-                          widget.username.isNotEmpty
-                              ? widget.username[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      child: const Image(image: AssetImage('assets/logo.png')),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -759,30 +733,32 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildTitile(bool isDesktop) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      //align left
-      children: [
-        Text(
-          'Dashboard',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        //align left
+        children: [
+          Text(
+            'Dashboard',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.4),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.0,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Academic Catalog',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.5,
+          const SizedBox(height: 4),
+          const Text(
+            'Academic Catalog',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -985,18 +961,19 @@ class _DashboardScreenState extends State<DashboardScreen>
               });
             }
           },
-          items: <String>[
-            'All Subjects',
-            'Math',
-            'Science',
-            'Language',
-            'History',
-          ].map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
+          items:
+              <String>[
+                'All Subjects',
+                'Math',
+                'Science',
+                'Language',
+                'History',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
         ),
       ),
     );

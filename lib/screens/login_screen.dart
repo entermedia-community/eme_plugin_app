@@ -151,35 +151,25 @@ class _LoginScreenState extends State<LoginScreen>
                                       height: 64,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFF38B6FF),
-                                            Color(0xFF8A2387),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                         boxShadow: [
                                           BoxShadow(
                                             color: const Color(
                                               0xFF38B6FF,
-                                            ).withValues(alpha: 0.3),
+                                            ).withValues(alpha: 0.2),
                                             blurRadius: 15,
                                             spreadRadius: 2,
                                           ),
                                         ],
                                       ),
-                                      child: const Icon(
-                                        Icons.vpn_key_rounded,
-                                        color: Colors.white,
-                                        size: 32,
+                                      child: const Image(
+                                        image: AssetImage('assets/logo.png'),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 24),
                                   // Title
                                   const Text(
-                                    'eME World',
+                                    'TestU Labs',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 28,
@@ -451,6 +441,18 @@ class _LoginScreenState extends State<LoginScreen>
                                         ),
                                       ),
                                     ],
+                                  ),
+
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    textAlign: TextAlign.center,
+                                    'Powered by eme.world',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
