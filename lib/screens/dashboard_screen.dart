@@ -128,7 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const SizedBox(height: 40),
                       const Center(
                         child: Text(
-                          'Powered by eME.world',
+                          'Powered by eMe.world',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.white30,
@@ -680,7 +680,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     const SizedBox(height: 20),
                     const Center(
                       child: Text(
-                        'Powered by eME.world',
+                        'Powered by eMe.world',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.white30,

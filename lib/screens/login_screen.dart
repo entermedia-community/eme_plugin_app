@@ -446,7 +446,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   const SizedBox(height: 24),
                                   Text(
                                     textAlign: TextAlign.center,
-                                    'Powered by eme.world',
+                                    'Powered by eMe.world',
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.white.withValues(
