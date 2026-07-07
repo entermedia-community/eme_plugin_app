@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testu_cl/widgets/topics_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/topic.dart';
 
@@ -336,103 +337,70 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildOverviewCard(double averageProgress, double averageScore) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.06),
-          width: 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'OVERVIEW',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF38B6FF),
+            letterSpacing: 1.5,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF161C24).withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.06),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const Text(
+                'Preparation Plan',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
                 children: [
-                  const Text(
-                    'OVERALL STUDY METRICS',
-                    style: TextStyle(
-                      color: Color(0xFF38B6FF),
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                  Expanded(
+                    child: _buildMetricCol(
+                      label: 'Average Progress',
+                      value: '${(averageProgress * 100).toInt()}%',
+                      icon: Icons.donut_large_rounded,
+                      color: const Color(0xFF38B6FF),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Preparation Plan',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                  Expanded(
+                    child: _buildMetricCol(
+                      label: 'Test Performance',
+                      value: '${(averageScore * 100).toInt()}% Avg',
+                      icon: Icons.stars_rounded,
+                      color: const Color(0xFFE94057),
                     ),
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.04),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.emoji_events_rounded,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Rank: Elite',
-                      style: TextStyle(
-                        color: Colors.amber,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCol(
-                  label: 'Average Progress',
-                  value: '${(averageProgress * 100).toInt()}%',
-                  icon: Icons.donut_large_rounded,
-                  color: const Color(0xFF38B6FF),
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
-              Expanded(
-                child: _buildMetricCol(
-                  label: 'Test Performance',
-                  value: '${(averageScore * 100).toInt()}% Avg',
-                  icon: Icons.stars_rounded,
-                  color: const Color(0xFFE94057),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -715,13 +683,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                     ),
                     const SizedBox(height: 40),
-                    const Center(
-                      child: Text(
-                        'Powered by eMe.world',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white30,
-                          letterSpacing: 0.5,
+                    Center(
+                      child: InkWell(
+                        onTap: () async {
+                          final url = Uri.parse('https://eme.world');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            debugPrint('Could not launch $url');
+                          }
+                        },
+                        child: Text(
+                          'Powered by eMe.world',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white30,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ),
