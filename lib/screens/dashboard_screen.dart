@@ -3,6 +3,7 @@ import 'package:testu_cl/widgets/topics_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/topic.dart';
+import '../utils/language_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -39,70 +40,75 @@ class _DashboardScreenState extends State<DashboardScreen>
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 900;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: _buildDrawer(),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Sleek Modern Header
-              _buildHeader(context, isDesktop),
-
-              // 2. Main Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 40 : 20,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Overall metrics overview card
-                      _buildOverviewCard(overallProgress, overallAverageScore),
-                      const SizedBox(height: 32),
-
-                      // Section Title
-                      const Text(
-                        'TOPICS',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF38B6FF),
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Topics List
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: mockTopics.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          return TopicsCard(topic: mockTopics[index]);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+    return ValueListenableBuilder<String>(
+      valueListenable: LanguageHelper.languageNotifier,
+      builder: (context, currentLanguage, _) {
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: _buildDrawer(),
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
+                stops: [0.0, 0.5, 1.0],
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Sleek Modern Header
+                  _buildHeader(context, isDesktop),
+
+                  // 2. Main Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 40 : 20,
+                        vertical: 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Overall metrics overview card
+                          _buildOverviewCard(overallProgress, overallAverageScore),
+                          const SizedBox(height: 32),
+
+                          // Section Title
+                          Text(
+                            LanguageHelper.translate('topics'),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF38B6FF),
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Topics List
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: mockTopics.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              return TopicsCard(topic: mockTopics[index]);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -206,9 +212,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Notifications',
-                          style: TextStyle(
+                        Text(
+                          LanguageHelper.translate('notifications'),
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             fontSize: 14,
@@ -225,9 +231,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text(
-                            '3 New',
-                            style: TextStyle(
+                          child: Text(
+                            LanguageHelper.translate('new_tutorials'),
+                            style: const TextStyle(
                               color: Color(0xFFE94057),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -241,18 +247,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                   PopupMenuItem<int>(
                     value: 0,
                     child: _buildNotificationItem(
-                      title: 'New Tutorial Available',
-                      body: 'Mathematical Competence 2 has been unlocked.',
-                      time: '5m ago',
+                      title: LanguageHelper.translate('new_tutorial_title'),
+                      body: LanguageHelper.translate('new_tutorial_body'),
+                      time: LanguageHelper.translate('time_5m'),
                       isNew: true,
                     ),
                   ),
                   PopupMenuItem<int>(
                     value: 1,
                     child: _buildNotificationItem(
-                      title: 'Achievement Unlocked',
-                      body: 'You completed 3 subject diagnostic tests.',
-                      time: '2h ago',
+                      title: LanguageHelper.translate('achievement_title'),
+                      body: LanguageHelper.translate('achievement_body'),
+                      time: LanguageHelper.translate('time_2h'),
                       isNew: true,
                     ),
                   ),
@@ -340,9 +346,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'PROFILE',
-          style: TextStyle(
+        Text(
+          LanguageHelper.translate('profile'),
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
             color: Color(0xFF38B6FF),
@@ -376,7 +382,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 children: [
                   Expanded(
                     child: _buildMetricCol(
-                      label: 'Average Progress',
+                      label: LanguageHelper.translate('average_progress'),
                       value: '${(averageProgress * 100).toInt()}%',
                       icon: Icons.donut_large_rounded,
                       color: const Color(0xFF38B6FF),
@@ -389,8 +395,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   Expanded(
                     child: _buildMetricCol(
-                      label: 'Test Performance',
-                      value: '${(averageScore * 100).toInt()}% Avg',
+                      label: LanguageHelper.translate('test_performance'),
+                      value: '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
                       icon: Icons.stars_rounded,
                       color: const Color(0xFFE94057),
                     ),
@@ -527,9 +533,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              const Text(
-                                'Level 10',
-                                style: TextStyle(
+                              Text(
+                                LanguageHelper.translate('level'),
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF38B6FF),
                                   fontWeight: FontWeight.w600,
@@ -554,7 +560,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     children: [
                       _buildDrawerItem(
                         icon: Icons.dashboard_rounded,
-                        title: 'Catalog / Dashboard',
+                        title: LanguageHelper.translate('catalog_dashboard'),
                         selected: selectedTab == 'Catalog',
                         onTap: () {
                           Navigator.pop(context);
@@ -578,9 +584,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'WORKSPACE',
-                      style: TextStyle(
+                    Text(
+                      LanguageHelper.translate('workspace'),
+                      style: const TextStyle(
                         color: Colors.white38,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -653,6 +659,70 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                     const SizedBox(height: 20),
 
+                    Text(
+                      LanguageHelper.translate('language'),
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E2631),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: LanguageHelper.currentLanguage,
+                          dropdownColor: const Color(0xFF1E2631),
+                          isExpanded: true,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white54,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            color: Colors.white70,
+                          ),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                LanguageHelper.currentLanguage = newValue;
+                              });
+                            }
+                          },
+                          items: <String>['English', 'Español']
+                              .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        value == 'English' ? '🇺🇸' : '🇪🇸',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(value),
+                                    ],
+                                  ),
+                                );
+                              })
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     InkWell(
                       onTap: () {
                         Navigator.pop(context);
@@ -663,15 +733,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
+                          children: [
+                            const Icon(
                               Icons.logout_rounded,
                               color: Color(0xFFE94057),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Text(
-                              'LOGOUT',
-                              style: TextStyle(
+                              LanguageHelper.translate('logout'),
+                              style: const TextStyle(
                                 color: Color(0xFFE94057),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -682,7 +752,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     Center(
                       child: InkWell(
                         onTap: () async {
@@ -697,8 +767,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                           }
                         },
                         child: Text(
-                          'Powered by eMe.world',
-                          style: TextStyle(
+                          LanguageHelper.translate('powered_by'),
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white30,
                             letterSpacing: 0.5,

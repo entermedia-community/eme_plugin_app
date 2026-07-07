@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 import '../models/topic.dart';
 import '../widgets/tutorial_card.dart';
+import '../utils/language_helper.dart';
 
 class TopicTutorialsScreen extends StatelessWidget {
   final Topic topic;
@@ -14,75 +15,80 @@ class TopicTutorialsScreen extends StatelessWidget {
     final isDesktop = size.width > 900;
     final mainColor = const Color(0xFF38B6FF);
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header Row with Back Button
-              _buildHeader(context, mainColor),
-
-              // Scrollable list of tutorials
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 40 : 20,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Topic Overview Details
-                      _buildTopicBanner(context, mainColor),
-                      const SizedBox(height: 32),
-
-                      // Section Title
-                      Text(
-                        'Tutorials',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: mainColor,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // List of tutorials
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: topic.tutorial.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final tutorial = topic.tutorial[index];
-                          // We render the TutorialCard widget
-                          return TutorialCard(
-                            tutorial: tutorial,
-                            isListMode: true,
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 40),
-                    ],
-                  ),
-                ),
+    return ValueListenableBuilder<String>(
+      valueListenable: LanguageHelper.languageNotifier,
+      builder: (context, currentLanguage, _) {
+        return Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
+                stops: [0.0, 0.5, 1.0],
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header Row with Back Button
+                  _buildHeader(context, mainColor),
+
+                  // Scrollable list of tutorials
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 40 : 20,
+                        vertical: 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Topic Overview Details
+                          _buildTopicBanner(context, mainColor),
+                          const SizedBox(height: 32),
+
+                          // Section Title
+                          Text(
+                            LanguageHelper.translate('tutorials'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: mainColor,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // List of tutorials
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: topic.tutorial.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              final tutorial = topic.tutorial[index];
+                              // We render the TutorialCard widget
+                              return TutorialCard(
+                                tutorial: tutorial,
+                                isListMode: true,
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -188,9 +194,9 @@ class TopicTutorialsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'TOTAL TUTORIALS',
-                      style: TextStyle(
+                    Text(
+                      LanguageHelper.translate('total_tutorials'),
+                      style: const TextStyle(
                         color: Colors.white30,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -198,7 +204,10 @@ class TopicTutorialsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${topic.tutorial.length} Active Tutorials',
+                      LanguageHelper.translate(
+                        'active_tutorials',
+                        placeholders: {'count': topic.tutorial.length.toString()},
+                      ),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -218,9 +227,9 @@ class TopicTutorialsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'TESTS PERFORMANCE',
-                      style: TextStyle(
+                    Text(
+                      LanguageHelper.translate('tests_performance'),
+                      style: const TextStyle(
                         color: Colors.white30,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -228,7 +237,10 @@ class TopicTutorialsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${(topic.progress).toInt()}% Average Score',
+                      LanguageHelper.translate(
+                        'average_score',
+                        placeholders: {'progress': (topic.progress).toInt().toString()},
+                      ),
                       style: TextStyle(
                         color: mainColor,
                         fontSize: 14,
@@ -246,16 +258,19 @@ class TopicTutorialsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Overall Topic Progress',
-                style: TextStyle(
+              Text(
+                LanguageHelper.translate('overall_topic_progress'),
+                style: const TextStyle(
                   color: Colors.white54,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
-                '${(topic.progress * 100).toInt()}% Finished',
+                LanguageHelper.translate(
+                  'finished',
+                  placeholders: {'percent': (topic.progress * 100).toInt().toString()},
+                ),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 12,
