@@ -39,7 +39,12 @@ final List<Topic> mockTopics = [
     validityPeriod: 30,
     expiresIn: 7,
     lastUpdated: DateTime.now(),
-    tutorial: [mockTutorials[1], mockTutorials[2], mockTutorials[3]],
+    tutorial: [
+      mockTutorials[0],
+      mockTutorials[1],
+      mockTutorials[2],
+      mockTutorials[3],
+    ],
   ),
   Topic(
     title: 'Derechos Humanos DDHH en MinSUR',
@@ -51,10 +56,11 @@ final List<Topic> mockTopics = [
     expiresIn: 29,
     lastUpdated: DateTime.now(),
     tutorial: [
-      mockTutorials[0],
-      mockTutorials[1],
-      mockTutorials[2],
-      mockTutorials[3],
+      mockTutorials[4],
+      mockTutorials[5],
+      mockTutorials[6],
+      mockTutorials[7],
     ],
   ),
 ];
+
