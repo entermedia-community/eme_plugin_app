@@ -341,7 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'OVERVIEW',
+          'PROFILE',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -364,7 +364,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Preparation Plan',
+                'John Smith',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
