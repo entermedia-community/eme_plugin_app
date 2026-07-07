@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/course.dart';
 import '../models/topic.dart';
 import 'topic_courses_screen.dart';
 
@@ -92,7 +91,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                             const SizedBox(height: 16),
                         itemBuilder: (context, index) {
                           return _buildTopicCard(
-                              context, mockTopics[index], isDesktop);
+                            context,
+                            mockTopics[index],
+                            isDesktop,
+                          );
                         },
                       ),
 
@@ -275,9 +277,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withOpacity(0.04),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.08),
-                  ),
+                  border: Border.all(color: Colors.white.withOpacity(0.08)),
                 ),
                 child: const Center(
                   child: Icon(
@@ -352,10 +352,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       decoration: BoxDecoration(
         color: const Color(0xFF161C24).withOpacity(0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.06),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,14 +384,21 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.04),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: const [
-                    Icon(Icons.emoji_events_rounded, color: Colors.amber, size: 16),
+                    Icon(
+                      Icons.emoji_events_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
                     SizedBox(width: 4),
                     Text(
                       'Rank: Elite',
@@ -537,11 +541,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ],
                 ),
-                child: Icon(
-                  topic.icon,
-                  color: Colors.white,
-                  size: 30,
-                ),
+                child: Icon(topic.icon, color: Colors.white, size: 30),
               ),
               const SizedBox(width: 16),
 
@@ -567,7 +567,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                     ),
                     const SizedBox(height: 10),
-                    
+
                     // Progress Bar
                     Row(
                       children: [
@@ -578,7 +578,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                               value: topic.progress,
                               minHeight: 5,
                               backgroundColor: Colors.white.withOpacity(0.06),
-                              valueColor: AlwaysStoppedAnimation<Color>(mainColor),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                mainColor,
+                              ),
                             ),
                           ),
                         ),
@@ -597,7 +599,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                     // Test performance stat
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: mainColor.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(6),
@@ -739,7 +744,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
                   child: Column(
                     children: [
                       _buildDrawerItem(
@@ -811,37 +819,38 @@ class _DashboardScreenState extends State<DashboardScreen>
                           },
                           items: <String>['CPECH DEMO', '4EM DEMO']
                               .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: value == 'CPECH DEMO'
-                                          ? const Color(0xFF0072FF)
-                                          : const Color(0xFF8A2387),
-                                    ),
-                                    child: const Icon(
-                                      Icons.school,
-                                      size: 10,
-                                      color: Colors.white,
-                                    ),
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: value == 'CPECH DEMO'
+                                              ? const Color(0xFF0072FF)
+                                              : const Color(0xFF8A2387),
+                                        ),
+                                        child: const Icon(
+                                          Icons.school,
+                                          size: 10,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(value),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(value),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              })
+                              .toList(),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     InkWell(
                       onTap: () {
                         Navigator.pop(context);
@@ -853,7 +862,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.logout_rounded, color: Color(0xFFE94057)),
+                            Icon(
+                              Icons.logout_rounded,
+                              color: Color(0xFFE94057),
+                            ),
                             SizedBox(width: 10),
                             Text(
                               'LOGOUT SESSION',
