@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
-import '../widgets/course_card.dart';
+import '../models/topic.dart';
+import 'topic_courses_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -16,57 +17,19 @@ class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _activeEnvironment = 'CPECH DEMO';
-  bool isGridView = true;
   String selectedTab = 'Catalog';
-  String selectedFilter1 = 'All Subjects';
-  String selectedFilter2 = 'All States';
-  String searchQuery = '';
-  late TabController _tabController;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
-    _tabController.addListener(() {
-      setState(() {
-        if (_tabController.index == 0) selectedTab = 'Wall';
-        if (_tabController.index == 1) selectedTab = 'Catalog';
-        if (_tabController.index == 2) selectedTab = 'Achievements';
-      });
-    });
+  // Compute average stats across all topics
+  double get overallProgress {
+    if (mockTopics.isEmpty) return 0.0;
+    return mockTopics.map((t) => t.progress).reduce((a, b) => a + b) /
+        mockTopics.length;
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  List<Course> get filteredCourses {
-    return mockCourses.where((course) {
-      final matchesSearch =
-          course.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          course.category.toLowerCase().contains(searchQuery.toLowerCase());
-
-      final matchesCategory =
-          selectedFilter1 == 'All Subjects' ||
-          (selectedFilter1 == 'Math' &&
-              course.category.contains('MATEMÁTICA')) ||
-          (selectedFilter1 == 'Science' &&
-              course.category.contains('CIENCIAS')) ||
-          (selectedFilter1 == 'Language' &&
-              course.category.contains('LENGUAJE')) ||
-          (selectedFilter1 == 'History' &&
-              course.category.contains('HISTORIA'));
-
-      final matchesStatus =
-          selectedFilter2 == 'All States' ||
-          (selectedFilter2 == 'Critical' && course.status == 'Critical') ||
-          (selectedFilter2 == 'Warning' && course.status == 'Warning') ||
-          (selectedFilter2 == 'On Track' && course.status == 'On Track');
-
-      return matchesSearch && matchesCategory && matchesStatus;
-    }).toList();
+  double get overallAverageScore {
+    if (mockTopics.isEmpty) return 0.0;
+    return mockTopics.map((t) => t.averageScore).reduce((a, b) => a + b) /
+        mockTopics.length;
   }
 
   @override
@@ -94,9 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               // 1. Sleek Modern Header
               _buildHeader(context, isDesktop),
 
-              // 2. Navigation Tabs
-              _buildTabBar(theme),
-
+              // 2. Main Content
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
@@ -106,24 +67,34 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Page title & controls row
-                      _buildTitleAndControls(isDesktop),
-                      const SizedBox(height: 20),
+                      // Overall metrics overview card
+                      _buildOverviewCard(overallProgress, overallAverageScore),
+                      const SizedBox(height: 32),
 
-                      // Filters section
-                      _buildFiltersRow(isDesktop),
-                      const SizedBox(height: 24),
+                      // Section Title
+                      const Text(
+                        'PAES SUBJECT TOPICS',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF38B6FF),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-                      // Competency Level Indicator header
-                      _buildCompetencyOverviewHeader(),
-                      const SizedBox(height: 20),
-
-                      // Course Grid/List dynamic content
-                      filteredCourses.isEmpty
-                          ? _buildEmptyState()
-                          : isGridView
-                          ? _buildCourseGrid(isDesktop)
-                          : _buildCourseList(isDesktop),
+                      // Topics List
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: mockTopics.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          return _buildTopicCard(
+                              context, mockTopics[index], isDesktop);
+                        },
+                      ),
 
                       const SizedBox(height: 40),
                       const Center(
@@ -154,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withValues(alpha: 0.4),
+        color: const Color(0xFF161C24).withOpacity(0.4),
         border: const Border(
           bottom: BorderSide(color: Color(0xFF263238), width: 1),
         ),
@@ -162,7 +133,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left side: Menu + Logo/Avatar
           Row(
             children: [
               IconButton(
@@ -172,7 +142,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 },
               ),
               const SizedBox(width: 8),
-              // Profile Thumbnail Only
               Container(
                 width: 32,
                 height: 32,
@@ -180,32 +149,30 @@ class _DashboardScreenState extends State<DashboardScreen>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF38B6FF).withValues(alpha: 0.2),
+                      color: const Color(0xFF38B6FF).withOpacity(0.2),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
                   ],
                 ),
-                child: Center(
-                  child: const Image(image: AssetImage('assets/logo.png')),
+                child: const Center(
+                  child: Image(image: AssetImage('assets/logo.png')),
                 ),
               ),
             ],
           ),
 
-          // Right side: Interactive Notifications + Analytics Status
           Row(
             children: [
-              // Notifications Dropdown
               PopupMenuButton<int>(
                 offset: const Offset(0, 48),
                 color: const Color(0xFF161C24),
                 elevation: 8,
-                shadowColor: Colors.black.withValues(alpha: 0.5),
+                shadowColor: Colors.black.withOpacity(0.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.white.withOpacity(0.08),
                     width: 1.5,
                   ),
                 ),
@@ -217,9 +184,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       height: 38,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.04),
+                        color: Colors.white.withOpacity(0.04),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
+                          color: Colors.white.withOpacity(0.08),
                         ),
                       ),
                       child: const Center(
@@ -230,7 +197,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       ),
                     ),
-                    // Live red dot badge indicating new notifications
                     Positioned(
                       top: 0,
                       right: 0,
@@ -245,9 +211,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ],
                 ),
-                onSelected: (int val) {
-                  // Interactive notification action (e.g. click item)
-                },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
                   PopupMenuItem<int>(
                     value: -1,
@@ -269,9 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFFE94057,
-                            ).withValues(alpha: 0.15),
+                            color: const Color(0xFFE94057).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
@@ -305,15 +266,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       isNew: true,
                     ),
                   ),
-                  PopupMenuItem<int>(
-                    value: 2,
-                    child: _buildNotificationItem(
-                      title: 'Forgetting Threshold',
-                      body: 'Physics effectiveness has dropped to Moderate.',
-                      time: '1d ago',
-                      isNew: false,
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(width: 10),
@@ -322,9 +274,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 height: 38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.04),
+                  color: Colors.white.withOpacity(0.04),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.white.withOpacity(0.08),
                   ),
                 ),
                 child: const Center(
@@ -394,6 +346,304 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  Widget _buildOverviewCard(double averageProgress, double averageScore) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF161C24).withOpacity(0.6),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.06),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'OVERALL STUDY METRICS',
+                    style: TextStyle(
+                      color: Color(0xFF38B6FF),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'PAES Preparation Plan',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.04),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.emoji_events_rounded, color: Colors.amber, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'Rank: Elite',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: _buildMetricCol(
+                  label: 'Average Progress',
+                  value: '${(averageProgress * 100).toInt()}%',
+                  icon: Icons.donut_large_rounded,
+                  color: const Color(0xFF38B6FF),
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.white.withOpacity(0.08),
+              ),
+              Expanded(
+                child: _buildMetricCol(
+                  label: 'Test Performance',
+                  value: '${(averageScore * 100).toInt()}% Avg',
+                  icon: Icons.stars_rounded,
+                  color: const Color(0xFFE94057),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricCol({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.1),
+          ),
+          child: Icon(icon, color: color, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white30,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopicCard(BuildContext context, Topic topic, bool isDesktop) {
+    final mainColor = topic.gradientColors.isNotEmpty
+        ? topic.gradientColors.first
+        : const Color(0xFF38B6FF);
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TopicCoursesScreen(topic: topic),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        splashColor: mainColor.withOpacity(0.1),
+        highlightColor: mainColor.withOpacity(0.05),
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF161C24).withOpacity(0.55),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.06),
+              width: 1.2,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Thumbnail on the left
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: topic.gradientColors,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: mainColor.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  topic.icon,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // Title, Subtitle, Progress and Stat
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      topic.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "${topic.courses.length} courses in topic",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white38,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    
+                    // Progress Bar
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: topic.progress,
+                              minHeight: 5,
+                              backgroundColor: Colors.white.withOpacity(0.06),
+                              valueColor: AlwaysStoppedAnimation<Color>(mainColor),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "${(topic.progress * 100).toInt()}% completed",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white60,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Test performance stat
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: mainColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: mainColor.withOpacity(0.15),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.analytics_outlined,
+                            size: 12,
+                            color: mainColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Test Performance: ${(topic.averageScore * 100).toInt()}% score avg",
+                            style: TextStyle(
+                              color: mainColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Chevron right indicating click action
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white24,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: const Color(0xFF0F1319),
@@ -409,13 +659,12 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Drawer Header (Profile Info relocated here)
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: Colors.white.withOpacity(0.08),
                       width: 1,
                     ),
                   ),
@@ -436,9 +685,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(
-                                  0xFFE94057,
-                                ).withValues(alpha: 0.2),
+                                color: const Color(0xFFE94057).withOpacity(0.2),
                                 blurRadius: 12,
                                 spreadRadius: 2,
                               ),
@@ -450,38 +697,39 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   ? widget.username[0].toUpperCase()
                                   : 'U',
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.username.isNotEmpty
-                                  ? widget.username.split('@')[0]
-                                  : 'User',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.username,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.username.isNotEmpty
-                                  ? widget.username
-                                  : 'user@emeworld.com',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF90A4AE),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Level 10 PAES Elite',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF38B6FF),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -489,69 +737,30 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              // 2. Navigation Items (Middle)
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 12,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Column(
+                    children: [
+                      _buildDrawerItem(
+                        icon: Icons.dashboard_rounded,
+                        title: 'Catalog / Dashboard',
+                        selected: selectedTab == 'Catalog',
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
-                  children: [
-                    _buildDrawerItem(
-                      icon: Icons.dashboard_rounded,
-                      title: 'Catalog / Dashboard',
-                      selected: selectedTab == 'Catalog',
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          selectedTab = 'Catalog';
-                          _tabController.index = 1;
-                        });
-                      },
-                    ),
-                    _buildDrawerItem(
-                      icon: Icons.bubble_chart_rounded,
-                      title: 'Wall',
-                      selected: selectedTab == 'Wall',
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          selectedTab = 'Wall';
-                          _tabController.index = 0;
-                        });
-                      },
-                    ),
-                    _buildDrawerItem(
-                      icon: Icons.emoji_events_rounded,
-                      title: 'Achievements',
-                      selected: selectedTab == 'Achievements',
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          selectedTab = 'Achievements';
-                          _tabController.index = 2;
-                        });
-                      },
-                    ),
-                    _buildDrawerItem(
-                      icon: Icons.analytics_outlined,
-                      title: 'Performance Analytics',
-                      selected: false,
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
                 ),
               ),
 
-              // 3. Bottom: Environment dropdown + Red Logout option
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: Colors.white.withOpacity(0.08),
                       width: 1,
                     ),
                   ),
@@ -575,7 +784,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         color: const Color(0xFF1E2631),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: Colors.white.withOpacity(0.05),
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
@@ -602,89 +811,60 @@ class _DashboardScreenState extends State<DashboardScreen>
                           },
                           items: <String>['CPECH DEMO', '4EM DEMO']
                               .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: value == 'CPECH DEMO'
-                                              ? const Color(0xFF0072FF)
-                                              : const Color(0xFF8A2387),
-                                        ),
-                                        child: const Icon(
-                                          Icons.school,
-                                          size: 10,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(value),
-                                    ],
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: value == 'CPECH DEMO'
+                                          ? const Color(0xFF0072FF)
+                                          : const Color(0xFF8A2387),
+                                    ),
+                                    child: const Icon(
+                                      Icons.school,
+                                      size: 10,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                );
-                              })
-                              .toList(),
+                                  const SizedBox(width: 8),
+                                  Text(value),
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Logout Option
+                    
                     InkWell(
                       onTap: () {
                         Navigator.pop(context);
                         if (widget.onLogout != null) widget.onLogout!();
                       },
                       borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(
-                            0xFFE94057,
-                          ).withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(
-                              0xFFE94057,
-                            ).withValues(alpha: 0.25),
-                          ),
-                        ),
-                        child: const Row(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.logout_rounded,
-                              size: 16,
-                              color: Color(0xFFE94057),
-                            ),
-                            SizedBox(width: 8),
+                          children: const [
+                            Icon(Icons.logout_rounded, color: Color(0xFFE94057)),
+                            SizedBox(width: 10),
                             Text(
-                              'Log Out',
+                              'LOGOUT SESSION',
                               style: TextStyle(
                                 color: Color(0xFFE94057),
-                                fontWeight: FontWeight.bold,
                                 fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Center(
-                      child: Text(
-                        'Powered by eMe.world',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white30,
-                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
@@ -708,12 +888,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: selected
-            ? const Color(0xFF38B6FF).withValues(alpha: 0.08)
+            ? const Color(0xFF38B6FF).withOpacity(0.08)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: selected
-              ? const Color(0xFF38B6FF).withValues(alpha: 0.15)
+              ? const Color(0xFF38B6FF).withOpacity(0.15)
               : Colors.transparent,
         ),
       ),
@@ -732,455 +912,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
         onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-    );
-  }
-
-  Widget _buildTabBar(ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withValues(alpha: 0.2),
-        border: const Border(
-          bottom: BorderSide(color: Color(0xFF263238), width: 1),
-        ),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        dividerColor: Colors.transparent,
-        indicatorColor: const Color(0xFF38B6FF),
-        indicatorWeight: 3.0,
-        indicatorSize: TabBarIndicatorSize.label,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white38,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          letterSpacing: 0.8,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 14,
-          letterSpacing: 0.8,
-        ),
-        tabs: const [
-          Tab(text: 'WALL'),
-          Tab(text: 'CATALOG'),
-          Tab(text: 'ACHIEVEMENTS'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitleAndControls(bool isDesktop) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [_buildTitile(isDesktop), _buildViewSwitcher(isDesktop)],
-    );
-  }
-
-  Widget _buildTitile(bool isDesktop) {
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        //align left
-        children: [
-          Text(
-            'Dashboard',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.0,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Academic Catalog',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildViewSwitcher(bool isDesktop) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        height: 42,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E2631),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => setState(() => isGridView = true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isGridView
-                      ? const Color(0xFF2C394B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: isGridView
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.grid_view_rounded,
-                      size: 16,
-                      color: isGridView ? Colors.white : Colors.white38,
-                    ),
-                    if (isDesktop) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        'Cards',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isGridView ? Colors.white : Colors.white38,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => setState(() => isGridView = false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: !isGridView
-                      ? const Color(0xFF2C394B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: !isGridView
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.view_list_rounded,
-                      size: 16,
-                      color: !isGridView ? Colors.white : Colors.white38,
-                    ),
-                    if (isDesktop) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        'List',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: !isGridView ? Colors.white : Colors.white38,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFiltersRow(bool isDesktop) {
-    if (isDesktop) {
-      return Row(
-        children: [
-          Expanded(flex: 2, child: _buildSearchBar()),
-          const SizedBox(width: 16),
-          Expanded(child: _buildDropdownFilter1()),
-          const SizedBox(width: 16),
-          Expanded(child: _buildDropdownFilter2()),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildSearchBar(),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _buildDropdownFilter1()),
-              const SizedBox(width: 12),
-              Expanded(child: _buildDropdownFilter2()),
-            ],
-          ),
-        ],
-      );
-    }
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          const Icon(Icons.search_rounded, color: Colors.white38, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              onChanged: (val) {
-                setState(() {
-                  searchQuery = val;
-                });
-              },
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: const InputDecoration(
-                hintText: 'Search courses, subjects...',
-                hintStyle: TextStyle(color: Colors.white38, fontSize: 14),
-                border: InputBorder.none,
-                isDense: true,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownFilter1() {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedFilter1,
-          dropdownColor: const Color(0xFF161C24),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.white38,
-          ),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                selectedFilter1 = newValue;
-              });
-            }
-          },
-          items:
-              <String>[
-                'All Subjects',
-                'Math',
-                'Science',
-                'Language',
-                'History',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdownFilter2() {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedFilter2,
-          dropdownColor: const Color(0xFF161C24),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.white38,
-          ),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                selectedFilter2 = newValue;
-              });
-            }
-          },
-          items: <String>['All States', 'Critical', 'Warning', 'On Track']
-              .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              })
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCompetencyOverviewHeader() {
-    final criticalCount = mockCourses
-        .where((c) => c.status == 'Critical')
-        .length;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFE94057).withValues(alpha: 0.08),
-            const Color(0xFF0F1319).withValues(alpha: 0.0),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE94057).withValues(alpha: 0.12),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFE94057).withValues(alpha: 0.15),
-                ),
-                child: const Icon(
-                  Icons.warning_amber_rounded,
-                  color: Color(0xFFE94057),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Overall Competency Status',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'You have $criticalCount priority areas that need attention',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off_rounded, size: 48, color: Colors.white24),
-          SizedBox(height: 12),
-          Text(
-            'No matching courses found',
-            style: TextStyle(color: Colors.white38, fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCourseGrid(bool isDesktop) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isDesktop ? 2 : 1,
-        crossAxisSpacing: 24,
-        mainAxisSpacing: 24,
-        mainAxisExtent: 475,
-      ),
-      itemCount: filteredCourses.length,
-      itemBuilder: (context, index) {
-        return CourseCard(course: filteredCourses[index], isListMode: false);
-      },
-    );
-  }
-
-  Widget _buildCourseList(bool isDesktop) {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredCourses.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        return CourseCard(course: filteredCourses[index], isListMode: true);
-      },
     );
   }
 }

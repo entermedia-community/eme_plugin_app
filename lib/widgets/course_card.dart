@@ -423,7 +423,7 @@ class _CourseCardState extends State<CourseCard>
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 0),
                 Text(
                   widget.course.category,
                   style: const TextStyle(
