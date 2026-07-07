@@ -50,6 +50,11 @@ final List<Topic> mockTopics = [
     validityPeriod: 30,
     expiresIn: 29,
     lastUpdated: DateTime.now(),
-    tutorial: [mockTutorials[1], mockTutorials[2], mockTutorials[3]],
+    tutorial: [
+      mockTutorials[0],
+      mockTutorials[1],
+      mockTutorials[2],
+      mockTutorials[3],
+    ],
   ),
 ];
