@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Course {
+class Tutorial {
   final String title;
   final String category;
   final String status; // Critical, Warning, On Track, Excellent
@@ -12,7 +12,7 @@ class Course {
   final List<Color> gradientColors;
   final IconData icon;
 
-  const Course({
+  const Tutorial({
     required this.title,
     required this.category,
     required this.status,
@@ -27,8 +27,8 @@ class Course {
 }
 
 // Mock Data
-final List<Course> mockCourses = [
-  const Course(
+final List<Tutorial> mockTutorials = [
+  const Tutorial(
     title: 'MATHEMATICAL COMPETENCE 2 (M2)',
     category: 'PAES - MATEMÁTICA',
     status: 'Critical',
@@ -40,7 +40,7 @@ final List<Course> mockCourses = [
     gradientColors: [Color(0xFF1D2671), Color(0xFFC33764)],
     icon: Icons.calculate_rounded,
   ),
-  const Course(
+  const Tutorial(
     title: 'SCIENCE - PHYSICS (CIENCIAS - FÍSICA)',
     category: 'PAES - CIENCIAS',
     status: 'Warning',
@@ -52,7 +52,7 @@ final List<Course> mockCourses = [
     gradientColors: [Color(0xFF8A2387), Color(0xFFE94057), Color(0xFFF27121)],
     icon: Icons.waves_rounded,
   ),
-  const Course(
+  const Tutorial(
     title: 'LANGUAGE & READING (COMPRENSIÓN LECTORA)',
     category: 'PAES - LENGUAJE',
     status: 'On Track',
@@ -64,7 +64,7 @@ final List<Course> mockCourses = [
     gradientColors: [Color(0xFF11998E), Color(0xFF38EF7D)],
     icon: Icons.menu_book_rounded,
   ),
-  const Course(
+  const Tutorial(
     title: 'HISTORY & SOCIAL SCIENCES',
     category: 'PAES - HISTORIA',
     status: 'On Track',

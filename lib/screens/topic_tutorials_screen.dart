@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 import '../models/topic.dart';
-import '../widgets/course_card.dart';
+import '../widgets/tutorial_card.dart';
 
-class TopicCoursesScreen extends StatelessWidget {
+class TopicTutorialsScreen extends StatelessWidget {
   final Topic topic;
 
-  const TopicCoursesScreen({super.key, required this.topic});
+  const TopicTutorialsScreen({super.key, required this.topic});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 900;
-    final mainColor = topic.gradientColors.isNotEmpty
-        ? topic.gradientColors.first
-        : const Color(0xFF38B6FF);
+    final mainColor = const Color(0xFF38B6FF);
 
     return Scaffold(
       body: Container(
@@ -32,7 +31,7 @@ class TopicCoursesScreen extends StatelessWidget {
               // Header Row with Back Button
               _buildHeader(context, mainColor),
 
-              // Scrollable list of courses
+              // Scrollable list of tutorials
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
@@ -48,7 +47,7 @@ class TopicCoursesScreen extends StatelessWidget {
 
                       // Section Title
                       Text(
-                        'COURSES IN THIS SUBJECT',
+                        'Tutorials',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -58,17 +57,20 @@ class TopicCoursesScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // List of courses
+                      // List of tutorials
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: topic.courses.length,
+                        itemCount: topic.tutorial.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 16),
                         itemBuilder: (context, index) {
-                          final course = topic.courses[index];
-                          // We render the CourseCard widget
-                          return CourseCard(course: course, isListMode: true);
+                          final tutorial = topic.tutorial[index];
+                          // We render the TutorialCard widget
+                          return TutorialCard(
+                            tutorial: tutorial,
+                            isListMode: true,
+                          );
                         },
                       ),
 
@@ -88,7 +90,7 @@ class TopicCoursesScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withOpacity(0.4),
+        color: const Color(0xFF161C24).withValues(alpha: 0.4),
         border: const Border(
           bottom: BorderSide(color: Color(0xFF263238), width: 1),
         ),
@@ -96,18 +98,26 @@ class TopicCoursesScreen extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 20),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white70,
+              size: 20,
+            ),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
           const SizedBox(width: 8),
-          Text(
-            topic.title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Expanded(
+            child: Text(
+              topic.title,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -119,10 +129,10 @@ class TopicCoursesScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withOpacity(0.6),
+        color: const Color(0xFF161C24).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           width: 1,
         ),
       ),
@@ -131,21 +141,25 @@ class TopicCoursesScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: topic.gradientColors,
+              Padding(
+                padding: EdgeInsets.all(8),
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
-                ),
-                child: Icon(
-                  topic.icon,
-                  color: Colors.white,
-                  size: 28,
+                  child: FadeInImage.memoryNetwork(
+                    placeholder: kTransparentImage,
+                    image: topic.thumbnail,
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey,
+                        child: const Icon(Icons.error, color: Colors.white),
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -153,15 +167,6 @@ class TopicCoursesScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      topic.category,
-                      style: TextStyle(
-                        color: mainColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
                     const SizedBox(height: 4),
                     Text(
                       topic.title,
@@ -184,13 +189,21 @@ class TopicCoursesScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'TOTAL COURSES',
-                      style: TextStyle(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.bold),
+                      'TOTAL TUTORIALS',
+                      style: TextStyle(
+                        color: Colors.white30,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${topic.courses.length} Active Courses',
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      '${topic.tutorial.length} Active Tutorials',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -198,7 +211,7 @@ class TopicCoursesScreen extends StatelessWidget {
               Container(
                 width: 1,
                 height: 32,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -207,12 +220,20 @@ class TopicCoursesScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'TESTS PERFORMANCE',
-                      style: TextStyle(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white30,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${(topic.averageScore * 100).toInt()}% Average Score',
-                      style: TextStyle(color: mainColor, fontSize: 14, fontWeight: FontWeight.bold),
+                      '${(topic.progress).toInt()}% Average Score',
+                      style: TextStyle(
+                        color: mainColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -227,11 +248,19 @@ class TopicCoursesScreen extends StatelessWidget {
             children: [
               const Text(
                 'Overall Topic Progress',
-                style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               Text(
                 '${(topic.progress * 100).toInt()}% Finished',
-                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -241,7 +270,7 @@ class TopicCoursesScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: topic.progress,
               minHeight: 6,
-              backgroundColor: Colors.white.withOpacity(0.06),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
               valueColor: AlwaysStoppedAnimation<Color>(mainColor),
             ),
           ),

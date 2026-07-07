@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/course.dart';
-import '../widgets/course_card.dart';
+import '../models/tutorial.dart';
+import '../widgets/tutorial_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -15,7 +15,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _activeEnvironment = 'CPECH DEMO';
+  String _activeEnvironment = 'DEMO 1';
   bool isGridView = true;
   String selectedTab = 'Catalog';
   String selectedFilter1 = 'All Subjects';
@@ -42,28 +42,28 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  List<Course> get filteredCourses {
-    return mockCourses.where((course) {
+  List<Tutorial> get filteredTutorials {
+    return mockTutorials.where((tutorial) {
       final matchesSearch =
-          course.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          course.category.toLowerCase().contains(searchQuery.toLowerCase());
+          tutorial.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          tutorial.category.toLowerCase().contains(searchQuery.toLowerCase());
 
       final matchesCategory =
           selectedFilter1 == 'All Subjects' ||
           (selectedFilter1 == 'Math' &&
-              course.category.contains('MATEMÁTICA')) ||
+              tutorial.category.contains('MATEMÁTICA')) ||
           (selectedFilter1 == 'Science' &&
-              course.category.contains('CIENCIAS')) ||
+              tutorial.category.contains('CIENCIAS')) ||
           (selectedFilter1 == 'Language' &&
-              course.category.contains('LENGUAJE')) ||
+              tutorial.category.contains('LENGUAJE')) ||
           (selectedFilter1 == 'History' &&
-              course.category.contains('HISTORIA'));
+              tutorial.category.contains('HISTORIA'));
 
       final matchesStatus =
           selectedFilter2 == 'All States' ||
-          (selectedFilter2 == 'Critical' && course.status == 'Critical') ||
-          (selectedFilter2 == 'Warning' && course.status == 'Warning') ||
-          (selectedFilter2 == 'On Track' && course.status == 'On Track');
+          (selectedFilter2 == 'Critical' && tutorial.status == 'Critical') ||
+          (selectedFilter2 == 'Warning' && tutorial.status == 'Warning') ||
+          (selectedFilter2 == 'On Track' && tutorial.status == 'On Track');
 
       return matchesSearch && matchesCategory && matchesStatus;
     }).toList();
@@ -118,12 +118,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                       _buildCompetencyOverviewHeader(),
                       const SizedBox(height: 20),
 
-                      // Course Grid/List dynamic content
-                      filteredCourses.isEmpty
+                      // Tutorial Grid/List dynamic content
+                      filteredTutorials.isEmpty
                           ? _buildEmptyState()
                           : isGridView
-                          ? _buildCourseGrid(isDesktop)
-                          : _buildCourseList(isDesktop),
+                          ? _buildTutorialGrid(isDesktop)
+                          : _buildTutorialList(isDesktop),
 
                       const SizedBox(height: 40),
                       const Center(
@@ -290,7 +290,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   PopupMenuItem<int>(
                     value: 0,
                     child: _buildNotificationItem(
-                      title: 'New Course Available',
+                      title: 'New Tutorial Available',
                       body: 'Mathematical Competence 2 has been unlocked.',
                       time: '5m ago',
                       isNew: true,
@@ -600,7 +600,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               });
                             }
                           },
-                          items: <String>['CPECH DEMO', '4EM DEMO']
+                          items: <String>['DEMO 1', 'DEMO 2']
                               .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -612,7 +612,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         height: 18,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: value == 'CPECH DEMO'
+                                          color: value == 'DEMO 1'
                                               ? const Color(0xFF0072FF)
                                               : const Color(0xFF8A2387),
                                         ),
@@ -677,7 +677,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     const Center(
                       child: Text(
                         'Powered by eMe.world',
@@ -709,12 +709,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       decoration: BoxDecoration(
         color: selected
             ? const Color(0xFF38B6FF).withValues(alpha: 0.08)
-            : Colors.transparent,
+            : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: selected
               ? const Color(0xFF38B6FF).withValues(alpha: 0.15)
-              : Colors.transparent,
+              : Colors.white.withValues(alpha: 0.1),
         ),
       ),
       child: ListTile(
@@ -967,7 +967,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               },
               style: const TextStyle(color: Colors.white, fontSize: 14),
               decoration: const InputDecoration(
-                hintText: 'Search courses, subjects...',
+                hintText: 'Search topics, tutorials...',
                 hintStyle: TextStyle(color: Colors.white38, fontSize: 14),
                 border: InputBorder.none,
                 isDense: true,
@@ -1069,7 +1069,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildCompetencyOverviewHeader() {
-    final criticalCount = mockCourses
+    final criticalCount = mockTutorials
         .where((c) => c.status == 'Critical')
         .length;
     return Container(
@@ -1147,7 +1147,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           Icon(Icons.search_off_rounded, size: 48, color: Colors.white24),
           SizedBox(height: 12),
           Text(
-            'No matching courses found',
+            'No matching tutorials found',
             style: TextStyle(color: Colors.white38, fontSize: 14),
           ),
         ],
@@ -1155,7 +1155,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildCourseGrid(bool isDesktop) {
+  Widget _buildTutorialGrid(bool isDesktop) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -1165,21 +1165,27 @@ class _DashboardScreenState extends State<DashboardScreen>
         mainAxisSpacing: 24,
         mainAxisExtent: 475,
       ),
-      itemCount: filteredCourses.length,
+      itemCount: filteredTutorials.length,
       itemBuilder: (context, index) {
-        return CourseCard(course: filteredCourses[index], isListMode: false);
+        return TutorialCard(
+          tutorial: filteredTutorials[index],
+          isListMode: false,
+        );
       },
     );
   }
 
-  Widget _buildCourseList(bool isDesktop) {
+  Widget _buildTutorialList(bool isDesktop) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredCourses.length,
+      itemCount: filteredTutorials.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        return CourseCard(course: filteredCourses[index], isListMode: true);
+        return TutorialCard(
+          tutorial: filteredTutorials[index],
+          isListMode: true,
+        );
       },
     );
   }

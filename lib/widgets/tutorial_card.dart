@@ -1,19 +1,19 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../models/course.dart';
+import '../models/tutorial.dart';
 import '../screens/rehearse_screen.dart';
 
-class CourseCard extends StatefulWidget {
-  final Course course;
+class TutorialCard extends StatefulWidget {
+  final Tutorial tutorial;
   final bool isListMode;
 
-  const CourseCard({super.key, required this.course, this.isListMode = false});
+  const TutorialCard({super.key, required this.tutorial, this.isListMode = false});
 
   @override
-  State<CourseCard> createState() => _CourseCardState();
+  State<TutorialCard> createState() => _TutorialCardState();
 }
 
-class _CourseCardState extends State<CourseCard>
+class _TutorialCardState extends State<TutorialCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
 
@@ -33,7 +33,7 @@ class _CourseCardState extends State<CourseCard>
   }
 
   Color getStatusColor() {
-    switch (widget.course.status) {
+    switch (widget.tutorial.status) {
       case 'Critical':
         return const Color(0xFFE94057);
       case 'Warning':
@@ -89,8 +89,8 @@ class _CourseCardState extends State<CourseCard>
                       children: [
                         _buildStatusBadge(statusColor),
                         const SizedBox(width: 8),
-                        if (widget.course.status == 'Critical' ||
-                            widget.course.status == 'Warning')
+                        if (widget.tutorial.status == 'Critical' ||
+                            widget.tutorial.status == 'Warning')
                           AnimatedBuilder(
                             animation: _pulseController,
                             builder: (context, child) {
@@ -117,7 +117,7 @@ class _CourseCardState extends State<CourseCard>
 
                     // Title
                     Text(
-                      widget.course.title,
+                      widget.tutorial.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -131,7 +131,7 @@ class _CourseCardState extends State<CourseCard>
 
                     // Unlocked question numbers
                     Text(
-                      'Unlocked: ${widget.course.unlockedQuestions} / ${widget.course.totalQuestions} questions',
+                      'Unlocked: ${widget.tutorial.unlockedQuestions} / ${widget.tutorial.totalQuestions} questions',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.4),
@@ -185,13 +185,13 @@ class _CourseCardState extends State<CourseCard>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: widget.course.gradientColors,
+                  colors: widget.tutorial.gradientColors,
                 ),
               ),
             ),
             const SizedBox(width: 16),
 
-            // Middle Course Details
+            // Middle Tutorial Details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -204,7 +204,7 @@ class _CourseCardState extends State<CourseCard>
                         _buildStatusBadge(statusColor),
                         const SizedBox(width: 8),
                         Text(
-                          widget.course.category,
+                          widget.tutorial.category,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -216,7 +216,7 @@ class _CourseCardState extends State<CourseCard>
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      widget.course.title,
+                      widget.tutorial.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -227,7 +227,7 @@ class _CourseCardState extends State<CourseCard>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Unlocked: ${widget.course.unlockedQuestions} / ${widget.course.totalQuestions} questions',
+                      'Unlocked: ${widget.tutorial.unlockedQuestions} / ${widget.tutorial.totalQuestions} questions',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white.withValues(alpha: 0.4),
@@ -241,13 +241,13 @@ class _CourseCardState extends State<CourseCard>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
-                              value: widget.course.progress,
+                              value: widget.tutorial.progress,
                               minHeight: 6,
                               backgroundColor: Colors.white.withValues(
                                 alpha: 0.04,
                               ),
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                widget.course.progress > 0.5
+                                widget.tutorial.progress > 0.5
                                     ? const Color(0xFF38EF7D)
                                     : const Color(0xFF38B6FF),
                               ),
@@ -256,7 +256,7 @@ class _CourseCardState extends State<CourseCard>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          '${(widget.course.progress * 100).toInt()}%',
+                          '${(widget.tutorial.progress * 100).toInt()}%',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 11,
@@ -309,7 +309,7 @@ class _CourseCardState extends State<CourseCard>
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              RehearseScreen(course: widget.course),
+                              RehearseScreen(tutorial: widget.tutorial),
                         ),
                       );
                     },
@@ -347,7 +347,7 @@ class _CourseCardState extends State<CourseCard>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: widget.course.gradientColors,
+          colors: widget.tutorial.gradientColors,
         ),
       ),
       child: Stack(
@@ -394,7 +394,7 @@ class _CourseCardState extends State<CourseCard>
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
               ),
-              child: Icon(widget.course.icon, color: Colors.white, size: 24),
+              child: Icon(widget.tutorial.icon, color: Colors.white, size: 24),
             ),
           ),
           // Category subtitle
@@ -425,7 +425,7 @@ class _CourseCardState extends State<CourseCard>
                 ),
                 const SizedBox(height: 0),
                 Text(
-                  widget.course.category,
+                  widget.tutorial.category,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -472,7 +472,7 @@ class _CourseCardState extends State<CourseCard>
         border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 1),
       ),
       child: Text(
-        widget.course.status.toUpperCase(),
+        widget.tutorial.status.toUpperCase(),
         style: TextStyle(
           color: statusColor,
           fontWeight: FontWeight.w800,
@@ -484,7 +484,7 @@ class _CourseCardState extends State<CourseCard>
   }
 
   Widget _buildProgressBarSection() {
-    final percentVal = (widget.course.progress * 100).toInt();
+    final percentVal = (widget.tutorial.progress * 100).toInt();
     return Column(
       children: [
         Row(
@@ -519,7 +519,7 @@ class _CourseCardState extends State<CourseCard>
               ),
             ),
             FractionallySizedBox(
-              widthFactor: widget.course.progress,
+              widthFactor: widget.tutorial.progress,
               child: Container(
                 height: 8,
                 decoration: BoxDecoration(
@@ -544,7 +544,7 @@ class _CourseCardState extends State<CourseCard>
   }
 
   Widget _buildDaysToForgetGauge() {
-    final value = widget.course.daysToForget;
+    final value = widget.tutorial.daysToForget;
     final bool hasData = value != 'No data';
 
     return Container(
@@ -595,7 +595,7 @@ class _CourseCardState extends State<CourseCard>
   }
 
   Widget _buildEffectivenessGauge() {
-    final value = widget.course.effectiveness;
+    final value = widget.tutorial.effectiveness;
     int barsCount = 1;
     Color effectivenessColor = const Color(0xFFE94057);
 
@@ -755,7 +755,7 @@ class _CourseCardState extends State<CourseCard>
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            RehearseScreen(course: widget.course),
+                            RehearseScreen(tutorial: widget.tutorial),
                       ),
                     );
                   },

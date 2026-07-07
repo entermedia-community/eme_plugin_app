@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:testu_cl/widgets/topics_card.dart';
+
 import '../models/topic.dart';
-import 'topic_courses_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -15,7 +16,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _activeEnvironment = 'CPECH DEMO';
+  String _activeEnvironment = 'DEMO 1';
   String selectedTab = 'Catalog';
 
   // Compute average stats across all topics
@@ -27,13 +28,13 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   double get overallAverageScore {
     if (mockTopics.isEmpty) return 0.0;
-    return mockTopics.map((t) => t.averageScore).reduce((a, b) => a + b) /
+    return mockTopics.map((t) => 0.0).reduce((a, b) => a + b) /
         mockTopics.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 900;
 
@@ -72,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                       // Section Title
                       const Text(
-                        'PAES SUBJECT TOPICS',
+                        'TOPICS',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -90,24 +91,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 16),
                         itemBuilder: (context, index) {
-                          return _buildTopicCard(
-                            context,
-                            mockTopics[index],
-                            isDesktop,
-                          );
+                          return TopicsCard(topic: mockTopics[index]);
                         },
-                      ),
-
-                      const SizedBox(height: 40),
-                      const Center(
-                        child: Text(
-                          'Powered by eMe.world',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white30,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -127,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withOpacity(0.4),
+        color: const Color(0xFF161C24).withValues(alpha: 0.4),
         border: const Border(
           bottom: BorderSide(color: Color(0xFF263238), width: 1),
         ),
@@ -151,7 +136,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF38B6FF).withOpacity(0.2),
+                      color: const Color(0xFF38B6FF).withValues(alpha: 0.2),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
@@ -170,11 +155,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                 offset: const Offset(0, 48),
                 color: const Color(0xFF161C24),
                 elevation: 8,
-                shadowColor: Colors.black.withOpacity(0.5),
+                shadowColor: Colors.black.withValues(alpha: 0.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     width: 1.5,
                   ),
                 ),
@@ -186,9 +171,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       height: 38,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.04),
+                        color: Colors.white.withValues(alpha: 0.04),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withValues(alpha: 0.08),
                         ),
                       ),
                       child: const Center(
@@ -234,7 +219,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE94057).withOpacity(0.15),
+                            color: const Color(
+                              0xFFE94057,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
@@ -253,7 +240,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   PopupMenuItem<int>(
                     value: 0,
                     child: _buildNotificationItem(
-                      title: 'New Course Available',
+                      title: 'New Tutorial Available',
                       body: 'Mathematical Competence 2 has been unlocked.',
                       time: '5m ago',
                       isNew: true,
@@ -276,8 +263,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                 height: 38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.04),
-                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  color: Colors.white.withValues(alpha: 0.04),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
                 ),
                 child: const Center(
                   child: Icon(
@@ -350,9 +339,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withOpacity(0.6),
+        color: const Color(0xFF161C24).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.06),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +366,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'PAES Preparation Plan',
+                    'Preparation Plan',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -389,7 +381,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.04),
+                  color: Colors.white.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -427,7 +419,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
               Expanded(
                 child: _buildMetricCol(
@@ -458,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           height: 38,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
           ),
           child: Icon(icon, color: color, size: 18),
         ),
@@ -489,166 +481,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildTopicCard(BuildContext context, Topic topic, bool isDesktop) {
-    final mainColor = topic.gradientColors.isNotEmpty
-        ? topic.gradientColors.first
-        : const Color(0xFF38B6FF);
-
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TopicCoursesScreen(topic: topic),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        splashColor: mainColor.withOpacity(0.1),
-        highlightColor: mainColor.withOpacity(0.05),
-        child: Ink(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161C24).withOpacity(0.55),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.06),
-              width: 1.2,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Thumbnail on the left
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: topic.gradientColors,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: mainColor.withOpacity(0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Icon(topic.icon, color: Colors.white, size: 30),
-              ),
-              const SizedBox(width: 16),
-
-              // Title, Subtitle, Progress and Stat
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      topic.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "${topic.courses.length} courses in topic",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white38,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Progress Bar
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(3),
-                            child: LinearProgressIndicator(
-                              value: topic.progress,
-                              minHeight: 5,
-                              backgroundColor: Colors.white.withOpacity(0.06),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                mainColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "${(topic.progress * 100).toInt()}% completed",
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white60,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Test performance stat
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: mainColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: mainColor.withOpacity(0.15),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.analytics_outlined,
-                            size: 12,
-                            color: mainColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            "Test Performance: ${(topic.averageScore * 100).toInt()}% score avg",
-                            style: TextStyle(
-                              color: mainColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // Chevron right indicating click action
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.white24,
-                size: 24,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: const Color(0xFF0F1319),
@@ -669,7 +501,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                       width: 1,
                     ),
                   ),
@@ -690,7 +522,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFE94057).withOpacity(0.2),
+                                color: const Color(
+                                  0xFFE94057,
+                                ).withValues(alpha: 0.2),
                                 blurRadius: 12,
                                 spreadRadius: 2,
                               ),
@@ -726,7 +560,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               ),
                               const SizedBox(height: 2),
                               const Text(
-                                'Level 10 PAES Elite',
+                                'Level 10',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF38B6FF),
@@ -768,7 +602,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                       width: 1,
                     ),
                   ),
@@ -792,7 +626,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         color: const Color(0xFF1E2631),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
@@ -817,7 +651,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               });
                             }
                           },
-                          items: <String>['CPECH DEMO', '4EM DEMO']
+                          items: <String>['DEMO 1', 'DEMO 2']
                               .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -829,7 +663,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         height: 18,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: value == 'CPECH DEMO'
+                                          color: value == 'DEMO 1'
                                               ? const Color(0xFF0072FF)
                                               : const Color(0xFF8A2387),
                                         ),
@@ -880,6 +714,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       ),
                     ),
+                    const SizedBox(height: 40),
+                    const Center(
+                      child: Text(
+                        'Powered by eMe.world',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white30,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -900,12 +745,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: selected
-            ? const Color(0xFF38B6FF).withOpacity(0.08)
+            ? const Color(0xFF38B6FF).withValues(alpha: 0.08)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: selected
-              ? const Color(0xFF38B6FF).withOpacity(0.15)
+              ? const Color(0xFF38B6FF).withValues(alpha: 0.15)
               : Colors.transparent,
         ),
       ),

@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/course.dart';
+import '../models/tutorial.dart';
 
 class RehearseQuestion {
   final String text;
@@ -14,74 +14,51 @@ class RehearseQuestion {
   });
 }
 
-List<RehearseQuestion> getQuestionsForCourse(Course course) {
-  if (course.category.contains('MATEMÁTICA') || course.title.contains('MATHEMATICAL')) {
+List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
+  if (tutorial.category.contains('MATEMÁTICA') ||
+      tutorial.title.contains('MATHEMATICAL')) {
     return [
       const RehearseQuestion(
-        text: 'What is the vertex of the parabola defined by f(x) = x² - 4x + 5?',
-        options: [
-          '(2, 1)',
-          '(2, 5)',
-          '(4, 5)',
-          '(-2, 17)',
-        ],
+        text:
+            'What is the vertex of the parabola defined by f(x) = x² - 4x + 5?',
+        options: ['(2, 1)', '(2, 5)', '(4, 5)', '(-2, 17)'],
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'A box contains 5 red balls and 3 blue balls. If two balls are drawn without replacement, what is the probability that both are blue?',
-        options: [
-          '3/28',
-          '9/64',
-          '15/56',
-          '3/8',
-        ],
+        text:
+            'A box contains 5 red balls and 3 blue balls. If two balls are drawn without replacement, what is the probability that both are blue?',
+        options: ['3/28', '9/64', '15/56', '3/8'],
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
         text: 'If log₂(x) + log₂(x - 2) = 3, what is the value of x?',
-        options: [
-          '4',
-          '2',
-          '8',
-          '-2',
-        ],
+        options: ['4', '2', '8', '-2'],
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
         text: 'What is the sum of the interior angles of a regular hexagon?',
-        options: [
-          '720°',
-          '540°',
-          '180°',
-          '1080°',
-        ],
+        options: ['720°', '540°', '180°', '1080°'],
         correctAnswerIndex: 0,
       ),
     ];
-  } else if (course.category.contains('CIENCIAS') || course.title.contains('PHYSICS')) {
+  } else if (tutorial.category.contains('CIENCIAS') ||
+      tutorial.title.contains('PHYSICS')) {
     return [
       const RehearseQuestion(
-        text: 'A car accelerates from rest at a constant rate of 2.0 m/s². How far does it travel in the first 5 seconds?',
-        options: [
-          '25 m',
-          '10 m',
-          '50 m',
-          '5 m',
-        ],
+        text:
+            'A car accelerates from rest at a constant rate of 2.0 m/s². How far does it travel in the first 5 seconds?',
+        options: ['25 m', '10 m', '50 m', '5 m'],
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'Which of the following colors of visible light has the shortest wavelength?',
-        options: [
-          'Violet',
-          'Red',
-          'Green',
-          'Blue',
-        ],
+        text:
+            'Which of the following colors of visible light has the shortest wavelength?',
+        options: ['Violet', 'Red', 'Green', 'Blue'],
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'An object is placed 10 cm in front of a concave mirror with a focal length of 15 cm. The image formed is:',
+        text:
+            'An object is placed 10 cm in front of a concave mirror with a focal length of 15 cm. The image formed is:',
         options: [
           'Virtual, upright, and magnified',
           'Real, inverted, and magnified',
@@ -91,7 +68,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'According to Kepler\'s Third Law, the square of the orbital period of a planet is directly proportional to:',
+        text:
+            'According to Kepler\'s Third Law, the square of the orbital period of a planet is directly proportional to:',
         options: [
           'The cube of the semi-major axis of its orbit',
           'The mass of the planet',
@@ -101,10 +79,12 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
     ];
-  } else if (course.category.contains('LENGUAJE') || course.title.contains('LANGUAGE')) {
+  } else if (tutorial.category.contains('LENGUAJE') ||
+      tutorial.title.contains('LANGUAGE')) {
     return [
       const RehearseQuestion(
-        text: 'Which of the following best describes the main purpose of an expository text?',
+        text:
+            'Which of the following best describes the main purpose of an expository text?',
         options: [
           'To explain, inform, or describe a specific topic',
           'To persuade the reader to adopt a certain point of view',
@@ -114,7 +94,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'Identify the tone of the author: "Despite the devastating loss, the team showed remarkable resilience, immediately planning their next steps for improvement."',
+        text:
+            'Identify the tone of the author: "Despite the devastating loss, the team showed remarkable resilience, immediately planning their next steps for improvement."',
         options: [
           'Optimistic and encouraging',
           'Sarcastic and critical',
@@ -124,7 +105,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'What is the main function of a thesis statement in an argumentative essay?',
+        text:
+            'What is the main function of a thesis statement in an argumentative essay?',
         options: [
           'To present the central argument or claim of the essay',
           'To summarize the concluding remarks of the author',
@@ -158,7 +140,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'Which process describes the movement of people from rural areas to cities during the Industrial Revolution?',
+        text:
+            'Which process describes the movement of people from rural areas to cities during the Industrial Revolution?',
         options: [
           'Urbanization',
           'Colonization',
@@ -168,7 +151,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'What was the main goal of the United Nations when it was founded in 1945?',
+        text:
+            'What was the main goal of the United Nations when it was founded in 1945?',
         options: [
           'To maintain international peace and security',
           'To establish a single global currency',
@@ -178,7 +162,8 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
         correctAnswerIndex: 0,
       ),
       const RehearseQuestion(
-        text: 'The Cold War was primarily a geopolitical tension between which two superpowers?',
+        text:
+            'The Cold War was primarily a geopolitical tension between which two superpowers?',
         options: [
           'United States and Soviet Union',
           'Great Britain and France',
@@ -192,9 +177,9 @@ List<RehearseQuestion> getQuestionsForCourse(Course course) {
 }
 
 class RehearseScreen extends StatefulWidget {
-  final Course course;
+  final Tutorial tutorial;
 
-  const RehearseScreen({super.key, required this.course});
+  const RehearseScreen({super.key, required this.tutorial});
 
   @override
   State<RehearseScreen> createState() => _RehearseScreenState();
@@ -223,7 +208,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   @override
   void initState() {
     super.initState();
-    _questions = getQuestionsForCourse(widget.course);
+    _questions = getQuestionsForTutorial(widget.tutorial);
     _pageController = PageController();
   }
 
@@ -274,7 +259,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
         return;
@@ -365,7 +352,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   height: size.width * 0.7,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: widget.course.gradientColors.first.withValues(alpha: 0.08),
+                    color: widget.tutorial.gradientColors.first.withValues(
+                      alpha: 0.08,
+                    ),
                   ),
                 ),
               ),
@@ -377,7 +366,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   height: size.width * 0.7,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: widget.course.gradientColors.last.withValues(alpha: 0.06),
+                    color: widget.tutorial.gradientColors.last.withValues(
+                      alpha: 0.06,
+                    ),
                   ),
                 ),
               ),
@@ -413,13 +404,19 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withValues(alpha: 0.04),
                   padding: const EdgeInsets.all(12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+                    side: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.06),
+                    ),
                   ),
                 ),
               ),
@@ -429,7 +426,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.course.title,
+                      widget.tutorial.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -440,7 +437,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      widget.course.category,
+                      widget.tutorial.category,
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.white.withValues(alpha: 0.4),
@@ -488,7 +485,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   value: progress,
                   minHeight: 8,
                   backgroundColor: Colors.white.withValues(alpha: 0.04),
-                  valueColor: AlwaysStoppedAnimation<Color>(widget.course.gradientColors.first),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    widget.tutorial.gradientColors.first,
+                  ),
                 ),
               ),
             ],
@@ -520,7 +519,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF161C24).withValues(alpha: 0.65),
+                            color: const Color(
+                              0xFF161C24,
+                            ).withValues(alpha: 0.65),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.08),
@@ -535,11 +536,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: widget.course.gradientColors,
+                                    colors: widget.tutorial.gradientColors,
                                   ),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 child: const Text(
                                   'CONCEPT PRACTICE',
                                   style: TextStyle(
@@ -604,17 +608,24 @@ class _RehearseScreenState extends State<RehearseScreen> {
                             duration: const Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? widget.course.gradientColors.first.withValues(alpha: 0.12)
-                                  : const Color(0xFF161C24).withValues(alpha: 0.4),
+                                  ? widget.tutorial.gradientColors.first
+                                        .withValues(alpha: 0.12)
+                                  : const Color(
+                                      0xFF161C24,
+                                    ).withValues(alpha: 0.4),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
-                                    ? widget.course.gradientColors.first.withValues(alpha: 0.6)
+                                    ? widget.tutorial.gradientColors.first
+                                          .withValues(alpha: 0.6)
                                     : Colors.white.withValues(alpha: 0.06),
                                 width: 1.5,
                               ),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
                             child: Row(
                               children: [
                                 // Selection Circle/Letter
@@ -625,7 +636,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: isSelected
-                                        ? LinearGradient(colors: widget.course.gradientColors)
+                                        ? LinearGradient(
+                                            colors:
+                                                widget.tutorial.gradientColors,
+                                          )
                                         : null,
                                     color: isSelected
                                         ? null
@@ -643,7 +657,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
-                                      color: isSelected ? Colors.white : Colors.white60,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.white60,
                                     ),
                                   ),
                                 ),
@@ -653,8 +669,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                     optionText,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: isSelected ? Colors.white : Colors.white70,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.white70,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 ),
@@ -683,12 +703,15 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       ),
                       Row(
                         children: _confidenceOptions.map((confidence) {
-                          final isConfSelected = _confidenceLevels[qIndex] == confidence;
+                          final isConfSelected =
+                              _confidenceLevels[qIndex] == confidence;
                           final color = _getConfidenceColor(confidence);
 
                           return Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0,
+                              ),
                               child: InkWell(
                                 onTap: () {
                                   setState(() {
@@ -698,14 +721,22 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                 borderRadius: BorderRadius.circular(10),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isConfSelected
                                         ? color.withValues(alpha: 0.12)
-                                        : const Color(0xFF161C24).withValues(alpha: 0.4),
+                                        : const Color(
+                                            0xFF161C24,
+                                          ).withValues(alpha: 0.4),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: isConfSelected ? color : Colors.white.withValues(alpha: 0.05),
+                                      color: isConfSelected
+                                          ? color
+                                          : Colors.white.withValues(
+                                              alpha: 0.05,
+                                            ),
                                       width: 1.5,
                                     ),
                                   ),
@@ -715,7 +746,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: isConfSelected ? color : Colors.white54,
+                                      color: isConfSelected
+                                          ? color
+                                          : Colors.white54,
                                     ),
                                   ),
                                 ),
@@ -746,7 +779,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       onPressed: _prevPage,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white70,
-                        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.08),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -757,7 +792,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         children: [
                           Icon(Icons.arrow_back_rounded, size: 16),
                           SizedBox(width: 8),
-                          Text('Previous', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Previous',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ),
@@ -770,11 +808,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       gradient: LinearGradient(
-                        colors: widget.course.gradientColors,
+                        colors: widget.tutorial.gradientColors,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.course.gradientColors.first.withValues(alpha: 0.3),
+                          color: widget.tutorial.gradientColors.first
+                              .withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -794,7 +833,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _currentIndex == _questions.length - 1 ? 'Finish Rehearsal' : 'Next',
+                            _currentIndex == _questions.length - 1
+                                ? 'Finish Rehearsal'
+                                : 'Next',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -866,7 +907,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
             const SizedBox(height: 6),
             Center(
               child: Text(
-                widget.course.title,
+                widget.tutorial.title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
@@ -890,7 +931,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF161C24).withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
                         ),
                         padding: const EdgeInsets.all(20),
                         child: Column(
@@ -914,12 +957,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                   child: CircularProgressIndicator(
                                     value: scorePct,
                                     strokeWidth: 6,
-                                    backgroundColor: Colors.white.withValues(alpha: 0.04),
+                                    backgroundColor: Colors.white.withValues(
+                                      alpha: 0.04,
+                                    ),
                                     color: scorePct > 0.7
                                         ? const Color(0xFF38EF7D)
                                         : scorePct > 0.4
-                                            ? const Color(0xFFFF9F43)
-                                            : const Color(0xFFE94057),
+                                        ? const Color(0xFFFF9F43)
+                                        : const Color(0xFFE94057),
                                   ),
                                 ),
                                 Text(
@@ -941,8 +986,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                 color: scorePct > 0.7
                                     ? const Color(0xFF38EF7D)
                                     : scorePct > 0.4
-                                        ? const Color(0xFFFF9F43)
-                                        : const Color(0xFFE94057),
+                                    ? const Color(0xFFFF9F43)
+                                    : const Color(0xFFE94057),
                               ),
                             ),
                           ],
@@ -962,7 +1007,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF161C24).withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
                         ),
                         padding: const EdgeInsets.all(20),
                         child: Column(
@@ -986,7 +1033,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                   child: CircularProgressIndicator(
                                     value: avgConf,
                                     strokeWidth: 6,
-                                    backgroundColor: Colors.white.withValues(alpha: 0.04),
+                                    backgroundColor: Colors.white.withValues(
+                                      alpha: 0.04,
+                                    ),
                                     color: const Color(0xFF38B6FF),
                                   ),
                                 ),
@@ -1050,7 +1099,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF161C24).withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.06),
+                      ),
                     ),
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -1066,13 +1117,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isCorrect
-                                    ? const Color(0xFF38EF7D).withValues(alpha: 0.15)
-                                    : const Color(0xFFE94057).withValues(alpha: 0.15),
+                                    ? const Color(
+                                        0xFF38EF7D,
+                                      ).withValues(alpha: 0.15)
+                                    : const Color(
+                                        0xFFE94057,
+                                      ).withValues(alpha: 0.15),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
-                                isCorrect ? Icons.check_rounded : Icons.close_rounded,
-                                color: isCorrect ? const Color(0xFF38EF7D) : const Color(0xFFE94057),
+                                isCorrect
+                                    ? Icons.check_rounded
+                                    : Icons.close_rounded,
+                                color: isCorrect
+                                    ? const Color(0xFF38EF7D)
+                                    : const Color(0xFFE94057),
                                 size: 14,
                               ),
                             ),
@@ -1115,17 +1174,24 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                 children: [
                                   const Text(
                                     'Your Answer',
-                                    style: TextStyle(fontSize: 10, color: Colors.white38),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white38,
+                                    ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    userSelect != null ? question.options[userSelect] : 'None',
+                                    userSelect != null
+                                        ? question.options[userSelect]
+                                        : 'None',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: isCorrect ? const Color(0xFF38EF7D) : const Color(0xFFE94057),
+                                      color: isCorrect
+                                          ? const Color(0xFF38EF7D)
+                                          : const Color(0xFFE94057),
                                     ),
                                   ),
                                 ],
@@ -1139,11 +1205,15 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                   children: [
                                     const Text(
                                       'Correct Answer',
-                                      style: TextStyle(fontSize: 10, color: Colors.white38),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white38,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      question.options[question.correctAnswerIndex],
+                                      question.options[question
+                                          .correctAnswerIndex],
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -1163,16 +1233,28 @@ class _RehearseScreenState extends State<RehearseScreen> {
                               children: [
                                 const Text(
                                   'Confidence',
-                                  style: TextStyle(fontSize: 10, color: Colors.white38),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white38,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: confidenceColor.withValues(alpha: 0.1),
+                                    color: confidenceColor.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: confidenceColor.withValues(alpha: 0.2)),
+                                    border: Border.all(
+                                      color: confidenceColor.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                    ),
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   child: Text(
                                     confidence,
                                     style: TextStyle(
@@ -1211,13 +1293,18 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white70,
-                      side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text('Try Again', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Try Again',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -1226,7 +1313,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       gradient: LinearGradient(
-                        colors: widget.course.gradientColors,
+                        colors: widget.tutorial.gradientColors,
                       ),
                     ),
                     child: ElevatedButton(
