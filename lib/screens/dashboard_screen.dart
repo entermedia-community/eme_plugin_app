@@ -17,7 +17,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _activeEnvironment = 'DEMO 1';
+  String _activeWorkSpace = 'DEMO 1';
   String selectedTab = 'Catalog';
 
   // Compute average stats across all topics
@@ -579,7 +579,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
-                      'ENVIRONMENT',
+                      'WORKSPACE',
                       style: TextStyle(
                         color: Colors.white38,
                         fontSize: 10,
@@ -599,7 +599,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: _activeEnvironment,
+                          value: _activeWorkSpace,
                           dropdownColor: const Color(0xFF1E2631),
                           isExpanded: true,
                           icon: const Icon(
@@ -615,7 +615,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
-                                _activeEnvironment = newValue;
+                                _activeWorkSpace = newValue;
                               });
                             }
                           },
@@ -670,7 +670,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                             SizedBox(width: 10),
                             Text(
-                              'LOGOUT SESSION',
+                              'LOGOUT',
                               style: TextStyle(
                                 color: Color(0xFFE94057),
                                 fontSize: 13,
