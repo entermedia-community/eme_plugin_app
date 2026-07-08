@@ -250,7 +250,7 @@ class _TutorialCardState extends State<TutorialCard>
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Easy',
+                                    'Beginner',
                                     style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 10,
@@ -310,7 +310,7 @@ class _TutorialCardState extends State<TutorialCard>
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Advanced',
+                                    'Expert',
                                     style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 10,

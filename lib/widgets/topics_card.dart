@@ -176,7 +176,7 @@ class TopicsCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "${topic.expiresIn}",
+                                  "${topic.expiresIn.toInt()}",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

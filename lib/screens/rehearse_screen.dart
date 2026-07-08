@@ -7,7 +7,7 @@ class RehearseQuestion {
   final String text;
   final List<String> options;
   final int correctAnswerIndex;
-  final String difficulty; // "Easy", "Intermediate", "Advanced"
+  final String difficulty; // "Beginner", "Intermediate", "Expert"
 
   const RehearseQuestion({
     required this.text,
@@ -26,7 +26,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
             'What is the vertex of the parabola defined by f(x) = x² - 4x + 5?',
         options: ['(2, 1)', '(2, 5)', '(4, 5)', '(-2, 17)'],
         correctAnswerIndex: 0,
-        difficulty: 'Easy',
+        difficulty: 'Beginner',
       ),
       const RehearseQuestion(
         text:
@@ -39,7 +39,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
         text: 'If log₂(x) + log₂(x - 2) = 3, what is the value of x?',
         options: ['4', '2', '8', '-2'],
         correctAnswerIndex: 0,
-        difficulty: 'Advanced',
+        difficulty: 'Expert',
       ),
       const RehearseQuestion(
         text: 'What is the sum of the interior angles of a regular hexagon?',
@@ -56,14 +56,14 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
             'A car accelerates from rest at a constant rate of 2.0 m/s². How far does it travel in the first 5 seconds?',
         options: ['25 m', '10 m', '50 m', '5 m'],
         correctAnswerIndex: 0,
-        difficulty: 'Easy',
+        difficulty: 'Beginner',
       ),
       const RehearseQuestion(
         text:
             'Which of the following colors of visible light has the shortest wavelength?',
         options: ['Violet', 'Red', 'Green', 'Blue'],
         correctAnswerIndex: 0,
-        difficulty: 'Easy',
+        difficulty: 'Beginner',
       ),
       const RehearseQuestion(
         text:
@@ -87,7 +87,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
           'The average distance to the nearest planet',
         ],
         correctAnswerIndex: 0,
-        difficulty: 'Advanced',
+        difficulty: 'Expert',
       ),
     ];
   } else if (tutorial.category.contains('LENGUAJE') ||
@@ -103,7 +103,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
           'To criticize a public figure or institution',
         ],
         correctAnswerIndex: 0,
-        difficulty: 'Easy',
+        difficulty: 'Beginner',
       ),
       const RehearseQuestion(
         text:
@@ -138,7 +138,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
           'The list of characters and settings mentioned',
         ],
         correctAnswerIndex: 0,
-        difficulty: 'Advanced',
+        difficulty: 'Expert',
       ),
     ];
   } else {
@@ -153,7 +153,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
           'The decline of the Catholic Church\'s influence in Italy',
         ],
         correctAnswerIndex: 0,
-        difficulty: 'Easy',
+        difficulty: 'Beginner',
       ),
       const RehearseQuestion(
         text:
@@ -177,7 +177,7 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
           'To promote colonization in Africa',
         ],
         correctAnswerIndex: 0,
-        difficulty: 'Advanced',
+        difficulty: 'Expert',
       ),
       const RehearseQuestion(
         text:
@@ -195,17 +195,13 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
   }
 }
 
-
-
 class ChatMessage {
   final String sender; // 'ai' or 'user'
   final String text;
   final DateTime timestamp;
 
-  ChatMessage({
-    required this.sender,
-    required this.text,
-  }) : timestamp = DateTime.now();
+  ChatMessage({required this.sender, required this.text})
+    : timestamp = DateTime.now();
 }
 
 class RehearseScreen extends StatefulWidget {
@@ -241,7 +237,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
   // Chat state
   final List<ChatMessage> _messages = [];
   int? _tempSelectedAnswerIndex;
-  String _stage = 'select_option'; // 'select_option', 'select_confidence', 'explain_and_followup'
+  String _stage =
+      'select_option'; // 'select_option', 'select_confidence', 'explain_and_followup'
 
   @override
   void initState() {
@@ -251,10 +248,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   void _initializeChat() {
-    _messages.add(ChatMessage(
-      sender: 'ai',
-      text: "Hello! Let's practice. Here is your first question:\n\n**Question 1 (${_questions[0].difficulty})**:\n${_questions[0].text}",
-    ));
+    _messages.add(
+      ChatMessage(
+        sender: 'ai',
+        text:
+            "Hello! Let's practice. Here is your first question:\n\n**Question 1 (${_questions[0].difficulty})**:\n${_questions[0].text}",
+      ),
+    );
   }
 
   @override
@@ -301,20 +301,25 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
   void _selectConfidence(String confidence) {
     final activeQuestion = _questions[_currentIndex];
-    final selectedOptionText = activeQuestion.options[_tempSelectedAnswerIndex!];
+    final selectedOptionText =
+        activeQuestion.options[_tempSelectedAnswerIndex!];
 
     setState(() {
       _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
       _confidenceLevels[_currentIndex] = confidence;
 
       // Add user selection message
-      _messages.add(ChatMessage(
-        sender: 'user',
-        text: "I select: **$selectedOptionText**\nConfidence level: **$confidence**",
-      ));
+      _messages.add(
+        ChatMessage(
+          sender: 'user',
+          text:
+              "I select: **$selectedOptionText**\nConfidence level: **$confidence**",
+        ),
+      );
 
       // Generate AI explanation
-      final isCorrect = _tempSelectedAnswerIndex == activeQuestion.correctAnswerIndex;
+      final isCorrect =
+          _tempSelectedAnswerIndex == activeQuestion.correctAnswerIndex;
       final correctText = isCorrect ? "Correct! 🎉" : "Incorrect.";
       final explanationText = _getExplanationForQuestion(activeQuestion);
 
@@ -322,10 +327,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
           ? "**$correctText**\n\n$explanationText"
           : "**$correctText** The correct answer is **${activeQuestion.options[activeQuestion.correctAnswerIndex]}**.\n\n$explanationText";
 
-      _messages.add(ChatMessage(
-        sender: 'ai',
-        text: aiText,
-      ));
+      _messages.add(ChatMessage(sender: 'ai', text: aiText));
 
       _stage = 'explain_and_followup';
     });
@@ -338,10 +340,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
     _followUpController.clear();
 
     setState(() {
-      _messages.add(ChatMessage(
-        sender: 'user',
-        text: text,
-      ));
+      _messages.add(ChatMessage(sender: 'user', text: text));
     });
     _scrollToBottom();
 
@@ -350,10 +349,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
       if (!mounted) return;
       setState(() {
         final answer = _getFollowUpForQuestion(_questions[_currentIndex], text);
-        _messages.add(ChatMessage(
-          sender: 'ai',
-          text: answer,
-        ));
+        _messages.add(ChatMessage(sender: 'ai', text: answer));
       });
       _scrollToBottom();
     });
@@ -366,10 +362,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
         _tempSelectedAnswerIndex = null;
         _stage = 'select_option';
 
-        _messages.add(ChatMessage(
-          sender: 'ai',
-          text: "Moving on to the next question:\n\n**Question ${_currentIndex + 1} (${_questions[_currentIndex].difficulty})**:\n${_questions[_currentIndex].text}",
-        ));
+        _messages.add(
+          ChatMessage(
+            sender: 'ai',
+            text:
+                "Moving on to the next question:\n\n**Question ${_currentIndex + 1} (${_questions[_currentIndex].difficulty})**:\n${_questions[_currentIndex].text}",
+          ),
+        );
       });
       _scrollToBottom();
     } else {
@@ -406,14 +405,18 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   // Dynamic Metrics Functions
-  int _getEasyTotal() => _questions.where((q) => q.difficulty == 'Easy').length;
-  int _getIntermediateTotal() => _questions.where((q) => q.difficulty == 'Intermediate').length;
-  int _getAdvancedTotal() => _questions.where((q) => q.difficulty == 'Advanced').length;
+  int _getBeginnerTotal() =>
+      _questions.where((q) => q.difficulty == 'Beginner').length;
+  int _getIntermediateTotal() =>
+      _questions.where((q) => q.difficulty == 'Intermediate').length;
+  int _getExpertTotal() =>
+      _questions.where((q) => q.difficulty == 'Expert').length;
 
-  int _getEasyCorrect() {
+  int _getBeginnerCorrect() {
     int count = 0;
     _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length && _questions[index].difficulty == 'Easy') {
+      if (index < _questions.length &&
+          _questions[index].difficulty == 'Beginner') {
         if (userSelect == _questions[index].correctAnswerIndex) {
           count++;
         }
@@ -425,7 +428,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
   int _getIntermediateCorrect() {
     int count = 0;
     _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length && _questions[index].difficulty == 'Intermediate') {
+      if (index < _questions.length &&
+          _questions[index].difficulty == 'Intermediate') {
         if (userSelect == _questions[index].correctAnswerIndex) {
           count++;
         }
@@ -434,10 +438,11 @@ class _RehearseScreenState extends State<RehearseScreen> {
     return count;
   }
 
-  int _getAdvancedCorrect() {
+  int _getExpertCorrect() {
     int count = 0;
     _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length && _questions[index].difficulty == 'Advanced') {
+      if (index < _questions.length &&
+          _questions[index].difficulty == 'Expert') {
         if (userSelect == _questions[index].correctAnswerIndex) {
           count++;
         }
@@ -535,94 +540,136 @@ class _RehearseScreenState extends State<RehearseScreen> {
     if (qText.contains('without replacement')) {
       if (lowercaseQuery.contains('why') || lowercaseQuery.contains('how')) {
         return 'We multiply the probabilities because the events are dependent. Since we do not replace the first ball, the total count drops from 8 to 7, and the blue ball count drops from 3 to 2. Therefore, the chance of both is:\nP(First Blue) * P(Second Blue | First Blue) = (3/8) * (2/7) = 6/56 = **3/28**.';
-      } else if (lowercaseQuery.contains('with replacement') || lowercaseQuery.contains('replace')) {
+      } else if (lowercaseQuery.contains('with replacement') ||
+          lowercaseQuery.contains('replace')) {
         return 'If we drew WITH replacement, the probability for the second draw would remain 3/8. The probability of drawing two blue balls would be (3/8) * (3/8) = **9/64** (which is Option B).';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('ejemplo') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('ejemplo') ||
+          lowercaseQuery.contains('another')) {
         return 'Example: A bag has 4 red and 2 green balls. Drawing 2 green balls without replacement:\n- First green: 2/6 = 1/3.\n- Second green: 1/5.\n- Total probability: (1/3) * (1/5) = **1/15**.';
-      } else if (lowercaseQuery.contains('other') || lowercaseQuery.contains('incorrect') || lowercaseQuery.contains('options') || lowercaseQuery.contains('wrong')) {
+      } else if (lowercaseQuery.contains('other') ||
+          lowercaseQuery.contains('incorrect') ||
+          lowercaseQuery.contains('options') ||
+          lowercaseQuery.contains('wrong')) {
         return '- **9/64**: Probability WITH replacement.\n- **15/56**: Probability of drawing 1 red and 1 blue ball without replacement.\n- **3/8**: Probability of drawing just a single blue ball on the first try.';
       }
     }
 
     // Parabola Vertex question
     if (qText.contains('vertex of the parabola')) {
-      if (lowercaseQuery.contains('x =') || lowercaseQuery.contains('find x') || lowercaseQuery.contains('formula')) {
+      if (lowercaseQuery.contains('x =') ||
+          lowercaseQuery.contains('find x') ||
+          lowercaseQuery.contains('formula')) {
         return 'The x-coordinate of the vertex is given by the formula **x = -b / (2a)**. For f(x) = x² - 4x + 5, we have a = 1 and b = -4.\nPlugging in:\nx = -(-4) / (2 * 1) = 4 / 2 = **2**.';
-      } else if (lowercaseQuery.contains('y =') || lowercaseQuery.contains('find y') || lowercaseQuery.contains('y-coordinate')) {
+      } else if (lowercaseQuery.contains('y =') ||
+          lowercaseQuery.contains('find y') ||
+          lowercaseQuery.contains('y-coordinate')) {
         return 'To find the y-coordinate, evaluate the function at the vertex x-coordinate (which is 2):\nf(2) = (2)² - 4(2) + 5 = 4 - 8 + 5 = **1**.\nThis gives the vertex point **(2, 1)**.';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('ejemplo') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('ejemplo') ||
+          lowercaseQuery.contains('another')) {
         return 'Example: Find the vertex of f(x) = x² - 6x + 10.\n- h = -(-6) / (2 * 1) = 3.\n- k = f(3) = 3² - 6(3) + 10 = 9 - 18 + 10 = 1.\nVertex is **(3, 1)**.';
-      } else if (lowercaseQuery.contains('other') || lowercaseQuery.contains('incorrect') || lowercaseQuery.contains('options') || lowercaseQuery.contains('wrong')) {
+      } else if (lowercaseQuery.contains('other') ||
+          lowercaseQuery.contains('incorrect') ||
+          lowercaseQuery.contains('options') ||
+          lowercaseQuery.contains('wrong')) {
         return '- **(2, 5)**: Incorrectly calculates the y-value by adding 4 instead of subtracting.\n- **(4, 5)**: This is the point where x = 4, f(4) = 5. It is on the parabola, but not the vertex.\n- **(-2, 17)**: This is f(-2) = 17, also on the parabola but not the vertex.';
       }
     }
 
     // Log question
     if (qText.contains('log₂')) {
-      if (lowercaseQuery.contains('why') || lowercaseQuery.contains('negative') || lowercaseQuery.contains('-2')) {
+      if (lowercaseQuery.contains('why') ||
+          lowercaseQuery.contains('negative') ||
+          lowercaseQuery.contains('-2')) {
         return 'We reject x = -2 because log₂(x) and log₂(x - 2) require the arguments to be strictly positive (x > 0 and x - 2 > 0). If you try to calculate log₂(-2), it is mathematically undefined in real numbers.';
-      } else if (lowercaseQuery.contains('property') || lowercaseQuery.contains('rule') || lowercaseQuery.contains('product')) {
+      } else if (lowercaseQuery.contains('property') ||
+          lowercaseQuery.contains('rule') ||
+          lowercaseQuery.contains('product')) {
         return 'We use the logarithmic product rule: **log_b(A) + log_b(B) = log_b(A * B)**. This lets us merge log₂(x) + log₂(x - 2) into log₂(x * (x - 2)).';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('ejemplo') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('ejemplo') ||
+          lowercaseQuery.contains('another')) {
         return 'Example: Solve log₃(x) + log₃(x - 6) = 3.\nlog₃(x(x - 6)) = 3\nx(x - 6) = 3³ = 27\nx² - 6x - 27 = 0\n(x - 9)(x + 3) = 0\nSince x must be positive, **x = 9**.';
       }
     }
 
     // Hexagon sum of angles question
     if (qText.contains('regular hexagon')) {
-      if (lowercaseQuery.contains('formula') || lowercaseQuery.contains('how') || lowercaseQuery.contains('why')) {
+      if (lowercaseQuery.contains('formula') ||
+          lowercaseQuery.contains('how') ||
+          lowercaseQuery.contains('why')) {
         return 'The sum of the interior angles of a polygon with n sides is **S = (n - 2) * 180°**. A hexagon has 6 sides, so S = (6 - 2) * 180° = 4 * 180° = **720°**. For a regular hexagon, each individual angle is 720° / 6 = **120°**.';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('pentagon') || lowercaseQuery.contains('octagon') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('pentagon') ||
+          lowercaseQuery.contains('octagon') ||
+          lowercaseQuery.contains('another')) {
         return 'Examples for other polygons:\n- Pentagon (5 sides): (5 - 2) * 180° = **540°**.\n- Octagon (8 sides): (8 - 2) * 180° = **1080°**.';
       }
     }
 
     // Physics car acceleration question
     if (qText.contains('accelerates from rest')) {
-      if (lowercaseQuery.contains('formula') || lowercaseQuery.contains('equation')) {
+      if (lowercaseQuery.contains('formula') ||
+          lowercaseQuery.contains('equation')) {
         return 'The formula is **d = v_i * t + 0.5 * a * t²**. Here, initial velocity v_i = 0 (from rest), acceleration a = 2.0 m/s², and time t = 5s.\nSo, d = 0 + 0.5 * 2.0 * (5)² = **25m**.';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('another')) {
         return 'Example: An object accelerates from rest at 4 m/s² for 3 seconds:\nd = 0.5 * 4 * 3² = 2 * 9 = **18 meters**.';
       }
     }
 
     // Physics wavelength question
     if (qText.contains('shortest wavelength')) {
-      if (lowercaseQuery.contains('longest') || lowercaseQuery.contains('red')) {
+      if (lowercaseQuery.contains('longest') ||
+          lowercaseQuery.contains('red')) {
         return 'Red light has the longest wavelength in the visible spectrum, around **700 nm**. It has the lowest frequency and energy of visible light.';
-      } else if (lowercaseQuery.contains('violet') || lowercaseQuery.contains('why')) {
+      } else if (lowercaseQuery.contains('violet') ||
+          lowercaseQuery.contains('why')) {
         return 'Violet light has the shortest wavelength, around **400 nm**. In electromagnetic waves, shorter wavelength corresponds to higher frequency and energy, which is why ultraviolet (even shorter than violet) is high-energy radiation.';
       }
     }
 
     // Physics Concave mirror question
     if (qText.contains('concave mirror')) {
-      if (lowercaseQuery.contains('virtual') || lowercaseQuery.contains('why') || lowercaseQuery.contains('real')) {
+      if (lowercaseQuery.contains('virtual') ||
+          lowercaseQuery.contains('why') ||
+          lowercaseQuery.contains('real')) {
         return 'When an object is placed closer to a concave mirror than its focal length (d_o < f), the light rays diverge after reflecting. Extending these rays backward behind the mirror shows they meet at a virtual point. This makes the image virtual (behind mirror) and upright.';
-      } else if (lowercaseQuery.contains('math') || lowercaseQuery.contains('formula') || lowercaseQuery.contains('calculation')) {
+      } else if (lowercaseQuery.contains('math') ||
+          lowercaseQuery.contains('formula') ||
+          lowercaseQuery.contains('calculation')) {
         return 'Using 1/f = 1/d_o + 1/d_i:\n1/f = 1/15 = 1/10 + 1/d_i\n1/d_i = 1/15 - 1/10 = -1/30\nd_i = -30 cm (Virtual). Magnification m = -d_i / d_o = -(-30) / 10 = +3 (Magnified & Upright).';
       }
     }
 
     // Kepler's Third Law
     if (qText.contains('Kepler\'s Third Law')) {
-      if (lowercaseQuery.contains('formula') || lowercaseQuery.contains('equation') || lowercaseQuery.contains('proportional') || lowercaseQuery.contains('math')) {
+      if (lowercaseQuery.contains('formula') ||
+          lowercaseQuery.contains('equation') ||
+          lowercaseQuery.contains('proportional') ||
+          lowercaseQuery.contains('math')) {
         return 'The mathematical representation is **T² ∝ a³**, where T is the orbital period and a is the semi-major axis. If you double the distance, the orbital period increases by a factor of 2^(3/2) ≈ **2.83** times.';
       }
     }
 
     // Expository text
     if (qText.contains('expository text')) {
-      if (lowercaseQuery.contains('persuade') || lowercaseQuery.contains('argumentative')) {
+      if (lowercaseQuery.contains('persuade') ||
+          lowercaseQuery.contains('argumentative')) {
         return 'An argumentative text is designed to persuade the reader. Expository texts, by contrast, avoid opinions and stick to presenting factual explanations neutrally.';
-      } else if (lowercaseQuery.contains('example') || lowercaseQuery.contains('ejemplo') || lowercaseQuery.contains('another')) {
+      } else if (lowercaseQuery.contains('example') ||
+          lowercaseQuery.contains('ejemplo') ||
+          lowercaseQuery.contains('another')) {
         return 'Examples of expository texts include news articles, textbooks, manuals, and encyclopedias. They present facts and explanations without trying to convince you of a personal viewpoint.';
       }
     }
 
     // Tone of resilience
     if (qText.contains('resilience, immediately planning')) {
-      if (lowercaseQuery.contains('why') || lowercaseQuery.contains('tone') || lowercaseQuery.contains('explain')) {
+      if (lowercaseQuery.contains('why') ||
+          lowercaseQuery.contains('tone') ||
+          lowercaseQuery.contains('explain')) {
         return 'The tone is encouraging because the author focuses on the team\'s positive response ("resilience") and future planning rather than dwelling on the "devastating loss," showing an optimistic outlook.';
       }
     }
@@ -636,23 +683,27 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
     // French Revolution
     if (qText.contains('French Revolution')) {
-      if (lowercaseQuery.contains('enlightenment') || lowercaseQuery.contains('ideas')) {
+      if (lowercaseQuery.contains('enlightenment') ||
+          lowercaseQuery.contains('ideas')) {
         return 'Enlightenment thinkers like Montesquieu, Voltaire, and Rousseau popularized concepts like social contract, separation of powers, and individual liberty. These ideas inspired citizens to challenge the absolute power of King Louis XVI.';
-      } else if (lowercaseQuery.contains('inequality') || lowercaseQuery.contains('estates')) {
+      } else if (lowercaseQuery.contains('inequality') ||
+          lowercaseQuery.contains('estates')) {
         return 'French society was split into three Estates: Clergy (1st), Nobility (2nd), and everyone else (3rd). The Third Estate made up 98% of the population but had virtually no political power and paid all the taxes, leading to massive resentment.';
       }
     }
 
     // Industrial Revolution Urbanization
     if (qText.contains('rural areas to cities')) {
-      if (lowercaseQuery.contains('urbanization') || lowercaseQuery.contains('why')) {
+      if (lowercaseQuery.contains('urbanization') ||
+          lowercaseQuery.contains('why')) {
         return 'Urbanization occurred because agricultural machines reduced the need for farm labor in the countryside, while new steam-powered factories in cities needed thousands of workers, leading to massive migration.';
       }
     }
 
     // United Nations
     if (qText.contains('United Nations')) {
-      if (lowercaseQuery.contains('league of nations') || lowercaseQuery.contains('history')) {
+      if (lowercaseQuery.contains('league of nations') ||
+          lowercaseQuery.contains('history')) {
         return 'The United Nations succeeded the League of Nations, which had failed to prevent World War II. The UN was designed with stronger enforcement mechanisms, such as the Security Council, to make peace preservation more effective.';
       }
     }
@@ -665,13 +716,19 @@ class _RehearseScreenState extends State<RehearseScreen> {
     }
 
     // General fallbacks based on keywords
-    if (lowercaseQuery.contains('why') || lowercaseQuery.contains('explain') || lowercaseQuery.contains('how')) {
+    if (lowercaseQuery.contains('why') ||
+        lowercaseQuery.contains('explain') ||
+        lowercaseQuery.contains('how')) {
       return 'This concept is a core element of the topic. Reviewing the correct answer details helps clarify the underlying principles. Let me know if you would like me to explain a specific option!';
     }
-    if (lowercaseQuery.contains('example') || lowercaseQuery.contains('ejemplo')) {
+    if (lowercaseQuery.contains('example') ||
+        lowercaseQuery.contains('ejemplo')) {
       return 'For instance, in similar problems, we apply the same rule or concept to a slightly different scenario. This helps reinforce the general principle. Would you like to review another part of this question?';
     }
-    if (lowercaseQuery.contains('thank') || lowercaseQuery.contains('ok') || lowercaseQuery.contains('thanks') || lowercaseQuery.contains('perfecto')) {
+    if (lowercaseQuery.contains('thank') ||
+        lowercaseQuery.contains('ok') ||
+        lowercaseQuery.contains('thanks') ||
+        lowercaseQuery.contains('perfecto')) {
       return 'You\'re welcome! Let me know if you want to discuss this more, or feel free to move on to the next question when you\'re ready.';
     }
 
@@ -685,33 +742,35 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
     for (final Match match in regExp.allMatches(text)) {
       if (match.start > lastMatchEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastMatchEnd, match.start),
-        ));
+        spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
       }
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-      ));
+      spans.add(
+        TextSpan(
+          text: match.group(1),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      );
       lastMatchEnd = match.end;
     }
 
     if (lastMatchEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastMatchEnd),
-      ));
+      spans.add(TextSpan(text: text.substring(lastMatchEnd)));
     }
 
     return RichText(
-      text: TextSpan(
-        children: spans,
-        style: baseStyle,
-      ),
+      text: TextSpan(children: spans, style: baseStyle),
     );
   }
 
   Widget _buildHeaderProgressColumn(
-      String label, int correct, int total, Color color) {
+    String label,
+    int correct,
+    int total,
+    Color color,
+  ) {
     final double percentage = total > 0 ? (correct / total) : 0.0;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -860,7 +919,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF161C24).withValues(alpha: 0.4),
+                            color: const Color(
+                              0xFF161C24,
+                            ).withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.05),
@@ -954,8 +1015,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.tutorial.gradientColors.first
-                          .withValues(alpha: 0.3),
+                      color: widget.tutorial.gradientColors.first.withValues(
+                        alpha: 0.3,
+                      ),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1008,12 +1070,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
     final activeQuestion = _questions[_currentIndex];
 
     // Compute dynamic session metrics
-    final easyTotal = _getEasyTotal();
-    final easyCorrect = _getEasyCorrect();
+    final easyTotal = _getBeginnerTotal();
+    final easyCorrect = _getBeginnerCorrect();
     final intTotal = _getIntermediateTotal();
     final intCorrect = _getIntermediateCorrect();
-    final advTotal = _getAdvancedTotal();
-    final advCorrect = _getAdvancedCorrect();
+    final advTotal = _getExpertTotal();
+    final advCorrect = _getExpertCorrect();
 
     return Column(
       children: [
@@ -1070,11 +1132,26 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _buildHeaderProgressColumn('Easy', easyCorrect, easyTotal, const Color(0xFF38EF7D)),
+                        _buildHeaderProgressColumn(
+                          'Beginner',
+                          easyCorrect,
+                          easyTotal,
+                          const Color(0xFF38EF7D),
+                        ),
                         const SizedBox(width: 24),
-                        _buildHeaderProgressColumn('Intermediate', intCorrect, intTotal, const Color(0xFFF27121)),
+                        _buildHeaderProgressColumn(
+                          'Intermediate',
+                          intCorrect,
+                          intTotal,
+                          const Color(0xFFF27121),
+                        ),
                         const SizedBox(width: 24),
-                        _buildHeaderProgressColumn('Advanced', advCorrect, advTotal, const Color(0xFFE94057)),
+                        _buildHeaderProgressColumn(
+                          'Expert',
+                          advCorrect,
+                          advTotal,
+                          const Color(0xFFE94057),
+                        ),
                       ],
                     ),
                   ],
@@ -1139,8 +1216,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment:
-                      isAI ? MainAxisAlignment.start : MainAxisAlignment.end,
+                  mainAxisAlignment: isAI
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.end,
                   children: [
                     if (isAI) ...[
                       Container(
@@ -1166,8 +1244,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         decoration: BoxDecoration(
                           color: isAI
                               ? const Color(0xFF161C24).withValues(alpha: 0.8)
-                              : widget.tutorial.gradientColors.first
-                                  .withValues(alpha: 0.15),
+                              : widget.tutorial.gradientColors.first.withValues(
+                                  alpha: 0.15,
+                                ),
                           borderRadius: isAI
                               ? const BorderRadius.only(
                                   topLeft: Radius.circular(4),
@@ -1185,17 +1264,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
                             color: isAI
                                 ? Colors.white.withValues(alpha: 0.06)
                                 : widget.tutorial.gradientColors.first
-                                    .withValues(alpha: 0.4),
+                                      .withValues(alpha: 0.4),
                             width: 1.5,
                           ),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         child: _buildRichText(
                           message.text,
                           TextStyle(
                             fontSize: 14,
-                            color: isAI ? Colors.white.withValues(alpha: 0.85) : Colors.white,
+                            color: isAI
+                                ? Colors.white.withValues(alpha: 0.85)
+                                : Colors.white,
                             height: 1.4,
                           ),
                         ),
@@ -1589,25 +1672,41 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: question.difficulty == 'Easy'
-                                              ? const Color(0xFF38EF7D).withValues(alpha: 0.15)
-                                              : question.difficulty == 'Intermediate'
-                                                  ? const Color(0xFFFF9F43).withValues(alpha: 0.15)
-                                                  : const Color(0xFFE94057).withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color:
+                                              question.difficulty == 'Beginner'
+                                              ? const Color(
+                                                  0xFF38EF7D,
+                                                ).withValues(alpha: 0.15)
+                                              : question.difficulty ==
+                                                    'Intermediate'
+                                              ? const Color(
+                                                  0xFFFF9F43,
+                                                ).withValues(alpha: 0.15)
+                                              : const Color(
+                                                  0xFFE94057,
+                                                ).withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Text(
                                           question.difficulty.toUpperCase(),
                                           style: TextStyle(
                                             fontSize: 8,
                                             fontWeight: FontWeight.bold,
-                                            color: question.difficulty == 'Easy'
+                                            color:
+                                                question.difficulty ==
+                                                    'Beginner'
                                                 ? const Color(0xFF38EF7D)
-                                                : question.difficulty == 'Intermediate'
-                                                    ? const Color(0xFFFF9F43)
-                                                    : const Color(0xFFE94057),
+                                                : question.difficulty ==
+                                                      'Intermediate'
+                                                ? const Color(0xFFFF9F43)
+                                                : const Color(0xFFE94057),
                                           ),
                                         ),
                                       ),
