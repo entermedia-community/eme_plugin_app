@@ -276,7 +276,7 @@ class TopicTutorialsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Medium',
+                              'Intermediate',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 10,
