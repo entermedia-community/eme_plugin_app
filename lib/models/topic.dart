@@ -5,8 +5,8 @@ class Topic {
   final String thumbnail;
   final int completedTutorials;
   final String efficiency;
-  final int validityPeriod;
-  final int expiresIn;
+  final double validityPeriod;
+  final double expiresIn;
   final DateTime lastUpdated;
   final List<Tutorial> tutorial;
 
@@ -36,8 +36,8 @@ final List<Topic> mockTopics = [
         'https://minsur.testu.co/testu/mediadb/services/module/asset/generate/Web%20Content/Test%20Data%20for%20App/Ciberseguridad.png/image200x200.webp/CiberseguridadS.webp',
     completedTutorials: 1,
     efficiency: 'Moderate',
-    validityPeriod: 30,
-    expiresIn: 7,
+    validityPeriod: 30.0,
+    expiresIn: 7.0,
     lastUpdated: DateTime.now(),
     tutorial: [
       mockTutorials[0],
@@ -52,8 +52,8 @@ final List<Topic> mockTopics = [
         'https://minsur.testu.co/testu/mediadb/services/module/asset/generate/Web%20Content/Test%20Data%20for%20App/Humanos.png/image200x200.webp/HumanosS.webp',
     completedTutorials: 2,
     efficiency: 'Excelent',
-    validityPeriod: 30,
-    expiresIn: 29,
+    validityPeriod: 30.0,
+    expiresIn: 28.0,
     lastUpdated: DateTime.now(),
     tutorial: [
       mockTutorials[4],
@@ -63,4 +63,3 @@ final List<Topic> mockTopics = [
     ],
   ),
 ];
-

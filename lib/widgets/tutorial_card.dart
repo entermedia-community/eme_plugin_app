@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:testu_cl/widgets/circular_progress.dart';
 import '../models/tutorial.dart';
 import '../screens/rehearse_screen.dart';
 
@@ -7,7 +8,11 @@ class TutorialCard extends StatefulWidget {
   final Tutorial tutorial;
   final bool isListMode;
 
-  const TutorialCard({super.key, required this.tutorial, this.isListMode = false});
+  const TutorialCard({
+    super.key,
+    required this.tutorial,
+    this.isListMode = false,
+  });
 
   @override
   State<TutorialCard> createState() => _TutorialCardState();
@@ -167,7 +172,7 @@ class _TutorialCardState extends State<TutorialCard>
 
   Widget _buildListCard(Color statusColor) {
     return Container(
-      height: 140,
+      height: 230,
       decoration: BoxDecoration(
         color: const Color(0xFF161C24),
         borderRadius: BorderRadius.circular(16),
@@ -178,43 +183,28 @@ class _TutorialCardState extends State<TutorialCard>
         child: Row(
           children: [
             // Left tiny vertical gradient block
-            Container(
-              width: 12,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: widget.tutorial.gradientColors,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-
+            // Container(
+            //   width: 12,
+            //   height: double.infinity,
+            //   decoration: BoxDecoration(
+            //     gradient: LinearGradient(
+            //       begin: Alignment.topCenter,
+            //       end: Alignment.bottomCenter,
+            //       colors: widget.tutorial.gradientColors,
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(width: 16),
             // Middle Tutorial Details
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        _buildStatusBadge(statusColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          widget.tutorial.category,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white.withValues(alpha: 0.3),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
+                    _buildStatusBadge(statusColor),
+                    const SizedBox(height: 12),
                     Text(
                       widget.tutorial.title,
                       maxLines: 1,
@@ -230,108 +220,162 @@ class _TutorialCardState extends State<TutorialCard>
                       'Unlocked: ${widget.tutorial.unlockedQuestions} / ${widget.tutorial.totalQuestions} questions',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Colors.white.withValues(alpha: 0.75),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
+                    Divider(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      height: 1,
+                    ),
+                    const SizedBox(height: 14),
                     // Inline Progress bar
+                    Text(
+                      'Avg. score (by difficulty)',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: widget.tutorial.progress,
-                              minHeight: 6,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.04,
+                          child: Row(
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Easy',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CircularProgress(
+                                    value: widget.tutorial.progress,
+                                    max: 1,
+                                    color: const Color(0xFF38EF7D),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${(widget.tutorial.progress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                widget.tutorial.progress > 0.5
-                                    ? const Color(0xFF38EF7D)
-                                    : const Color(0xFF38B6FF),
+                              const SizedBox(width: 24),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Medium',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CircularProgress(
+                                    value: widget.tutorial.progress,
+                                    max: 1,
+                                    color: Color(0xFFF27121),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${(widget.tutorial.progress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                              const SizedBox(width: 24),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Advanced',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CircularProgress(
+                                    value: widget.tutorial.progress,
+                                    max: 1,
+                                    color: Color(0xFFE94057),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${(widget.tutorial.progress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          '${(widget.tutorial.progress * 100).toInt()}%',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: statusColor.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  foregroundColor: statusColor,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: statusColor.withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Improve',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // Right side buttons
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: statusColor.withValues(alpha: 0.15),
-                      foregroundColor: statusColor,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: statusColor.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Improve',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RehearseScreen(tutorial: widget.tutorial),
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      'Rehearse',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

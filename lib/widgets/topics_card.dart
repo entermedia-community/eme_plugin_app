@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testu_cl/models/topic.dart';
 import 'package:transparent_image/transparent_image.dart';
+
 import '../screens/topic_tutorials_screen.dart';
 import '../utils/language_helper.dart';
 
@@ -82,7 +83,10 @@ class TopicsCard extends StatelessWidget {
                             imageErrorBuilder: (context, error, stackTrace) {
                               return Container(
                                 color: Colors.grey,
-                                child: const Icon(Icons.error, color: Colors.white),
+                                child: const Icon(
+                                  Icons.error,
+                                  color: Colors.white,
+                                ),
                               );
                             },
                           ),
@@ -107,7 +111,7 @@ class TopicsCard extends StatelessWidget {
                               LanguageHelper.translate(
                                 'tutorials_count',
                                 placeholders: {
-                                  'count': topic.tutorial.length.toString()
+                                  'count': topic.tutorial.length.toString(),
                                 },
                               ),
                               style: const TextStyle(
@@ -168,31 +172,15 @@ class TopicsCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            // Round progressbar
-                            SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                value: expirationProgress,
-                                strokeWidth: 3,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.05,
-                                ),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  progressColor,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "${topic.expiresIn}",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: progressColor,
                                   ),
                                 ),
                                 Text(
@@ -243,7 +231,9 @@ class TopicsCard extends StatelessWidget {
                               LanguageHelper.translate(
                                 'last_updated',
                                 placeholders: {
-                                  'date': DateFormat.yMMMMd().format(topic.lastUpdated)
+                                  'date': DateFormat.yMMMMd().format(
+                                    topic.lastUpdated,
+                                  ),
                                 },
                               ),
                               style: const TextStyle(
