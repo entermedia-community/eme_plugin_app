@@ -51,7 +51,11 @@ class _DashboardScreenState extends State<DashboardScreen>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
+                colors: [
+                  Color(0xFF0B0F13),
+                  Color(0xFF141923),
+                  Color(0xFF0F1319),
+                ],
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
@@ -73,7 +77,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Overall metrics overview card
-                          _buildOverviewCard(overallProgress, overallAverageScore),
+                          _buildOverviewCard(
+                            overallProgress,
+                            overallAverageScore,
+                          ),
                           const SizedBox(height: 32),
 
                           // Section Title
@@ -380,26 +387,27 @@ class _DashboardScreenState extends State<DashboardScreen>
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildMetricCol(
-                      label: LanguageHelper.translate('average_progress'),
-                      value: '${(averageProgress * 100).toInt()}%',
-                      icon: Icons.donut_large_rounded,
-                      color: const Color(0xFF38B6FF),
+                  _buildMetricCol(
+                    label: LanguageHelper.translate('overall_progress'),
+                    value: '${(averageProgress * 100).toInt()}%',
+                    icon: Icons.donut_large_rounded,
+                    color: const Color(0xFF38B6FF),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: Container(
+                      width: 1,
+                      height: 40,
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
-                  Expanded(
-                    child: _buildMetricCol(
-                      label: LanguageHelper.translate('test_performance'),
-                      value: '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
-                      icon: Icons.stars_rounded,
-                      color: const Color(0xFFE94057),
-                    ),
+                  const Spacer(),
+                  _buildMetricCol(
+                    label: LanguageHelper.translate('overall_performance'),
+                    value:
+                        '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
+                    icon: Icons.stars_rounded,
+                    color: const Color(0xFFE94057),
                   ),
                 ],
               ),
@@ -417,16 +425,16 @@ class _DashboardScreenState extends State<DashboardScreen>
     required Color color,
   }) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color.withValues(alpha: 0.1),
           ),
-          child: Icon(icon, color: color, size: 18),
+          child: Icon(icon, color: color, size: 15),
         ),
         const SizedBox(width: 12),
         Column(

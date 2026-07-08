@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
+import 'package:testu_cl/utils/language_helper.dart';
 
 class CommonWidgets {
   static Future<void> showInfoDialog({
@@ -60,10 +61,7 @@ class CommonWidgets {
             Icon(icon, size: 18, color: color),
             const SizedBox(width: 8),
             Text(
-              efficiency.name.replaceFirst(
-                efficiency.name[0],
-                efficiency.name[0].toUpperCase(),
-              ),
+              LanguageHelper.translate(efficiency.name),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

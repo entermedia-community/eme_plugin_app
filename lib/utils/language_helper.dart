@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LanguageHelper {
-  static final ValueNotifier<String> languageNotifier = ValueNotifier<String>('English');
+  static final ValueNotifier<String> languageNotifier = ValueNotifier<String>(
+    'English',
+  );
 
   static String get currentLanguage => languageNotifier.value;
 
@@ -14,8 +16,8 @@ class LanguageHelper {
       'English': {
         'catalog_dashboard': 'Catalog / Dashboard',
         'profile': 'PROFILE',
-        'average_progress': 'Average Progress',
-        'test_performance': 'Test Performance',
+        'overall_progress': 'Overall Progress',
+        'overall_performance': 'Overall Performance',
         'topics': 'TOPICS',
         'workspace': 'WORKSPACE',
         'language': 'LANGUAGE',
@@ -43,12 +45,15 @@ class LanguageHelper {
         'average_score': '{progress}% Average Score',
         'overall_topic_progress': 'Overall Topic Progress',
         'finished': '{percent}% Finished',
+        'beginner': 'Beginner',
+        'intermediate': 'Intermediate',
+        'expert': 'Expert',
       },
       'Español': {
         'catalog_dashboard': 'Catálogo / Tablero',
         'profile': 'PERFIL',
-        'average_progress': 'Progreso Promedio',
-        'test_performance': 'Rendimiento de Prueba',
+        'overall_progress': 'Progreso general',
+        'overall_performance': 'Rendimiento general',
         'topics': 'TEMAS',
         'workspace': 'ESPACIO DE TRABAJO',
         'language': 'IDIOMA',
@@ -76,7 +81,10 @@ class LanguageHelper {
         'average_score': '{progress}% Puntaje Promedio',
         'overall_topic_progress': 'Progreso General del Tema',
         'finished': '{percent}% Finalizado',
-      }
+        'beginner': 'Principiante',
+        'intermediate': 'Intermedio',
+        'expert': 'Experto',
+      },
     };
 
     String value = translations[currentLanguage]?[key] ?? key;
