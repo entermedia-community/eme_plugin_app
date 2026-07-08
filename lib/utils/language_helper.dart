@@ -48,6 +48,7 @@ class LanguageHelper {
         'beginner': 'Beginner',
         'intermediate': 'Intermediate',
         'expert': 'Expert',
+        'topics_you_excel_at': 'Topics you excel at',
       },
       'Español': {
         'catalog_dashboard': 'Catálogo / Tablero',
@@ -84,6 +85,7 @@ class LanguageHelper {
         'beginner': 'Principiante',
         'intermediate': 'Intermedio',
         'expert': 'Experto',
+        'topics_you_excel_at': 'Temas en los que sobresales',
       },
     };
 

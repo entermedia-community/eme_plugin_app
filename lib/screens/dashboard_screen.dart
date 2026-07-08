@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:testu_cl/widgets/topics_card.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/topic.dart';
@@ -383,41 +384,79 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'John Smith',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
               Row(
                 children: [
-                  _buildMetricCol(
-                    label: LanguageHelper.translate('overall_progress'),
-                    value: '${(averageProgress * 100).toInt()}%',
-                    icon: Icons.donut_large_rounded,
-                    color: const Color(0xFF38B6FF),
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: Container(
-                      width: 1,
-                      height: 40,
-                      color: Colors.white.withValues(alpha: 0.08),
+                  Container(
+                    width: 80,
+                    height: 80,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: Center(
+                      child: FadeInImage.memoryNetwork(
+                        placeholder: kTransparentImage,
+                        image:
+                            "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png",
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  _buildMetricCol(
-                    label: LanguageHelper.translate('overall_performance'),
-                    value:
-                        '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
-                    icon: Icons.stars_rounded,
-                    color: const Color(0xFFE94057),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'John Smith',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '${LanguageHelper.translate('topics_you_excel_at')} — ',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildProfileTags(),
+                      ],
+                    ),
                   ),
                 ],
               ),
+              // Row(
+              //   children: [
+              //     _buildMetricCol(
+              //       label: LanguageHelper.translate('overall_progress'),
+              //       value: '${(averageProgress * 100).toInt()}%',
+              //       icon: Icons.donut_large_rounded,
+              //       color: const Color(0xFF38B6FF),
+              //     ),
+              //     const Spacer(),
+              //     Center(
+              //       child: Container(
+              //         width: 1,
+              //         height: 40,
+              //         color: Colors.white.withValues(alpha: 0.08),
+              //       ),
+              //     ),
+              //     const Spacer(),
+              //     _buildMetricCol(
+              //       label: LanguageHelper.translate('overall_performance'),
+              //       value:
+              //           '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
+              //       icon: Icons.stars_rounded,
+              //       color: const Color(0xFFE94057),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -425,50 +464,112 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildMetricCol({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+  Widget _buildProfileTags() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.1),
-          ),
-          child: Icon(icon, color: color, size: 15),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white30,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
+        _buildProfileTagItem(label: "Achievement 1", icon: Icons.star),
+        _buildProfileTagItem(label: "Achievement 2", icon: Icons.star),
+        _buildProfileTagItem(label: "Achievement 3", icon: Icons.star),
+        InkWell(
+          onTap: () {},
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 100),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              '+3 more',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ],
+          ),
         ),
       ],
     );
   }
+
+  Widget _buildProfileTagItem({required String label, IconData? icon}) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 100),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+
+        border: Border.all(color: Colors.blue, width: 1),
+      ),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 12, color: Colors.blue),
+            const SizedBox(width: 4),
+          ],
+          Expanded(
+            child: Text(
+              label,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildMetricCol({
+  //   required String label,
+  //   required String value,
+  //   required IconData icon,
+  //   required Color color,
+  // }) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.start,
+  //     children: [
+  //       Container(
+  //         width: 30,
+  //         height: 30,
+  //         decoration: BoxDecoration(
+  //           shape: BoxShape.circle,
+  //           color: color.withValues(alpha: 0.1),
+  //         ),
+  //         child: Icon(icon, color: color, size: 15),
+  //       ),
+  //       const SizedBox(width: 12),
+  //       Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             label,
+  //             style: const TextStyle(
+  //               color: Colors.white30,
+  //               fontSize: 11,
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 2),
+  //           Text(
+  //             value,
+  //             style: const TextStyle(
+  //               color: Colors.white,
+  //               fontSize: 15,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildDrawer() {
     return Drawer(
