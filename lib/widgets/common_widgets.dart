@@ -5,7 +5,7 @@ class CommonWidgets {
   static Future<void> showInfoDialog({
     required BuildContext context,
     required String title,
-    required String description,
+    required Widget description,
     String? buttonText,
   }) async {
     return showDialog<void>(
@@ -14,7 +14,7 @@ class CommonWidgets {
         return AlertDialog(
           title: Text(title),
           content: SingleChildScrollView(
-            child: ListBody(children: <Widget>[Text(description)]),
+            child: ListBody(children: <Widget>[description]),
           ),
           actions: <Widget>[
             TextButton(
@@ -117,9 +117,11 @@ class CommonWidgets {
               onTap: () {
                 showInfoDialog(
                   context: context,
-                  title: "Reliability Assessment",
-                  description:
-                      "The reliability score indicates your current level of competence in this topic. It goes down with time, so you need to review the topic regularly to keep it high.",
+                  title: "Score Assessment",
+                  description: Text(
+                    "The score indicates your current level of competence in this topic. It goes down with time, so you need to review the topic periodically to keep it high.",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 );
               },
               child: Icon(
