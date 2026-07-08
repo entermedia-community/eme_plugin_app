@@ -151,43 +151,35 @@ class TopicTutorialsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                  ),
-                  child: FadeInImage.memoryNetwork(
-                    placeholder: kTransparentImage,
-                    image: topic.thumbnail,
-                    imageErrorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey,
-                        child: const Icon(Icons.error, color: Colors.white),
-                      );
-                    },
-                  ),
+              Container(
+                width: 120,
+                height: 120,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: FadeInImage.memoryNetwork(
+                  placeholder: kTransparentImage,
+                  image: topic.thumbnail,
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.error, color: Colors.white),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text(
-                      topic.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  topic.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
