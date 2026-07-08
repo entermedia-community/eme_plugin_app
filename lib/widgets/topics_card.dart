@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:testu_cl/models/topic.dart';
+import 'package:testu_cl/widgets/common_widgets.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:transparent_image/transparent_image.dart';
 
 import '../screens/topic_tutorials_screen.dart';
@@ -14,26 +15,6 @@ class TopicsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mainColor = const Color(0xFF38B6FF);
-    final double expirationProgress = (topic.expiresIn / topic.validityPeriod)
-        .clamp(0.0, 1.0);
-    final Color progressColor;
-    if (expirationProgress < 0.5) {
-      progressColor =
-          Color.lerp(
-            const Color(0xFFE94057),
-            const Color(0xFFF27121),
-            expirationProgress * 2.0,
-          ) ??
-          const Color(0xFFF27121);
-    } else {
-      progressColor =
-          Color.lerp(
-            const Color(0xFFF27121),
-            const Color(0xFF38EF7D),
-            (expirationProgress - 0.5) * 2.0,
-          ) ??
-          const Color(0xFF38EF7D);
-    }
 
     return ValueListenableBuilder<String>(
       valueListenable: LanguageHelper.languageNotifier,
@@ -65,7 +46,7 @@ class TopicsCard extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Thumbnail on the left
                       Padding(
@@ -95,65 +76,48 @@ class TopicsCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       // Title, Subtitle, Progress and Stat
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              topic.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              LanguageHelper.translate(
-                                'tutorials_count',
-                                placeholders: {
-                                  'count': topic.tutorial.length.toString(),
-                                },
-                              ),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.white60,
-                              ),
-                            ),
-
-                            const SizedBox(height: 10),
-                            // Progress Bar
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(3),
-                                    child: LinearProgressIndicator(
-                                      value: topic.progress,
-                                      minHeight: 5,
-                                      backgroundColor: Colors.white.withValues(
-                                        alpha: 0.06,
-                                      ),
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        mainColor,
-                                      ),
-                                    ),
-                                  ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            right: 8,
+                            top: 8,
+                            bottom: 8,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                topic.title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "${(topic.progress * 100).toInt()}%",
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white60,
-                                  ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                LanguageHelper.translate(
+                                  'tutorials_count',
+                                  placeholders: {
+                                    'count': topic.tutorial.length.toString(),
+                                  },
                                 ),
-                              ],
-                            ),
-                          ],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white60,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Last reviewd ${timeago.format(topic.lastUpdated)}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white38,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
                     ],
                   ),
 
@@ -170,78 +134,12 @@ class TopicsCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${topic.expiresIn.toInt()}",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: progressColor,
-                                  ),
-                                ),
-                                Text(
-                                  LanguageHelper.translate('days_to_go'),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white60,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        CommonWidgets.buildCompetenceBadge(
+                          efficiency: topic.efficiency,
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                // Round progressbar
-                                const Icon(Icons.signal_cellular_alt_2_bar),
-                                const SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      LanguageHelper.translate('moderate'),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      LanguageHelper.translate('efficiency'),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white60,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              LanguageHelper.translate(
-                                'last_updated',
-                                placeholders: {
-                                  'date': DateFormat.yMMMMd().format(
-                                    topic.lastUpdated,
-                                  ),
-                                },
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white38,
-                              ),
-                            ),
-                          ],
+                        CommonWidgets.buildCurrentScore(
+                          context: context,
+                          score: topic.reliability,
                         ),
                       ],
                     ),

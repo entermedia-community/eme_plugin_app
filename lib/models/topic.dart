@@ -1,12 +1,14 @@
 import 'tutorial.dart';
 
+enum Efficiency { beginner, learner, expert }
+
 class Topic {
   final String title;
   final String thumbnail;
   final int completedTutorials;
-  final String efficiency;
+  final Efficiency efficiency;
   final double validityPeriod;
-  final double expiresIn;
+  final double reliability;
   final DateTime lastUpdated;
   final List<Tutorial> tutorial;
 
@@ -16,7 +18,7 @@ class Topic {
     required this.completedTutorials,
     required this.efficiency,
     required this.validityPeriod,
-    required this.expiresIn,
+    required this.reliability,
     required this.lastUpdated,
     required this.tutorial,
   });
@@ -35,10 +37,10 @@ final List<Topic> mockTopics = [
     thumbnail:
         'https://minsur.testu.co/testu/mediadb/services/module/asset/generate/Web%20Content/Test%20Data%20for%20App/Ciberseguridad.png/image200x200.webp/CiberseguridadS.webp',
     completedTutorials: 1,
-    efficiency: 'Moderate',
+    efficiency: Efficiency.beginner,
     validityPeriod: 30.0,
-    expiresIn: 7.0,
-    lastUpdated: DateTime.now(),
+    reliability: 7.0,
+    lastUpdated: DateTime.now().subtract(Duration(days: 7)),
     tutorial: [
       mockTutorials[0],
       mockTutorials[1],
@@ -51,9 +53,9 @@ final List<Topic> mockTopics = [
     thumbnail:
         'https://minsur.testu.co/testu/mediadb/services/module/asset/generate/Web%20Content/Test%20Data%20for%20App/Humanos.png/image200x200.webp/HumanosS.webp',
     completedTutorials: 2,
-    efficiency: 'Excelent',
+    efficiency: Efficiency.expert,
     validityPeriod: 30.0,
-    expiresIn: 28.0,
+    reliability: 28.0,
     lastUpdated: DateTime.now(),
     tutorial: [
       mockTutorials[4],

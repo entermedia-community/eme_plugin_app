@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:testu_cl/widgets/circular_progress.dart';
+import 'package:testu_cl/widgets/common_widgets.dart';
 import 'package:transparent_image/transparent_image.dart';
+
 import '../models/topic.dart';
-import '../widgets/tutorial_card.dart';
 import '../utils/language_helper.dart';
+import '../widgets/tutorial_card.dart';
 
 class TopicTutorialsScreen extends StatelessWidget {
   final Topic topic;
@@ -188,143 +189,22 @@ class TopicTutorialsScreen extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                children: [
-                  Text(
-                    LanguageHelper.translate('total_tutorials'),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${topic.tutorial.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              Expanded(
+                child: CommonWidgets.buildCompetenceBadge(
+                  efficiency: topic.efficiency,
+                ),
               ),
               const SizedBox(width: 16),
               Container(
                 width: 1,
-                height: 100,
+                height: 40,
                 color: Colors.white.withValues(alpha: 0.08),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LanguageHelper.translate(
-                        'overall_topic_progress',
-                      ).toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Beginner',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            CircularProgress(
-                              value: 9,
-                              max: 1,
-                              color: const Color(0xFF38EF7D),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '36%',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 24),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Intermediate',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            CircularProgress(
-                              value: 7,
-                              max: 1,
-                              color: Color(0xFFF27121),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '42%',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 24),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Expert',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            CircularProgress(
-                              value: 5,
-                              max: 1,
-                              color: Color(0xFFE94057),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '80%',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                child: CommonWidgets.buildCurrentScore(
+                  context: context,
+                  score: topic.reliability,
                 ),
               ),
             ],
