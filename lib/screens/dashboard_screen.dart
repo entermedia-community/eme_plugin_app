@@ -386,6 +386,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: 80,
@@ -469,8 +470,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     final sortedTags = List<Tag>.from(mockTags)
       ..sort((a, b) => b.score.compareTo(a.score));
 
-    final previewTags = sortedTags.take(10).toList();
-    final remainingCount = sortedTags.length - previewTags.length;
+    final bestTags = sortedTags.where((t) => t.score >= 70).toList();
+    final previewTags = bestTags.take(5).toList();
+    final remainingCount = bestTags.length - previewTags.length;
 
     return Wrap(
       spacing: 8,
@@ -558,7 +560,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   void _showAchievementsBottomSheet(BuildContext context) {
     final sorted = List<Tag>.from(mockTags)
       ..sort((a, b) => b.score.compareTo(a.score));
-    final top10 = sorted.take(10).toList();
+    final top10 = sorted.where((t) => t.score >= 70).toList();
 
     showModalBottomSheet(
       context: context,
