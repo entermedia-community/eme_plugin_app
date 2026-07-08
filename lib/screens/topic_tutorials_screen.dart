@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testu_cl/widgets/circular_progress.dart';
 import 'package:transparent_image/transparent_image.dart';
 import '../models/topic.dart';
 import '../widgets/tutorial_card.dart';
@@ -24,7 +25,11 @@ class TopicTutorialsScreen extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF0B0F13), Color(0xFF141923), Color(0xFF0F1319)],
+                colors: [
+                  Color(0xFF0B0F13),
+                  Color(0xFF141923),
+                  Color(0xFF0F1319),
+                ],
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
@@ -189,37 +194,33 @@ class TopicTutorialsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LanguageHelper.translate('total_tutorials'),
-                      style: const TextStyle(
-                        color: Colors.white30,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Column(
+                children: [
+                  Text(
+                    LanguageHelper.translate('total_tutorials'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      LanguageHelper.translate(
-                        'active_tutorials',
-                        placeholders: {'count': topic.tutorial.length.toString()},
-                      ),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${topic.tutorial.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              const SizedBox(width: 16),
               Container(
                 width: 1,
-                height: 32,
+                height: 100,
                 color: Colors.white.withValues(alpha: 0.08),
               ),
               const SizedBox(width: 16),
@@ -228,66 +229,113 @@ class TopicTutorialsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      LanguageHelper.translate('tests_performance'),
+                      LanguageHelper.translate(
+                        'overall_topic_progress',
+                      ).toUpperCase(),
                       style: const TextStyle(
-                        color: Colors.white30,
-                        fontSize: 10,
+                        color: Colors.white,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      LanguageHelper.translate(
-                        'average_score',
-                        placeholders: {'progress': (topic.progress).toInt().toString()},
-                      ),
-                      style: TextStyle(
-                        color: mainColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Easy',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            CircularProgress(
+                              value: 9,
+                              max: 1,
+                              color: const Color(0xFF38EF7D),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '36%',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 24),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Medium',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            CircularProgress(
+                              value: 7,
+                              max: 1,
+                              color: Color(0xFFF27121),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '42%',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 24),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Advanced',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            CircularProgress(
+                              value: 5,
+                              max: 1,
+                              color: Color(0xFFE94057),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '80%',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          const Divider(color: Colors.white10),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                LanguageHelper.translate('overall_topic_progress'),
-                style: const TextStyle(
-                  color: Colors.white54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                LanguageHelper.translate(
-                  'finished',
-                  placeholders: {'percent': (topic.progress * 100).toInt().toString()},
-                ),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: topic.progress,
-              minHeight: 6,
-              backgroundColor: Colors.white.withValues(alpha: 0.06),
-              valueColor: AlwaysStoppedAnimation<Color>(mainColor),
-            ),
           ),
         ],
       ),

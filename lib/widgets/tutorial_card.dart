@@ -338,12 +338,21 @@ class _TutorialCardState extends State<TutorialCard>
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
+                          padding: const EdgeInsets.only(left: 16.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RehearseScreen(
+                                        tutorial: widget.tutorial,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: statusColor.withValues(
                                     alpha: 0.15,
