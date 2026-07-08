@@ -1066,7 +1066,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   Widget _buildQuizView() {
-    final progress = (_currentIndex + 1) / _questions.length;
+    // final progress = (_currentIndex + 1) / _questions.length;
     final activeQuestion = _questions[_currentIndex];
 
     // Compute dynamic session metrics
@@ -1161,47 +1161,47 @@ class _RehearseScreenState extends State<RehearseScreen> {
           ),
         ),
 
-        // Progress bar indicators
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Question ${_currentIndex + 1} of ${_questions.length}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    '${(progress * 100).toInt()}% Complete',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 8,
-                  backgroundColor: Colors.white.withValues(alpha: 0.04),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    widget.tutorial.gradientColors.first,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // // Progress bar indicators
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+        //   child: Column(
+        //     children: [
+        //       Row(
+        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //         children: [
+        //           Text(
+        //             'Question ${_currentIndex + 1} of ${_questions.length}',
+        //             style: const TextStyle(
+        //               color: Colors.white70,
+        //               fontWeight: FontWeight.bold,
+        //               fontSize: 13,
+        //             ),
+        //           ),
+        //           Text(
+        //             '${(progress * 100).toInt()}% Complete',
+        //             style: TextStyle(
+        //               color: Colors.white.withValues(alpha: 0.4),
+        //               fontWeight: FontWeight.bold,
+        //               fontSize: 11,
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //       const SizedBox(height: 8),
+        //       ClipRRect(
+        //         borderRadius: BorderRadius.circular(8),
+        //         child: LinearProgressIndicator(
+        //           value: progress,
+        //           minHeight: 8,
+        //           backgroundColor: Colors.white.withValues(alpha: 0.04),
+        //           valueColor: AlwaysStoppedAnimation<Color>(
+        //             widget.tutorial.gradientColors.first,
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
 
         // Chat Conversation Log Area
         Expanded(
