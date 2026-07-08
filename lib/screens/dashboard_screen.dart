@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:testu_cl/widgets/topics_card.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -69,44 +71,49 @@ class _DashboardScreenState extends State<DashboardScreen>
                   // 2. Main Content
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 40 : 20,
-                        vertical: 24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Overall metrics overview card
-                          _buildOverviewCard(
-                            overallProgress,
-                            overallAverageScore,
+                      child: Center(
+                        child: Container(
+                          width: min(700, size.width),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? 40 : 20,
+                            vertical: 24,
                           ),
-                          const SizedBox(height: 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Overall metrics overview card
+                              _buildOverviewCard(
+                                overallProgress,
+                                overallAverageScore,
+                              ),
+                              const SizedBox(height: 32),
 
-                          // Section Title
-                          Text(
-                            LanguageHelper.translate('topics'),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF38B6FF),
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                              // Section Title
+                              Text(
+                                LanguageHelper.translate('topics'),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF38B6FF),
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
 
-                          // Topics List
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: mockTopics.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 16),
-                            itemBuilder: (context, index) {
-                              return TopicsCard(topic: mockTopics[index]);
-                            },
+                              // Topics List
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: mockTopics.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 16),
+                                itemBuilder: (context, index) {
+                                  return TopicsCard(topic: mockTopics[index]);
+                                },
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

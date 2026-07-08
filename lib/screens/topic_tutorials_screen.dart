@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -44,48 +46,53 @@ class TopicTutorialsScreen extends StatelessWidget {
                   // Scrollable list of tutorials
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 40 : 20,
-                        vertical: 24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Topic Overview Details
-                          _buildTopicBanner(context, mainColor),
-                          const SizedBox(height: 32),
-
-                          // Section Title
-                          Text(
-                            LanguageHelper.translate('tutorials'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: mainColor,
-                              letterSpacing: 1.5,
-                            ),
+                      child: Center(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? 40 : 20,
+                            vertical: 24,
                           ),
-                          const SizedBox(height: 16),
+                          width: min(700, size.width),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Topic Overview Details
+                              _buildTopicBanner(context, mainColor),
+                              const SizedBox(height: 32),
 
-                          // List of tutorials
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: topic.tutorial.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 16),
-                            itemBuilder: (context, index) {
-                              final tutorial = topic.tutorial[index];
-                              // We render the TutorialCard widget
-                              return TutorialCard(
-                                tutorial: tutorial,
-                                isListMode: true,
-                              );
-                            },
+                              // Section Title
+                              Text(
+                                LanguageHelper.translate('tutorials'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: mainColor,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // List of tutorials
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: topic.tutorial.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 16),
+                                itemBuilder: (context, index) {
+                                  final tutorial = topic.tutorial[index];
+                                  // We render the TutorialCard widget
+                                  return TutorialCard(
+                                    tutorial: tutorial,
+                                    isListMode: true,
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 40),
+                            ],
                           ),
-
-                          const SizedBox(height: 40),
-                        ],
+                        ),
                       ),
                     ),
                   ),

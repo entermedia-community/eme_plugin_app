@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:testu_cl/widgets/circular_progress.dart';
@@ -1335,48 +1336,56 @@ class _RehearseScreenState extends State<RehearseScreen> {
           ),
         ),
         child: SafeArea(
-          child: Stack(
-            children: [
-              // Glowing background patterns
-              Positioned(
-                top: -size.height * 0.1,
-                right: -size.width * 0.2,
-                child: Container(
-                  width: size.width * 0.7,
-                  height: size.width * 0.7,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.tutorial.gradientColors.first.withValues(
-                      alpha: 0.08,
+          child: Center(
+            child: Container(
+              width: min(680, size.width),
+              color: Colors.white.withValues(alpha: 0.02),
+              child: Stack(
+                children: [
+                  // Glowing background patterns
+                  Positioned(
+                    top: -size.height * 0.1,
+                    right: -size.width * 0.2,
+                    child: Container(
+                      width: size.width * 0.7,
+                      height: size.width * 0.7,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: widget.tutorial.gradientColors.first.withValues(
+                          alpha: 0.08,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Positioned(
-                bottom: -size.height * 0.1,
-                left: -size.width * 0.2,
-                child: Container(
-                  width: size.width * 0.7,
-                  height: size.width * 0.7,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.tutorial.gradientColors.last.withValues(
-                      alpha: 0.06,
+                  Positioned(
+                    bottom: -size.height * 0.1,
+                    left: -size.width * 0.2,
+                    child: Container(
+                      width: size.width * 0.7,
+                      height: size.width * 0.7,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: widget.tutorial.gradientColors.last.withValues(
+                          alpha: 0.06,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
 
-              // Main content layout
-              Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: isDesktop ? 680 : double.infinity,
+                  // Main content layout
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isDesktop ? 680 : double.infinity,
+                      ),
+                      child: _isFinished
+                          ? _buildResultsView()
+                          : _buildQuizView(),
+                    ),
                   ),
-                  child: _isFinished ? _buildResultsView() : _buildQuizView(),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
