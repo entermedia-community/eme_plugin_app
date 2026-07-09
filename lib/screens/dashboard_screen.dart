@@ -384,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: FadeInImage.memoryNetwork(
                         placeholder: kTransparentImage,
                         image:
-                            "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/dp.png/image200x200.webp",
+                            "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
                       ),
                     ),
                   ),
