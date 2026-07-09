@@ -501,7 +501,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           suffixIcon: suffixIcon,
           border: InputBorder.none,
-          errorStyle: const TextStyle(color: Color(0xFFE94057), fontSize: 11),
+          errorStyle: const TextStyle(color: Color(0xFFF50057), fontSize: 11),
         ),
       ),
     );

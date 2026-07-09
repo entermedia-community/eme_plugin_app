@@ -46,9 +46,12 @@ class LanguageHelper {
         'overall_topic_progress': 'Overall Topic Progress',
         'finished': '{percent}% Finished',
         'beginner': 'Beginner',
-        'intermediate': 'Intermediate',
+        'competent': 'Competent',
         'expert': 'Expert',
         'topics_you_excel_at': 'Topics you excel at',
+        'average_rank': 'Average Rank',
+        'next_rank_up': 'Average Score',
+        'improve': 'Improve',
       },
       'Español': {
         'catalog_dashboard': 'Catálogo / Tablero',
@@ -83,9 +86,12 @@ class LanguageHelper {
         'overall_topic_progress': 'Progreso General del Tema',
         'finished': '{percent}% Finalizado',
         'beginner': 'Principiante',
-        'intermediate': 'Intermedio',
+        'learner': 'Aprendiz',
         'expert': 'Experto',
         'topics_you_excel_at': 'Temas en los que sobresales',
+        'average_rank': 'Rango Promedio',
+        'next_rank_up': 'Siguiente Nivel En',
+        'improve': 'Mejorar',
       },
     };
 

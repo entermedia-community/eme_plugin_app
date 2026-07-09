@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFF38B6FF),
           secondary: Color(0xFF8A2387),
           surface: Color(0xFF0F1319),
-          error: Color(0xFFE94057),
+          error: Color(0xFFF50057),
         ),
         textTheme: const TextTheme(
           displayLarge: TextStyle(

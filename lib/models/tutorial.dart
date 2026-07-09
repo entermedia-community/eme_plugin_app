@@ -1,131 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:testu_cl/models/topic.dart';
+
+class TutorialProgress {
+  final double beginnerProgress;
+  final double competentProgress;
+  final double expertProgress;
+
+  TutorialProgress({
+    required this.beginnerProgress,
+    required this.competentProgress,
+    required this.expertProgress,
+  });
+
+  double getAverageProgress() {
+    return (beginnerProgress + competentProgress + expertProgress) / 3;
+  }
+
+  Efficiency getEfficiency() {
+    double avg = getAverageProgress();
+    if (avg < 0.5) return Efficiency.beginner;
+    if (avg < 0.9) return Efficiency.competent;
+    return Efficiency.expert;
+  }
+
+  Color getStatusColor() {
+    if (getEfficiency() == Efficiency.beginner) {
+      return const Color(0xFFF50057);
+    } else if (getEfficiency() == Efficiency.competent) {
+      return const Color(0xFF2196F3);
+    } else {
+      return const Color(0xFF38EF7D);
+    }
+  }
+}
 
 class Tutorial {
   final String title;
   final String category;
-  final String status; // Critical, Warning, On Track, Excellent
-  final int unlockedQuestions;
-  final int totalQuestions;
-  final double progress;
-  final String daysToForget;
-  final String effectiveness;
-  final List<Color> gradientColors;
-  final IconData icon;
+  final TutorialProgress progress;
+  final double answersForgotten;
+  final DateTime lastReviewed;
 
-  const Tutorial({
+  Tutorial({
     required this.title,
     required this.category,
-    required this.status,
-    required this.unlockedQuestions,
-    required this.totalQuestions,
     required this.progress,
-    required this.daysToForget,
-    required this.effectiveness,
-    required this.gradientColors,
-    required this.icon,
+    required this.answersForgotten,
+    required this.lastReviewed,
   });
+
+  int get forgottenPeriod {
+    final normalizedFrom = DateTime(
+      lastReviewed.year,
+      lastReviewed.month,
+      lastReviewed.day,
+    );
+    final now = DateTime.now();
+    final normalizedNow = DateTime(now.year, now.month, now.day);
+
+    return normalizedNow.difference(normalizedFrom).inDays;
+  }
 }
 
 // Mock Data
 final List<Tutorial> mockTutorials = [
   // Ciberseguridad Tutorials (Indices 0 - 3)
-  const Tutorial(
+  Tutorial(
     title: 'Conceptos Básicos de Ciberseguridad',
     category: 'Ciberseguridad',
-    status: 'On Track',
-    unlockedQuestions: 8,
-    totalQuestions: 10,
-    progress: 0.8,
-    daysToForget: '15 días',
-    effectiveness: 'Good',
-    gradientColors: [Color(0xFF38B6FF), Color(0xFF0072FF)],
-    icon: Icons.security,
+    progress: TutorialProgress(
+      beginnerProgress: 0.8,
+      competentProgress: 0.7,
+      expertProgress: 0.6,
+    ),
+    answersForgotten: 0.15,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Ingeniería Social y Phishing',
     category: 'Ciberseguridad',
-    status: 'Critical',
-    unlockedQuestions: 3,
-    totalQuestions: 10,
-    progress: 0.3,
-    daysToForget: '2 días',
-    effectiveness: 'Moderate',
-    gradientColors: [Color(0xFFE94057), Color(0xFFF27121)],
-    icon: Icons.phishing,
+    progress: TutorialProgress(
+      beginnerProgress: 0.5,
+      competentProgress: 0.2,
+      expertProgress: 0.1,
+    ),
+    answersForgotten: 0.2,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Buenas Prácticas de Contraseñas',
     category: 'Ciberseguridad',
-    status: 'Excellent',
-    unlockedQuestions: 10,
-    totalQuestions: 10,
-    progress: 1.0,
-    daysToForget: '30 días',
-    effectiveness: 'Excellent',
-    gradientColors: [Color(0xFF11998e), Color(0xFF38EF7D)],
-    icon: Icons.vpn_key,
+
+    progress: TutorialProgress(
+      beginnerProgress: 1.0,
+      competentProgress: 1.0,
+      expertProgress: 1.0,
+    ),
+    answersForgotten: 0.30,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Seguridad en Dispositivos Móviles',
     category: 'Ciberseguridad',
-    status: 'Warning',
-    unlockedQuestions: 5,
-    totalQuestions: 10,
-    progress: 0.5,
-    daysToForget: '7 días',
-    effectiveness: 'Moderate',
-    gradientColors: [Color(0xFFF27121), Color(0xFFE94057)],
-    icon: Icons.phone_android,
+
+    progress: TutorialProgress(
+      beginnerProgress: 0.7,
+      competentProgress: 0.5,
+      expertProgress: 0.3,
+    ),
+    answersForgotten: 0.7,
+
+    lastReviewed: DateTime.now(),
   ),
 
   // Derechos Humanos Tutorials (Indices 4 - 7)
-  const Tutorial(
+  Tutorial(
     title: 'Fundamentos de los Derechos Humanos',
     category: 'Derechos Humanos',
-    status: 'Excellent',
-    unlockedQuestions: 10,
-    totalQuestions: 10,
-    progress: 1.0,
-    daysToForget: '45 días',
-    effectiveness: 'Excellent',
-    gradientColors: [Color(0xFF11998e), Color(0xFF38EF7D)],
-    icon: Icons.gavel,
+
+    progress: TutorialProgress(
+      beginnerProgress: 1.0,
+      competentProgress: 1.0,
+      expertProgress: 1.0,
+    ),
+    answersForgotten: 0.45,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Derechos Humanos en el Entorno Laboral',
     category: 'Derechos Humanos',
-    status: 'On Track',
-    unlockedQuestions: 7,
-    totalQuestions: 10,
-    progress: 0.7,
-    daysToForget: '12 días',
-    effectiveness: 'Good',
-    gradientColors: [Color(0xFF38B6FF), Color(0xFF0072FF)],
-    icon: Icons.work,
+
+    progress: TutorialProgress(
+      beginnerProgress: 0.8,
+      competentProgress: 0.7,
+      expertProgress: 0.6,
+    ),
+    answersForgotten: 0.12,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Diversidad, Equidad e Inclusión',
     category: 'Derechos Humanos',
-    status: 'Excellent',
-    unlockedQuestions: 10,
-    totalQuestions: 10,
-    progress: 1.0,
-    daysToForget: '30 días',
-    effectiveness: 'Excellent',
-    gradientColors: [Color(0xFF11998e), Color(0xFF38EF7D)],
-    icon: Icons.people,
+
+    progress: TutorialProgress(
+      beginnerProgress: 1.0,
+      competentProgress: 1.0,
+      expertProgress: 1.0,
+    ),
+    answersForgotten: 0.30,
+
+    lastReviewed: DateTime.now(),
   ),
-  const Tutorial(
+  Tutorial(
     title: 'Prevención del Acoso y Canales de Denuncia',
     category: 'Derechos Humanos',
-    status: 'Warning',
-    unlockedQuestions: 4,
-    totalQuestions: 10,
-    progress: 0.4,
-    daysToForget: '5 días',
-    effectiveness: 'Moderate',
-    gradientColors: [Color(0xFFF27121), Color(0xFFE94057)],
-    icon: Icons.campaign,
+
+    progress: TutorialProgress(
+      beginnerProgress: 0.5,
+      competentProgress: 0.4,
+      expertProgress: 0.3,
+    ),
+    answersForgotten: 0.5,
+
+    lastReviewed: DateTime.now(),
   ),
 ];
-

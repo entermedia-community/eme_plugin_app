@@ -156,7 +156,6 @@ class TopicTutorialsScreen extends StatelessWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,26 +194,76 @@ class TopicTutorialsScreen extends StatelessWidget {
           const SizedBox(height: 24),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: CommonWidgets.buildCompetenceBadge(
-                  efficiency: topic.efficiency,
-                ),
+              Column(
+                children: [
+                  Text(
+                    LanguageHelper.translate('average_rank').toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white54,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  CommonWidgets.buildCompetenceBadge(
+                    efficiency: topic.progress.getEfficiency(),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: CommonWidgets.buildCurrentScore(
-                  context: context,
-                  score: topic.reliability,
-                ),
+              Row(
+                children: [
+                  CommonWidgets.buildProgressColumn(
+                    topic.progress,
+                    Efficiency.beginner,
+                  ),
+                  const SizedBox(width: 24),
+                  CommonWidgets.buildProgressColumn(
+                    topic.progress,
+                    Efficiency.competent,
+                  ),
+                  const SizedBox(width: 24),
+                  CommonWidgets.buildProgressColumn(
+                    topic.progress,
+                    Efficiency.expert,
+                  ),
+                ],
               ),
             ],
+          ),
+
+          const SizedBox(height: 16),
+          Text.rich(
+            textAlign: TextAlign.center,
+            TextSpan(
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+              children: [
+                TextSpan(text: 'An average of '),
+                TextSpan(
+                  text: '${topic.answersForgotten.toStringAsFixed(2)}%',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+                TextSpan(text: ' answers forgotten over '),
+                TextSpan(
+                  text: topic.forgottenPeriod.toString(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+                TextSpan(text: ' days'),
+              ],
+            ),
           ),
         ],
       ),

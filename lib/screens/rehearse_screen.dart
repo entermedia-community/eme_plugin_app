@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
-import 'package:testu_cl/widgets/circular_progress.dart';
+import 'package:testu_cl/models/topic.dart';
+import 'package:testu_cl/widgets/common_widgets.dart';
+
 import '../models/tutorial.dart';
 
 class RehearseQuestion {
@@ -280,7 +283,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   Color _getConfidenceColor(String confidence) {
     switch (confidence) {
       case 'No Idea':
-        return const Color(0xFFE94057); // Soft red
+        return const Color(0xFFF50057); // Soft red
       case 'Not sure':
         return const Color(0xFFFF9F43); // Orange
       case 'Mostly Sure':
@@ -385,7 +388,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
       if (!allAnswered) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFFE94057),
+            backgroundColor: const Color(0xFFF50057),
             content: const Text(
               'Please answer all questions before finishing.',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -406,51 +409,51 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   // Dynamic Metrics Functions
-  int _getBeginnerTotal() =>
-      _questions.where((q) => q.difficulty == 'Beginner').length;
-  int _getIntermediateTotal() =>
-      _questions.where((q) => q.difficulty == 'Intermediate').length;
-  int _getExpertTotal() =>
-      _questions.where((q) => q.difficulty == 'Expert').length;
+  // int _getBeginnerTotal() =>
+  //     _questions.where((q) => q.difficulty == 'Beginner').length;
+  // int _getIntermediateTotal() =>
+  //     _questions.where((q) => q.difficulty == 'Intermediate').length;
+  // int _getExpertTotal() =>
+  //     _questions.where((q) => q.difficulty == 'Expert').length;
 
-  int _getBeginnerCorrect() {
-    int count = 0;
-    _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length &&
-          _questions[index].difficulty == 'Beginner') {
-        if (userSelect == _questions[index].correctAnswerIndex) {
-          count++;
-        }
-      }
-    });
-    return count;
-  }
+  // int _getBeginnerCorrect() {
+  //   int count = 0;
+  //   _selectedAnswers.forEach((index, userSelect) {
+  //     if (index < _questions.length &&
+  //         _questions[index].difficulty == 'Beginner') {
+  //       if (userSelect == _questions[index].correctAnswerIndex) {
+  //         count++;
+  //       }
+  //     }
+  //   });
+  //   return count;
+  // }
 
-  int _getIntermediateCorrect() {
-    int count = 0;
-    _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length &&
-          _questions[index].difficulty == 'Intermediate') {
-        if (userSelect == _questions[index].correctAnswerIndex) {
-          count++;
-        }
-      }
-    });
-    return count;
-  }
+  // int _getIntermediateCorrect() {
+  //   int count = 0;
+  //   _selectedAnswers.forEach((index, userSelect) {
+  //     if (index < _questions.length &&
+  //         _questions[index].difficulty == 'Intermediate') {
+  //       if (userSelect == _questions[index].correctAnswerIndex) {
+  //         count++;
+  //       }
+  //     }
+  //   });
+  //   return count;
+  // }
 
-  int _getExpertCorrect() {
-    int count = 0;
-    _selectedAnswers.forEach((index, userSelect) {
-      if (index < _questions.length &&
-          _questions[index].difficulty == 'Expert') {
-        if (userSelect == _questions[index].correctAnswerIndex) {
-          count++;
-        }
-      }
-    });
-    return count;
-  }
+  // int _getExpertCorrect() {
+  //   int count = 0;
+  //   _selectedAnswers.forEach((index, userSelect) {
+  //     if (index < _questions.length &&
+  //         _questions[index].difficulty == 'Expert') {
+  //       if (userSelect == _questions[index].correctAnswerIndex) {
+  //         count++;
+  //       }
+  //     }
+  //   });
+  //   return count;
+  // }
 
   double _calculateScorePercentage() {
     int correctCount = 0;
@@ -766,44 +769,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
     );
   }
 
-  Widget _buildHeaderProgressColumn(
-    String label,
-    int correct,
-    int total,
-    Color color,
-  ) {
-    final double percentage = total > 0 ? (correct / total) : 0.0;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        CircularProgress(
-          value: correct.toDouble(),
-          max: total > 0 ? total.toDouble() : 1.0,
-          color: color,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '${(percentage * 100).toInt()}%',
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildBottomPanel(RehearseQuestion question) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -981,7 +946,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide(
-                            color: widget.tutorial.gradientColors.first,
+                            color: const Color(0xFFF27121),
                             width: 1.5,
                           ),
                         ),
@@ -992,7 +957,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   IconButton(
                     onPressed: _sendFollowUp,
                     icon: const Icon(Icons.send_rounded),
-                    color: widget.tutorial.gradientColors.first,
+                    color: const Color(0xFFF27121),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.04),
                       padding: const EdgeInsets.all(12),
@@ -1011,14 +976,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
-                  gradient: LinearGradient(
-                    colors: widget.tutorial.gradientColors,
-                  ),
+                  color: const Color(0xFFF27121),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.tutorial.gradientColors.first.withValues(
-                        alpha: 0.3,
-                      ),
+                      color: const Color(0xFFF27121).withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1071,12 +1032,22 @@ class _RehearseScreenState extends State<RehearseScreen> {
     final activeQuestion = _questions[_currentIndex];
 
     // Compute dynamic session metrics
-    final easyTotal = _getBeginnerTotal();
-    final easyCorrect = _getBeginnerCorrect();
-    final intTotal = _getIntermediateTotal();
-    final intCorrect = _getIntermediateCorrect();
-    final advTotal = _getExpertTotal();
-    final advCorrect = _getExpertCorrect();
+    // final easyTotal = _getBeginnerTotal();
+    // final easyCorrect = _getBeginnerCorrect();
+    // final intTotal = _getIntermediateTotal();
+    // final intCorrect = _getIntermediateCorrect();
+    // final advTotal = _getExpertTotal();
+    // final advCorrect = _getExpertCorrect();
+
+    final String progressHint;
+    if (widget.tutorial.progress.getEfficiency() == Efficiency.beginner) {
+      progressHint = "Score an average of 70% to reach learner!";
+    } else if (widget.tutorial.progress.getEfficiency() ==
+        Efficiency.competent) {
+      progressHint = "Score an average of 90% to reach expert!";
+    } else {
+      progressHint = "You're an expert!";
+    }
 
     return Column(
       children: [
@@ -1122,36 +1093,30 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Your progress so far',
+                    Text(
+                      progressHint,
                       style: TextStyle(
-                        color: Colors.white,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.85),
                       ),
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _buildHeaderProgressColumn(
-                          'Beginner',
-                          easyCorrect,
-                          easyTotal,
-                          const Color(0xFF38EF7D),
+                        CommonWidgets.buildProgressColumn(
+                          widget.tutorial.progress,
+                          Efficiency.beginner,
                         ),
                         const SizedBox(width: 24),
-                        _buildHeaderProgressColumn(
-                          'Intermediate',
-                          intCorrect,
-                          intTotal,
-                          const Color(0xFFF27121),
+                        CommonWidgets.buildProgressColumn(
+                          widget.tutorial.progress,
+                          Efficiency.competent,
                         ),
                         const SizedBox(width: 24),
-                        _buildHeaderProgressColumn(
-                          'Expert',
-                          advCorrect,
-                          advTotal,
-                          const Color(0xFFE94057),
+                        CommonWidgets.buildProgressColumn(
+                          widget.tutorial.progress,
+                          Efficiency.expert,
                         ),
                       ],
                     ),
@@ -1196,7 +1161,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
         //           minHeight: 8,
         //           backgroundColor: Colors.white.withValues(alpha: 0.04),
         //           valueColor: AlwaysStoppedAnimation<Color>(
-        //             widget.tutorial.gradientColors.first,
+        //             const Color(0xFFF27121),
         //           ),
         //         ),
         //       ),
@@ -1227,9 +1192,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         height: 32,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: widget.tutorial.gradientColors,
-                          ),
+                          color: const Color(0xFFF27121),
                         ),
                         alignment: Alignment.center,
                         child: const Icon(
@@ -1245,9 +1208,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         decoration: BoxDecoration(
                           color: isAI
                               ? const Color(0xFF161C24).withValues(alpha: 0.8)
-                              : widget.tutorial.gradientColors.first.withValues(
-                                  alpha: 0.15,
-                                ),
+                              : const Color(0xFFF27121).withValues(alpha: 0.15),
                           borderRadius: isAI
                               ? const BorderRadius.only(
                                   topLeft: Radius.circular(4),
@@ -1264,8 +1225,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
                           border: Border.all(
                             color: isAI
                                 ? Colors.white.withValues(alpha: 0.06)
-                                : widget.tutorial.gradientColors.first
-                                      .withValues(alpha: 0.4),
+                                : const Color(
+                                    0xFFF27121,
+                                  ).withValues(alpha: 0.4),
                             width: 1.5,
                           ),
                         ),
@@ -1292,11 +1254,11 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         height: 32,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: widget.tutorial.gradientColors.first
-                              .withValues(alpha: 0.2),
+                          color: const Color(0xFFF27121).withValues(alpha: 0.2),
                           border: Border.all(
-                            color: widget.tutorial.gradientColors.first
-                                .withValues(alpha: 0.4),
+                            color: const Color(
+                              0xFFF27121,
+                            ).withValues(alpha: 0.4),
                           ),
                         ),
                         alignment: Alignment.center,
@@ -1351,9 +1313,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       height: size.width * 0.7,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: widget.tutorial.gradientColors.first.withValues(
-                          alpha: 0.08,
-                        ),
+                        color: const Color(0xFFF27121).withValues(alpha: 0.08),
                       ),
                     ),
                   ),
@@ -1365,9 +1325,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       height: size.width * 0.7,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: widget.tutorial.gradientColors.last.withValues(
-                          alpha: 0.06,
-                        ),
+                        color: const Color(0xFFF27121).withValues(alpha: 0.06),
                       ),
                     ),
                   ),
@@ -1493,7 +1451,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                         ? const Color(0xFF38EF7D)
                                         : scorePct > 0.4
                                         ? const Color(0xFFFF9F43)
-                                        : const Color(0xFFE94057),
+                                        : const Color(0xFFF50057),
                                   ),
                                 ),
                                 Text(
@@ -1516,7 +1474,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                     ? const Color(0xFF38EF7D)
                                     : scorePct > 0.4
                                     ? const Color(0xFFFF9F43)
-                                    : const Color(0xFFE94057),
+                                    : const Color(0xFFF50057),
                               ),
                             ),
                           ],
@@ -1650,7 +1608,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                         0xFF38EF7D,
                                       ).withValues(alpha: 0.15)
                                     : const Color(
-                                        0xFFE94057,
+                                        0xFFF50057,
                                       ).withValues(alpha: 0.15),
                               ),
                               alignment: Alignment.center,
@@ -1660,7 +1618,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                     : Icons.close_rounded,
                                 color: isCorrect
                                     ? const Color(0xFF38EF7D)
-                                    : const Color(0xFFE94057),
+                                    : const Color(0xFFF50057),
                                 size: 14,
                               ),
                             ),
@@ -1697,7 +1655,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                                   0xFFFF9F43,
                                                 ).withValues(alpha: 0.15)
                                               : const Color(
-                                                  0xFFE94057,
+                                                  0xFFF50057,
                                                 ).withValues(alpha: 0.15),
                                           borderRadius: BorderRadius.circular(
                                             4,
@@ -1715,7 +1673,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                                 : question.difficulty ==
                                                       'Intermediate'
                                                 ? const Color(0xFFFF9F43)
-                                                : const Color(0xFFE94057),
+                                                : const Color(0xFFF50057),
                                           ),
                                         ),
                                       ),
@@ -1764,7 +1722,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                       fontWeight: FontWeight.bold,
                                       color: isCorrect
                                           ? const Color(0xFF38EF7D)
-                                          : const Color(0xFFE94057),
+                                          : const Color(0xFFF50057),
                                     ),
                                   ),
                                 ],
@@ -1888,9 +1846,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      gradient: LinearGradient(
-                        colors: widget.tutorial.gradientColors,
-                      ),
+                      color: const Color(0xFFF27121),
                     ),
                     child: ElevatedButton(
                       onPressed: () {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:transparent_image/transparent_image.dart';
 
 import '../screens/topic_tutorials_screen.dart';
@@ -108,7 +107,7 @@ class TopicsCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Last reviewd ${timeago.format(topic.lastUpdated)}',
+                                'Last reviewd ${topic.lastReviewedDays} days ago',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.white38,
@@ -130,16 +129,82 @@ class TopicsCard extends StatelessWidget {
                         bottomRight: Radius.circular(16),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
                       children: [
-                        CommonWidgets.buildCompetenceBadge(
-                          efficiency: topic.efficiency,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  LanguageHelper.translate(
+                                    'average_rank',
+                                  ).toUpperCase(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                CommonWidgets.buildCompetenceBadge(
+                                  efficiency: topic.progress.getEfficiency(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CommonWidgets.buildProgressColumn(
+                                  topic.progress,
+                                  Efficiency.beginner,
+                                ),
+                                const SizedBox(width: 16),
+                                CommonWidgets.buildProgressColumn(
+                                  topic.progress,
+                                  Efficiency.competent,
+                                ),
+                                const SizedBox(width: 16),
+                                CommonWidgets.buildProgressColumn(
+                                  topic.progress,
+                                  Efficiency.expert,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        CommonWidgets.buildCurrentScore(
-                          context: context,
-                          score: topic.reliability,
+                        const SizedBox(height: 16),
+                        Text.rich(
+                          textAlign: TextAlign.center,
+                          TextSpan(
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                            children: [
+                              TextSpan(text: 'An average of '),
+                              TextSpan(
+                                text:
+                                    '${topic.answersForgotten.toStringAsFixed(2)}%',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              TextSpan(text: ' answers forgotten over '),
+                              TextSpan(
+                                text: topic.forgottenPeriod.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              TextSpan(text: ' days'),
+                            ],
+                          ),
                         ),
                       ],
                     ),

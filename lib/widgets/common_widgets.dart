@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
+import 'package:testu_cl/models/tutorial.dart';
 import 'package:testu_cl/utils/language_helper.dart';
 
 class CommonWidgets {
@@ -34,27 +35,18 @@ class CommonWidgets {
     Color color;
     IconData icon;
     if (efficiency == Efficiency.beginner) {
-      color = Colors.green;
+      color = const Color(0xFFF50057);
       icon = Icons.local_florist;
-    } else if (efficiency == Efficiency.learner) {
-      color = Colors.yellow;
+    } else if (efficiency == Efficiency.competent) {
+      color = const Color(0xFF2196F3);
       icon = Icons.stars;
     } else {
-      color = Colors.orange;
+      color = const Color(0xFF38EF7D);
       icon = Icons.emoji_events;
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'COMPETENCE LEVEL',
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white54,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -74,61 +66,58 @@ class CommonWidgets {
     );
   }
 
-  static Widget buildCurrentScore({
-    required BuildContext context,
-    required double score,
-  }) {
-    Color color;
-    if (score < 30) {
-      color = Colors.red;
-    } else if (score < 70) {
-      color = Colors.yellow;
+  static Widget buildProgressColumn(
+    TutorialProgress progress,
+    Efficiency efficiency,
+  ) {
+    final double progressValue;
+    if (efficiency == Efficiency.beginner) {
+      progressValue = progress.beginnerProgress;
+    } else if (efficiency == Efficiency.competent) {
+      progressValue = progress.competentProgress;
     } else {
-      color = Colors.green;
+      progressValue = progress.expertProgress;
     }
+    final Color statusColor;
+    if (efficiency == Efficiency.beginner) {
+      statusColor = const Color(0xFFF50057);
+    } else if (efficiency == Efficiency.competent) {
+      statusColor = const Color(0xFF2196F3);
+    } else {
+      statusColor = const Color(0xFF38EF7D);
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'CURRENT SCORE',
+          LanguageHelper.translate(efficiency.name),
           style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white54,
+            color: Colors.white70,
+            fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "${score.toInt()}%",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: 8),
-            InkWell(
-              onTap: () {
-                showInfoDialog(
-                  context: context,
-                  title: "Score Assessment",
-                  description: Text(
-                    "The score indicates your current level of competence in this topic. It goes down with time, so you need to review the topic periodically to keep it high.",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                );
-              },
-              child: Icon(
-                Icons.info_outline,
-                color: Colors.white.withValues(alpha: 0.5),
-                size: 20,
-              ),
-            ),
-          ],
+        SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(
+            value: progressValue,
+            strokeWidth: 3,
+            backgroundColor: Colors.white.withValues(alpha: 0.05),
+            valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${(progressValue * 100).toInt()}%',
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

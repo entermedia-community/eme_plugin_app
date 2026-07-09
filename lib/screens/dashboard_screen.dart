@@ -25,19 +25,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   String _activeWorkSpace = 'DEMO 1';
   String selectedTab = 'Catalog';
 
-  // Compute average stats across all topics
-  double get overallProgress {
-    if (mockTopics.isEmpty) return 0.0;
-    return mockTopics.map((t) => t.progress).reduce((a, b) => a + b) /
-        mockTopics.length;
-  }
-
-  double get overallAverageScore {
-    if (mockTopics.isEmpty) return 0.0;
-    return mockTopics.map((t) => t.reliability).reduce((a, b) => a + b) /
-        mockTopics.length;
-  }
-
   @override
   Widget build(BuildContext context) {
     // final theme = Theme.of(context);
@@ -84,10 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Overall metrics overview card
-                              _buildOverviewCard(
-                                overallProgress,
-                                overallAverageScore,
-                              ),
+                              _buildOverviewCard(),
                               const SizedBox(height: 32),
 
                               // Section Title
@@ -214,7 +198,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFE94057),
+                          color: Color(0xFFF50057),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -243,14 +227,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                           decoration: BoxDecoration(
                             color: const Color(
-                              0xFFE94057,
+                              0xFFF50057,
                             ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             LanguageHelper.translate('new_tutorials'),
                             style: const TextStyle(
-                              color: Color(0xFFE94057),
+                              color: Color(0xFFF50057),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
                             ),
@@ -358,7 +342,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildOverviewCard(double averageProgress, double averageScore) {
+  Widget _buildOverviewCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -400,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: FadeInImage.memoryNetwork(
                         placeholder: kTransparentImage,
                         image:
-                            "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png",
+                            "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/dp.png/image200x200.webp",
                       ),
                     ),
                   ),
@@ -419,7 +403,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          '${LanguageHelper.translate('topics_you_excel_at')} — ',
+                          'SKILLS',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.5),
                             fontSize: 12,
@@ -433,32 +417,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ],
               ),
-              // Row(
-              //   children: [
-              //     _buildMetricCol(
-              //       label: LanguageHelper.translate('overall_progress'),
-              //       value: '${(averageProgress * 100).toInt()}%',
-              //       icon: Icons.donut_large_rounded,
-              //       color: const Color(0xFF38B6FF),
-              //     ),
-              //     const Spacer(),
-              //     Center(
-              //       child: Container(
-              //         width: 1,
-              //         height: 40,
-              //         color: Colors.white.withValues(alpha: 0.08),
-              //       ),
-              //     ),
-              //     const Spacer(),
-              //     _buildMetricCol(
-              //       label: LanguageHelper.translate('overall_performance'),
-              //       value:
-              //           '${(averageScore * 100).toInt()}% ${LanguageHelper.translate('avg_suffix')}',
-              //       icon: Icons.stars_rounded,
-              //       color: const Color(0xFFE94057),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
         ),
@@ -471,7 +429,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       ..sort((a, b) => b.score.compareTo(a.score));
 
     final bestTags = sortedTags.where((t) => t.score >= 70).toList();
-    final previewTags = bestTags.take(5).toList();
+    final previewTags = bestTags.take(3).toList();
     final remainingCount = bestTags.length - previewTags.length;
 
     return Wrap(
@@ -491,17 +449,17 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
+                color: Colors.blueAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.blue.withValues(alpha: 0.3),
+                  color: Colors.blueAccent.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
               child: Text(
                 '+$remainingCount more',
                 style: const TextStyle(
-                  color: Colors.blue,
+                  color: Colors.blueAccent,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -521,7 +479,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 130),
+        constraints: const BoxConstraints(maxWidth: 240),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.blue.withValues(alpha: 0.1),
@@ -876,12 +834,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                              colors: [Color(0xFFF50057), Color(0xFF2196F3)],
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFE94057,
+                                  0xFFF50057,
                                 ).withValues(alpha: 0.2),
                                 blurRadius: 12,
                                 spreadRadius: 2,
@@ -1120,13 +1078,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                           children: [
                             const Icon(
                               Icons.logout_rounded,
-                              color: Color(0xFFE94057),
+                              color: Color(0xFFF50057),
                             ),
                             const SizedBox(width: 10),
                             Text(
                               LanguageHelper.translate('logout'),
                               style: const TextStyle(
-                                color: Color(0xFFE94057),
+                                color: Color(0xFFF50057),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,

@@ -59,13 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           (selectedFilter1 == 'History' &&
               tutorial.category.contains('HISTORIA'));
 
-      final matchesStatus =
-          selectedFilter2 == 'All States' ||
-          (selectedFilter2 == 'Critical' && tutorial.status == 'Critical') ||
-          (selectedFilter2 == 'Warning' && tutorial.status == 'Warning') ||
-          (selectedFilter2 == 'On Track' && tutorial.status == 'On Track');
-
-      return matchesSearch && matchesCategory && matchesStatus;
+      return matchesSearch && matchesCategory;
     }).toList();
   }
 
@@ -238,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFE94057),
+                          color: Color(0xFFF50057),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -270,14 +264,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                           decoration: BoxDecoration(
                             color: const Color(
-                              0xFFE94057,
+                              0xFFF50057,
                             ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
                             '3 New',
                             style: TextStyle(
-                              color: Color(0xFFE94057),
+                              color: Color(0xFFF50057),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
                             ),
@@ -432,12 +426,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                              colors: [Color(0xFFF50057), Color(0xFF2196F3)],
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFE94057,
+                                  0xFFF50057,
                                 ).withValues(alpha: 0.2),
                                 blurRadius: 12,
                                 spreadRadius: 2,
@@ -647,12 +641,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         decoration: BoxDecoration(
                           color: const Color(
-                            0xFFE94057,
+                            0xFFF50057,
                           ).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: const Color(
-                              0xFFE94057,
+                              0xFFF50057,
                             ).withValues(alpha: 0.25),
                           ),
                         ),
@@ -662,13 +656,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                             Icon(
                               Icons.logout_rounded,
                               size: 16,
-                              color: Color(0xFFE94057),
+                              color: Color(0xFFF50057),
                             ),
                             SizedBox(width: 8),
                             Text(
                               'Log Out',
                               style: TextStyle(
-                                color: Color(0xFFE94057),
+                                color: Color(0xFFF50057),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -1070,20 +1064,20 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildCompetencyOverviewHeader() {
     final criticalCount = mockTutorials
-        .where((c) => c.status == 'Critical')
+        .where((c) => c.progress.getAverageProgress() <= 0.3)
         .length;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFE94057).withValues(alpha: 0.08),
+            const Color(0xFFF50057).withValues(alpha: 0.08),
             const Color(0xFF0F1319).withValues(alpha: 0.0),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFE94057).withValues(alpha: 0.12),
+          color: const Color(0xFFF50057).withValues(alpha: 0.12),
         ),
       ),
       child: Row(
@@ -1095,11 +1089,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFE94057).withValues(alpha: 0.15),
+                  color: const Color(0xFFF50057).withValues(alpha: 0.15),
                 ),
                 child: const Icon(
                   Icons.warning_amber_rounded,
-                  color: Color(0xFFE94057),
+                  color: Color(0xFFF50057),
                   size: 20,
                 ),
               ),
