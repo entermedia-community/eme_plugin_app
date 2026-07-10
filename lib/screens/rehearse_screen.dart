@@ -204,9 +204,13 @@ class ChatMessage {
   final String sender; // 'ai' or 'user'
   final String text;
   final DateTime timestamp;
+  final String messageType; //text, image, video, audio, question, answer
 
-  ChatMessage({required this.sender, required this.text})
-    : timestamp = DateTime.now();
+  ChatMessage({
+    required this.sender,
+    required this.text,
+    required this.messageType,
+  }) : timestamp = DateTime.now();
 }
 
 class RehearseScreen extends StatefulWidget {
@@ -242,8 +246,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
   // Chat state
   final List<ChatMessage> _messages = [];
   int? _tempSelectedAnswerIndex;
-  String _stage =
-      'select_option'; // 'select_option', 'select_confidence', 'explain_and_followup'
+  String? _tempConfidenceLevel;
+  String _stage = 'question_asked';
 
   @override
   void initState() {
@@ -258,6 +262,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
         sender: 'ai',
         text:
             "Hello! Let's practice. Here is your first question:\n\n**Question 1 (${_questions[0].difficulty})**:\n${_questions[0].text}",
+        messageType: 'question',
       ),
     );
   }
@@ -299,15 +304,24 @@ class _RehearseScreenState extends State<RehearseScreen> {
   void _selectOption(int optIndex) {
     setState(() {
       _tempSelectedAnswerIndex = optIndex;
-      _stage = 'select_confidence';
     });
-    _scrollToBottom();
   }
 
   void _selectConfidence(String confidence) {
+    setState(() {
+      _tempConfidenceLevel = confidence;
+    });
+  }
+
+  void _submitAnswer() {
+    if (_tempSelectedAnswerIndex == null || _tempConfidenceLevel == null) {
+      return;
+    }
+
     final activeQuestion = _questions[_currentIndex];
     final selectedOptionText =
         activeQuestion.options[_tempSelectedAnswerIndex!];
+    final confidence = _tempConfidenceLevel!;
 
     setState(() {
       _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
@@ -319,6 +333,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
           sender: 'user',
           text:
               "I select: **$selectedOptionText**\nConfidence level: **$confidence**",
+          messageType: 'answer',
         ),
       );
 
@@ -332,7 +347,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
           ? "**$correctText**\n\n$explanationText"
           : "**$correctText** The correct answer is **${activeQuestion.options[activeQuestion.correctAnswerIndex]}**.\n\n$explanationText";
 
-      _messages.add(ChatMessage(sender: 'ai', text: aiText));
+      _messages.add(
+        ChatMessage(sender: 'ai', text: aiText, messageType: 'explanation'),
+      );
 
       _stage = 'explain_and_followup';
     });
@@ -345,7 +362,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
     _followUpController.clear();
 
     setState(() {
-      _messages.add(ChatMessage(sender: 'user', text: text));
+      _messages.add(
+        ChatMessage(sender: 'user', text: text, messageType: 'follow_up'),
+      );
     });
     _scrollToBottom();
 
@@ -354,7 +373,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
       if (!mounted) return;
       setState(() {
         final answer = _getFollowUpForQuestion(_questions[_currentIndex], text);
-        _messages.add(ChatMessage(sender: 'ai', text: answer));
+        _messages.add(
+          ChatMessage(
+            sender: 'ai',
+            text: answer,
+            messageType: 'follow_up_reply',
+          ),
+        );
       });
       _scrollToBottom();
     });
@@ -365,13 +390,15 @@ class _RehearseScreenState extends State<RehearseScreen> {
       setState(() {
         _currentIndex++;
         _tempSelectedAnswerIndex = null;
-        _stage = 'select_option';
+        _tempConfidenceLevel = null;
+        _stage = 'question_asked';
 
         _messages.add(
           ChatMessage(
             sender: 'ai',
             text:
                 "Moving on to the next question:\n\n**Question ${_currentIndex + 1} (${_questions[_currentIndex].difficulty})**:\n${_questions[_currentIndex].text}",
+            messageType: 'question',
           ),
         );
       });
@@ -788,7 +815,69 @@ class _RehearseScreenState extends State<RehearseScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_stage == 'select_option') ...[
+            if (_stage == 'question_asked') ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _followUpController,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      onSubmitted: (_) => _sendFollowUp(),
+                      decoration: InputDecoration(
+                        hintText: 'Need any explanation?',
+                        hintStyle: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 14,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.04),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: const Color(0xFFF27121),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: _sendFollowUp,
+                    icon: const Icon(Icons.send_rounded),
+                    color: const Color(0xFFF27121),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.04),
+                      padding: const EdgeInsets.all(12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.08),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else if (_stage == 'select_option') ...[
               const Padding(
                 padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
                 child: Text(
@@ -804,6 +893,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
               ...List.generate(question.options.length, (optIndex) {
                 final optionText = question.options[optIndex];
                 final optionLetters = ['A', 'B', 'C', 'D'];
+                final isSelected = _tempSelectedAnswerIndex == optIndex;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: InkWell(
@@ -811,10 +901,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF161C24).withValues(alpha: 0.4),
+                        color: isSelected
+                            ? const Color(0xFFF27121).withValues(alpha: 0.15)
+                            : const Color(0xFF161C24).withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.06),
+                          color: isSelected
+                              ? const Color(0xFFF27121)
+                              : Colors.white.withValues(alpha: 0.06),
                           width: 1.5,
                         ),
                       ),
@@ -829,19 +923,29 @@ class _RehearseScreenState extends State<RehearseScreen> {
                             height: 28,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: isSelected
+                                  ? const Color(
+                                      0xFFF27121,
+                                    ).withValues(alpha: 0.2)
+                                  : Colors.white.withValues(alpha: 0.05),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: isSelected
+                                    ? const Color(
+                                        0xFFF27121,
+                                      ).withValues(alpha: 0.4)
+                                    : Colors.white.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               optionLetters[optIndex],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white60,
+                                color: isSelected
+                                    ? const Color(0xFFF27121)
+                                    : Colors.white60,
                               ),
                             ),
                           ),
@@ -849,9 +953,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                           Expanded(
                             child: Text(
                               optionText,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white70,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.white70,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                           ),
@@ -861,7 +970,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   ),
                 );
               }),
-            ] else if (_stage == 'select_confidence') ...[
+              const SizedBox(height: 16),
               const Padding(
                 padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
                 child: Text(
@@ -877,6 +986,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
               Row(
                 children: _confidenceOptions.map((confidence) {
                   final color = _getConfidenceColor(confidence);
+                  final isSelected = _tempConfidenceLevel == confidence;
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -886,12 +996,16 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF161C24,
-                            ).withValues(alpha: 0.4),
+                            color: isSelected
+                                ? color.withValues(alpha: 0.25)
+                                : const Color(
+                                    0xFF161C24,
+                                  ).withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: isSelected
+                                  ? color
+                                  : Colors.white.withValues(alpha: 0.05),
                               width: 1.5,
                             ),
                           ),
@@ -909,6 +1023,82 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     ),
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color:
+                      (_tempSelectedAnswerIndex != null &&
+                          _tempConfidenceLevel != null)
+                      ? const Color(0xFFF27121)
+                      : const Color(0xFF161C24).withValues(alpha: 0.4),
+                  boxShadow:
+                      (_tempSelectedAnswerIndex != null &&
+                          _tempConfidenceLevel != null)
+                      ? [
+                          BoxShadow(
+                            color: const Color(
+                              0xFFF27121,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                  border:
+                      (_tempSelectedAnswerIndex != null &&
+                          _tempConfidenceLevel != null)
+                      ? null
+                      : Border.all(
+                          color: Colors.white.withValues(alpha: 0.06),
+                          width: 1.5,
+                        ),
+                ),
+                child: ElevatedButton(
+                  onPressed:
+                      (_tempSelectedAnswerIndex != null &&
+                          _tempConfidenceLevel != null)
+                      ? _submitAnswer
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    disabledBackgroundColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Submit Answer',
+                        style: TextStyle(
+                          color:
+                              (_tempSelectedAnswerIndex != null &&
+                                  _tempConfidenceLevel != null)
+                              ? Colors.white
+                              : Colors.white30,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.send_rounded,
+                        size: 16,
+                        color:
+                            (_tempSelectedAnswerIndex != null &&
+                                _tempConfidenceLevel != null)
+                            ? Colors.white
+                            : Colors.white30,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ] else if (_stage == 'explain_and_followup') ...[
               Row(
@@ -1093,6 +1283,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         color: Colors.white,
                       ),
                     ),
+
                     const SizedBox(height: 8),
                     Text(
                       progressHint,
@@ -1179,6 +1370,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
             itemBuilder: (context, index) {
               final message = _messages[index];
               final isAI = message.sender == 'ai';
+              final isLast = index == _messages.length - 1;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Row(
@@ -1242,15 +1434,64 @@ class _RehearseScreenState extends State<RehearseScreen> {
                           horizontal: 16,
                           vertical: 12,
                         ),
-                        child: _buildRichText(
-                          message.text,
-                          TextStyle(
-                            fontSize: 14,
-                            color: isAI
-                                ? Colors.white.withValues(alpha: 0.85)
-                                : Colors.white,
-                            height: 1.4,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildRichText(
+                              message.text,
+                              TextStyle(
+                                fontSize: 14,
+                                color: isAI
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : Colors.white,
+                                height: 1.4,
+                              ),
+                            ),
+                            if (isLast &&
+                                message.messageType == 'question' &&
+                                _stage != 'select_option') ...[
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: 150,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _stage = 'select_option';
+                                      _scrollToBottom();
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFF27121),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Answer',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
@@ -1829,6 +2070,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         _isFinished = false;
                         _messages.clear();
                         _tempSelectedAnswerIndex = null;
+                        _tempConfidenceLevel = null;
                         _stage = 'select_option';
                         _initializeChat();
                       });
