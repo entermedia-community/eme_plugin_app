@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 import '../models/tutorial.dart';
 
@@ -1190,15 +1191,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       Container(
                         width: 32,
                         height: 32,
+                        clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFF27121),
+                          color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
+                          border: Border.all(
+                            color: const Color(
+                              0xFFFFFFFF,
+                            ).withValues(alpha: 0.4),
+                          ),
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.smart_toy_rounded,
-                          color: Colors.white,
-                          size: 18,
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image:
+                              "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/ai/ai.png/image200x200.webp",
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -1252,20 +1259,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       Container(
                         width: 32,
                         height: 32,
+                        clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFF27121).withValues(alpha: 0.2),
+                          color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
                           border: Border.all(
                             color: const Color(
-                              0xFFF27121,
+                              0xFFFFFFFF,
                             ).withValues(alpha: 0.4),
                           ),
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.person_rounded,
-                          color: Colors.white,
-                          size: 18,
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image:
+                              "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
                         ),
                       ),
                     ],
