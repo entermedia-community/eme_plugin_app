@@ -1230,16 +1230,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
     // final advTotal = _getExpertTotal();
     // final advCorrect = _getExpertCorrect();
 
-    final String progressHint;
-    if (widget.tutorial.progress.getEfficiency() == Efficiency.beginner) {
-      progressHint = "Score an average of 70% to reach learner!";
-    } else if (widget.tutorial.progress.getEfficiency() ==
-        Efficiency.competent) {
-      progressHint = "Score an average of 90% to reach expert!";
-    } else {
-      progressHint = "You're an expert!";
-    }
-
     return Column(
       children: [
         // Premium custom AppBar header
@@ -1281,16 +1271,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-                    Text(
-                      progressHint,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.85),
                       ),
                     ),
                     const SizedBox(height: 10),
