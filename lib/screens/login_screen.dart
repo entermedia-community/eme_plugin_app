@@ -162,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen>
                                         ],
                                       ),
                                       child: const Image(
-                                        image: AssetImage('assets/logo.png'),
+                                        image: AssetImage('assets/testu.png'),
                                       ),
                                     ),
                                   ),

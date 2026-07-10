@@ -22,7 +22,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _activeWorkSpace = 'DEMO 1';
+  String _activeWorkSpace = 'Minsur';
   String selectedTab = 'Catalog';
 
   @override
@@ -55,7 +55,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 1. Sleek Modern Header
-                  _buildHeader(context, isDesktop),
+                  _buildHeader(context, isDesktop, _activeWorkSpace),
 
                   // 2. Main Content
                   Expanded(
@@ -112,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isDesktop) {
+  Widget _buildHeader(BuildContext context, bool isDesktop, String workspace) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 40 : 20,
@@ -136,21 +136,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                 },
               ),
               const SizedBox(width: 8),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF38B6FF).withValues(alpha: 0.2),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    ),
-                  ],
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 32,
+                  minHeight: 32,
+                  maxHeight: 40,
+                  maxWidth: 100,
                 ),
-                child: const Center(
-                  child: Image(image: AssetImage('assets/logo.png')),
+                child: Image(
+                  image: AssetImage('assets/${workspace.toLowerCase()}.png'),
                 ),
               ),
             ],
@@ -967,7 +961,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               });
                             }
                           },
-                          items: <String>['DEMO 1', 'DEMO 2']
+                          items: <String>['Minsur', 'TestU']
                               .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -979,7 +973,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         height: 18,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: value == 'DEMO 1'
+                                          color: value == 'Minsur'
                                               ? const Color(0xFF0072FF)
                                               : const Color(0xFF8A2387),
                                         ),

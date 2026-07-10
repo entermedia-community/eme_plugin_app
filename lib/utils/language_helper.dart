@@ -52,6 +52,8 @@ class LanguageHelper {
         'average_rank': 'Average Rank',
         'next_rank_up': 'Average Score',
         'improve': 'Improve',
+        'refresh': 'Refresh',
+        'last_reviewed': 'Last reviewed {d} days ago',
       },
       'Español': {
         'catalog_dashboard': 'Catálogo / Tablero',
@@ -92,6 +94,8 @@ class LanguageHelper {
         'average_rank': 'Rango Promedio',
         'next_rank_up': 'Siguiente Nivel En',
         'improve': 'Mejorar',
+        'refresh': 'Refrescar',
+        'last_reviewed': 'Última revisión {d} días atrás',
       },
     };
 

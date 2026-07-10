@@ -107,7 +107,12 @@ class TopicsCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Last reviewd ${topic.lastReviewedDays} days ago',
+                                LanguageHelper.translate(
+                                  'last_reviewed',
+                                  placeholders: {
+                                    'd': topic.lastReviewedDays.toString(),
+                                  },
+                                ),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.white38,

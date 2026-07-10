@@ -140,7 +140,10 @@ class _TutorialCardState extends State<TutorialCard>
                                   elevation: 0,
                                 ),
                                 child: Text(
-                                  LanguageHelper.translate('improve'),
+                                  widget.tutorial.progress.getEfficiency() ==
+                                          Efficiency.expert
+                                      ? LanguageHelper.translate('refresh')
+                                      : LanguageHelper.translate('improve'),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,

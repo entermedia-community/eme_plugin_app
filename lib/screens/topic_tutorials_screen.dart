@@ -62,12 +62,11 @@ class TopicTutorialsScreen extends StatelessWidget {
 
                               // Section Title
                               Text(
-                                LanguageHelper.translate('tutorials'),
+                                '${topic.tutorial.length} ${LanguageHelper.translate('tutorials')}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: mainColor,
-                                  letterSpacing: 1.5,
                                 ),
                               ),
                               const SizedBox(height: 16),

@@ -15,7 +15,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _activeEnvironment = 'DEMO 1';
+  String _activeEnvironment = 'Minsur';
   bool isGridView = true;
   String selectedTab = 'Catalog';
   String selectedFilter1 = 'All Subjects';
@@ -181,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ],
                 ),
                 child: Center(
-                  child: const Image(image: AssetImage('assets/logo.png')),
+                  child: const Image(image: AssetImage('assets/testu.png')),
                 ),
               ),
             ],
@@ -594,7 +594,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               });
                             }
                           },
-                          items: <String>['DEMO 1', 'DEMO 2']
+                          items: <String>['Minsur', 'TestU']
                               .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -606,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         height: 18,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: value == 'DEMO 1'
+                                          color: value == 'Minsur'
                                               ? const Color(0xFF0072FF)
                                               : const Color(0xFF8A2387),
                                         ),
