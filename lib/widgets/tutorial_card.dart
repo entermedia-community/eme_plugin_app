@@ -44,7 +44,6 @@ class _TutorialCardState extends State<TutorialCard>
     final statusColor = widget.tutorial.progress.getStatusColor();
 
     return Container(
-      // height: 180,
       decoration: BoxDecoration(
         color: const Color(0xFF161C24),
         borderRadius: BorderRadius.circular(16),
@@ -52,31 +51,31 @@ class _TutorialCardState extends State<TutorialCard>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
+        child: Expanded(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.white.withValues(alpha: 0.05),
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  widget.tutorial.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      widget.tutorial.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Divider(
-                      color: Colors.white.withValues(alpha: 0.06),
-                      height: 1,
-                    ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 4),
                     CommonWidgets.buildCompetenceBadge(
                       efficiency: widget.tutorial.progress.getEfficiency(),
                     ),
@@ -189,8 +188,8 @@ class _TutorialCardState extends State<TutorialCard>
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
