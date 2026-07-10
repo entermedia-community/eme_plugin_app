@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -41,13 +42,6 @@ class _LoginScreenState extends State<LoginScreen>
     _passwordController.dispose();
     _fadeController.dispose();
     super.dispose();
-  }
-
-  void _autofill(String email, String password) {
-    setState(() {
-      _emailController.text = email;
-      _passwordController.text = password;
-    });
   }
 
   void _submit() async {
@@ -383,65 +377,6 @@ class _LoginScreenState extends State<LoginScreen>
                                             ),
                                           ),
                                         ),
-                                  const SizedBox(height: 24),
-
-                                  // Divider
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Divider(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.1,
-                                          ),
-                                          thickness: 1,
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                        child: Text(
-                                          'DEMO ACCOUNTS',
-                                          style: TextStyle(
-                                            color: Colors.white24,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Divider(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.1,
-                                          ),
-                                          thickness: 1,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-
-                                  // Quick autofill buttons
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildAutofillButton(
-                                          label: 'Demo User',
-                                          email: 'demo@emeworld.com',
-                                          password: 'password123',
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: _buildAutofillButton(
-                                          label: 'Admin User',
-                                          email: 'admin@emeworld.com',
-                                          password: 'adminSecure123',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
 
                                   const SizedBox(height: 24),
                                   Text(
@@ -502,42 +437,6 @@ class _LoginScreenState extends State<LoginScreen>
           suffixIcon: suffixIcon,
           border: InputBorder.none,
           errorStyle: const TextStyle(color: Color(0xFFF50057), fontSize: 11),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAutofillButton({
-    required String label,
-    required String email,
-    required String password,
-  }) {
-    return InkWell(
-      onTap: () => _autofill(email, password),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.02),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              email.split('@')[0],
-              style: const TextStyle(color: Colors.white38, fontSize: 10),
-            ),
-          ],
         ),
       ),
     );
