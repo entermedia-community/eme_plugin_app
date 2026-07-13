@@ -51,9 +51,8 @@ class _TutorialCardState extends State<TutorialCard>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Expanded(
-          child: Column(
-            children: [
+        child: Column(
+          children: [
               Container(
                 width: double.infinity,
                 color: Colors.white.withValues(alpha: 0.05),
@@ -191,7 +190,6 @@ class _TutorialCardState extends State<TutorialCard>
             ],
           ),
         ),
-      ),
-    );
+      );
+    }
   }
-}
