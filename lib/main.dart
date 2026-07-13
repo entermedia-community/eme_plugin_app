@@ -88,9 +88,11 @@ class _AppEntryState extends State<AppEntry> {
   @override
   Widget build(BuildContext context) {
     if (_isLoggedIn) {
-      return DashboardScreen(username: _username, onLogout: _handleLogout);
+      return SelectionArea(
+        child: DashboardScreen(username: _username, onLogout: _handleLogout),
+      );
     } else {
-      return LoginScreen(onLoginSuccess: _handleLogin);
+      return SelectionArea(child: LoginScreen(onLoginSuccess: _handleLogin));
     }
   }
 }
