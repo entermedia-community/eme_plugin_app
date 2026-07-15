@@ -110,3 +110,226 @@ class Tutorial {
     return normalizedNow.difference(normalizedFrom).inDays;
   }
 }
+
+class McqQuestion {
+  final String id;
+  final String question;
+  final Map<String, String> options;
+  final String correctOption;
+  final String cognitiveLevel;
+
+  McqQuestion({
+    required this.id,
+    required this.question,
+    required this.options,
+    required this.correctOption,
+    required this.cognitiveLevel,
+  });
+
+  factory McqQuestion.fromJson(Map<String, dynamic> json) {
+    final Map<String, String> opts = {};
+    if (json['options'] is Map) {
+      (json['options'] as Map).forEach((k, v) {
+        opts[k.toString()] = v.toString();
+      });
+    } else if (json['options'] is List) {
+      final list = json['options'] as List;
+      for (int i = 0; i < list.length; i++) {
+        opts['option_${String.fromCharCode(97 + i)}'] = list[i].toString();
+      }
+    }
+
+    return McqQuestion(
+      id: json['id'] as String? ?? '',
+      question: json['question'] as String? ?? '',
+      options: opts,
+      correctOption:
+          json['correctoption'] as String? ??
+          json['correct_option'] as String? ??
+          '',
+      cognitiveLevel:
+          json['cognitivelevel'] as String? ??
+          json['cognitive_level'] as String? ??
+          'beginner',
+    );
+  }
+
+  List<String> get optionsList {
+    if (options.isEmpty) return [];
+    final keys = options.keys.toList()..sort();
+    return keys.map((k) => options[k]!).toList();
+  }
+
+  int get correctAnswerIndex {
+    final keys = options.keys.toList()..sort();
+    final targetKey = correctOption.toLowerCase().trim();
+
+    int index = keys.indexOf(targetKey);
+    if (index != -1) return index;
+
+    if (targetKey.length == 1) {
+      final fullKey = 'option_$targetKey';
+      index = keys.indexOf(fullKey);
+      if (index != -1) return index;
+    }
+
+    return 0;
+  }
+
+  String get difficultyDisplay {
+    if (cognitiveLevel.isEmpty) return 'Beginner';
+    return cognitiveLevel[0].toUpperCase() + cognitiveLevel.substring(1);
+  }
+}
+
+class TutorialContent {
+  final String id;
+  final String content;
+  final String contentType;
+  final String contentRole;
+  final McqQuestion? question;
+
+  TutorialContent({
+    required this.id,
+    required this.content,
+    required this.contentType,
+    required this.contentRole,
+    this.question,
+  });
+
+  bool get isMcq => contentType.toLowerCase() == 'mcq';
+  bool get isAsset => contentType.toLowerCase() == 'asset';
+  bool get isText => !isMcq && !isAsset;
+
+  factory TutorialContent.fromJson(Map<String, dynamic> json) {
+    return TutorialContent(
+      id: json['id'] as String? ?? '',
+      content: json['content'] as String? ?? '',
+      contentType:
+          json['contenttype'] as String? ??
+          json['content_type'] as String? ??
+          '',
+      contentRole:
+          json['contentrole'] as String? ??
+          json['content_role'] as String? ??
+          '',
+      question:
+          json['question'] != null && json['question'] is Map<String, dynamic>
+          ? McqQuestion.fromJson(json['question'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class TutorialSection {
+  final String id;
+  final String title;
+  final List<TutorialContent> contents;
+
+  TutorialSection({
+    required this.id,
+    required this.title,
+    required this.contents,
+  });
+
+  factory TutorialSection.fromJson(Map<String, dynamic> json) {
+    final rawContents = json['contents'] as List<dynamic>? ?? [];
+    final list = rawContents
+        .map((item) => TutorialContent.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    return TutorialSection(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      contents: list,
+    );
+  }
+
+  /// Merges consecutive text components in this section into single TutorialContent items.
+  List<TutorialContent> getMergedContents() {
+    final List<TutorialContent> merged = [];
+    StringBuffer? textBuffer;
+    List<String> ids = [];
+
+    void flushTextBuffer() {
+      if (textBuffer != null && textBuffer!.isNotEmpty) {
+        merged.add(
+          TutorialContent(
+            id: ids.join('_'),
+            content: textBuffer!.toString(),
+            contentType: 'merged_text',
+            contentRole: '',
+          ),
+        );
+        textBuffer = null;
+        ids = [];
+      }
+    }
+
+    for (final item in contents) {
+      if (item.isText) {
+        textBuffer ??= StringBuffer();
+        if (textBuffer!.isNotEmpty) {
+          textBuffer!.write('\n');
+        }
+        textBuffer!.write(item.content);
+        ids.add(item.id);
+      } else {
+        flushTextBuffer();
+        merged.add(item);
+      }
+    }
+
+    flushTextBuffer();
+    return merged;
+  }
+}
+
+class TutorialDetail {
+  final List<TutorialSection> sections;
+
+  TutorialDetail({required this.sections});
+
+  factory TutorialDetail.fromJson(Map<String, dynamic> json) {
+    final rawSections = json['sections'] as List<dynamic>? ?? [];
+    return TutorialDetail(
+      sections: rawSections
+          .map((item) => TutorialSection.fromJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class RehearseQuestion {
+  final String text;
+  final List<String> options;
+  final int correctAnswerIndex;
+  final String difficulty; // "Beginner", "Intermediate", "Expert"
+  final String? sectionTitle;
+  final String? sectionContentText;
+
+  const RehearseQuestion({
+    required this.text,
+    required this.options,
+    required this.correctAnswerIndex,
+    required this.difficulty,
+    this.sectionTitle,
+    this.sectionContentText,
+  });
+
+  factory RehearseQuestion.fromMcq(
+    McqQuestion mcq, {
+    String? sectionTitle,
+    String? sectionContentText,
+  }) {
+    return RehearseQuestion(
+      text: mcq.question,
+      options: mcq.optionsList,
+      correctAnswerIndex: mcq.correctAnswerIndex,
+      difficulty: mcq.difficultyDisplay,
+      sectionTitle: sectionTitle,
+      sectionContentText: sectionContentText,
+    );
+  }
+}
+

@@ -88,7 +88,8 @@ class TopicService {
         if (decoded is List) {
           jsonList = decoded;
         } else if (decoded is Map<String, dynamic>) {
-          jsonList = decoded['tutorials'] as List<dynamic>? ??
+          jsonList =
+              decoded['tutorials'] as List<dynamic>? ??
               decoded['data'] as List<dynamic>? ??
               [];
         } else {
@@ -110,4 +111,45 @@ class TopicService {
       rethrow;
     }
   }
+
+  /// Fetches detailed sections, contents, and questions for a given tutorial ID.
+  /// URL: $baseUrl/tutorial.json?entitytutorial=$tutorialId
+  Future<TutorialDetail> fetchTutorialDetail(String tutorialId) async {
+    final targetUrl = "$baseUrl/tutorial.json?entitytutorial=$tutorialId";
+    final uri = Uri.parse(targetUrl);
+
+    try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
+      final response = await _client.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (decoded is Map<String, dynamic>) {
+          return TutorialDetail.fromJson(decoded);
+        } else {
+          throw FormatException('Unexpected response format from $targetUrl');
+        }
+      } else {
+        throw Exception(
+          'Failed to fetch tutorial details. Server returned HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('TopicService error fetching tutorial detail from $targetUrl: $e');
+      }
+      rethrow;
+    }
+  }
 }
+
