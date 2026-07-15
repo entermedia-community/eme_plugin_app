@@ -7,6 +7,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/topic.dart';
+import '../services/topic_service.dart';
 import '../utils/language_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -22,8 +23,29 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TopicService _topicService = TopicService();
+  late Future<List<Topic>> _topicsFuture;
   String _activeWorkSpace = 'Minsur';
   String selectedTab = 'Catalog';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTopics();
+  }
+
+  void _loadTopics() {
+    setState(() {
+      _topicsFuture = _topicService.fetchTopics();
+    });
+  }
+
+  Future<void> _refreshTopics() async {
+    final newTopics = await _topicService.fetchTopics();
+    setState(() {
+      _topicsFuture = Future.value(newTopics);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,45 +81,126 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                   // 2. Main Content
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: Center(
-                        child: Container(
-                          width: min(700, size.width),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isDesktop ? 40 : 20,
-                            vertical: 24,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Overall metrics overview card
-                              _buildOverviewCard(),
-                              const SizedBox(height: 32),
+                    child: RefreshIndicator(
+                      onRefresh: _refreshTopics,
+                      color: const Color(0xFF38B6FF),
+                      backgroundColor: const Color(0xFF1E2638),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Center(
+                          child: Container(
+                            width: min(700, size.width),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isDesktop ? 40 : 20,
+                              vertical: 24,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Overall metrics overview card
+                                _buildOverviewCard(),
+                                const SizedBox(height: 32),
 
-                              // Section Title
-                              Text(
-                                LanguageHelper.translate('topics'),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF38B6FF),
-                                  letterSpacing: 1.5,
+                                // Section Title
+                                Text(
+                                  LanguageHelper.translate('topics'),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF38B6FF),
+                                    letterSpacing: 1.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Topics List
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: mockTopics.length,
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(height: 16),
-                                itemBuilder: (context, index) {
-                                  return TopicsCard(topic: mockTopics[index]);
-                                },
-                              ),
-                            ],
+                                // Dynamic Topics List from API Service
+                                FutureBuilder<List<Topic>>(
+                                  future: _topicsFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 40.0,
+                                        ),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Color(0xFF38B6FF),
+                                                ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    if (snapshot.hasError) {
+                                      return Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1E2638),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            const Icon(
+                                              Icons.error_outline,
+                                              color: Color(0xFFF50057),
+                                              size: 36,
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              'Failed to load topics: ${snapshot.error}',
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                color: Colors.white70,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            ElevatedButton.icon(
+                                              onPressed: _loadTopics,
+                                              icon: const Icon(Icons.refresh),
+                                              label: const Text('Retry'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+
+                                    final topics = snapshot.data ?? [];
+                                    if (topics.isEmpty) {
+                                      return const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 20.0,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'No topics available.',
+                                            style: TextStyle(
+                                              color: Colors.white60,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: topics.length,
+                                      separatorBuilder: (context, index) =>
+                                          const SizedBox(height: 16),
+                                      itemBuilder: (context, index) {
+                                        return TopicsCard(topic: topics[index]);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -717,7 +820,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           ),
           const SizedBox(width: 8),
-          // Reliability Progress Ring
           Stack(
             alignment: Alignment.center,
             children: [

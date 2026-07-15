@@ -8,18 +8,40 @@ class Topic {
   final String title;
   final String thumbnail;
   final int completedTutorials;
-  final double validityPeriod;
-  final double reliability;
   final List<Tutorial> tutorial;
 
   const Topic({
     required this.title,
     required this.thumbnail,
     required this.completedTutorials,
-    required this.validityPeriod,
-    required this.reliability,
     required this.tutorial,
   });
+
+  factory Topic.fromJson(Map<String, dynamic> json) {
+    var tutorialListJson =
+        json['tutorial'] as List<dynamic>? ??
+        json['tutorials'] as List<dynamic>? ??
+        [];
+    List<Tutorial> tutorials = tutorialListJson
+        .map((item) => Tutorial.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    return Topic(
+      title: json['title'] as String? ?? '',
+      thumbnail: json['thumbnail'] as String? ?? '',
+      completedTutorials: (json['completedTutorials'] as num?)?.toInt() ?? 0,
+      tutorial: tutorials,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'thumbnail': thumbnail,
+      'completedTutorials': completedTutorials,
+      'tutorial': tutorial.map((t) => t.toJson()).toList(),
+    };
+  }
 
   // Efficiency calculations
   TutorialProgress get progress {
@@ -83,8 +105,6 @@ final List<Topic> mockTopics = [
     thumbnail:
         'https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/Ciberseguridad/Ciberseguridad.png/image200x200.webp',
     completedTutorials: 1,
-    validityPeriod: 30.0,
-    reliability: 7.0,
     tutorial: [
       mockTutorials[0],
       mockTutorials[1],
@@ -97,9 +117,6 @@ final List<Topic> mockTopics = [
     thumbnail:
         'https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/Humanos/Humanos.png/image200x200.webp',
     completedTutorials: 2,
-
-    validityPeriod: 30.0,
-    reliability: 28.0,
     tutorial: [
       mockTutorials[4],
       mockTutorials[5],

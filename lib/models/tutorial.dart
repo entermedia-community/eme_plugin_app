@@ -12,6 +12,22 @@ class TutorialProgress {
     required this.expertProgress,
   });
 
+  factory TutorialProgress.fromJson(Map<String, dynamic> json) {
+    return TutorialProgress(
+      beginnerProgress: (json['beginnerProgress'] as num?)?.toDouble() ?? 0.0,
+      competentProgress: (json['competentProgress'] as num?)?.toDouble() ?? 0.0,
+      expertProgress: (json['expertProgress'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'beginnerProgress': beginnerProgress,
+      'competentProgress': competentProgress,
+      'expertProgress': expertProgress,
+    };
+  }
+
   double getAverageProgress() {
     return (beginnerProgress + competentProgress + expertProgress) / 3;
   }
@@ -48,6 +64,34 @@ class Tutorial {
     required this.answersForgotten,
     required this.lastReviewed,
   });
+
+  factory Tutorial.fromJson(Map<String, dynamic> json) {
+    return Tutorial(
+      title: json['title'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      progress: json['progress'] != null
+          ? TutorialProgress.fromJson(json['progress'] as Map<String, dynamic>)
+          : TutorialProgress(
+              beginnerProgress: 0,
+              competentProgress: 0,
+              expertProgress: 0,
+            ),
+      answersForgotten: (json['answersForgotten'] as num?)?.toDouble() ?? 0.0,
+      lastReviewed: json['lastReviewed'] != null
+          ? DateTime.tryParse(json['lastReviewed'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'category': category,
+      'progress': progress.toJson(),
+      'answersForgotten': answersForgotten,
+      'lastReviewed': lastReviewed.toIso8601String(),
+    };
+  }
 
   int get forgottenPeriod {
     final normalizedFrom = DateTime(
