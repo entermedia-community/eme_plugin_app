@@ -113,11 +113,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
               sectionContentBuffer.write("\n\n");
             }
             sectionContentBuffer.write(item.content);
-          } else if (item.isAsset && item.content.isNotEmpty) {
+          } else if (item.isAsset && item.assetUrl.isNotEmpty) {
             if (sectionContentBuffer.isNotEmpty) {
               sectionContentBuffer.write("\n\n");
             }
-            sectionContentBuffer.write(item.content);
+            sectionContentBuffer.write("<img src='${item.assetUrl}' />");
+            if (item.content.isNotEmpty) {
+              sectionContentBuffer.write("<caption>${item.content}</caption>");
+            }
           }
         }
 
@@ -424,13 +427,31 @@ class _RehearseScreenState extends State<RehearseScreen> {
         .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
         .replaceAll(RegExp(r'</li\s*>', caseSensitive: false), '\n')
         .replaceAll(RegExp(r'<li\s*>', caseSensitive: false), '• ')
-        .replaceAll(RegExp(r'</?h[1-6]\s*>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<h1\s*>', caseSensitive: false), '[h1]')
+        .replaceAll(RegExp(r'</h1\s*>', caseSensitive: false), '[/h1]')
+        .replaceAll(RegExp(r'</?h[2-6]\s*>', caseSensitive: false), '\n')
         .replaceAll(RegExp(r'</?(div|ul|ol|p)\s*>', caseSensitive: false), '')
         .replaceAll(RegExp(r'</?(strong|b)\s*>', caseSensitive: false), '**')
-        .replaceAll(RegExp(r'<[^>]*>'), '');
+        .replaceAllMapped(
+          RegExp(
+            r'''<img\s+src=['"]?([^'"\s>]+)['"]?\s*/?>''',
+            caseSensitive: false,
+          ),
+          (match) => '[img src="${match.group(1)}"]',
+        )
+        .replaceAll(RegExp(r'<caption\s*>', caseSensitive: false), '[caption]')
+        .replaceAll(
+          RegExp(r'</caption\s*>', caseSensitive: false),
+          '[/caption]',
+        )
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll(RegExp(r'\n\n+'), '\n\n');
 
-    final List<TextSpan> spans = [];
-    final RegExp regExp = RegExp(r'\*\*(.*?)\*\*');
+    final List<InlineSpan> spans = [];
+    final RegExp regExp = RegExp(
+      r'\[img src="([^"]+)"\](?:\s*\[caption\](.*?)\[/caption\])?|\[h1\](.*?)\[/h1\]|\*\*(.*?)\*\*',
+      dotAll: true,
+    );
     int lastMatchEnd = 0;
 
     for (final Match match in regExp.allMatches(processed)) {
@@ -439,15 +460,74 @@ class _RehearseScreenState extends State<RehearseScreen> {
           TextSpan(text: processed.substring(lastMatchEnd, match.start)),
         );
       }
-      spans.add(
-        TextSpan(
-          text: match.group(1),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+
+      final String? imgSrc = match.group(1);
+      final String? captionText = match.group(2);
+      final String? h1Content = match.group(3);
+      final String? boldContent = match.group(4);
+
+      if (imgSrc != null) {
+        spans.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: FadeInImage.memoryNetwork(
+                        placeholder: kTransparentImage,
+                        image: imgSrc,
+                        fit: BoxFit.cover,
+                        imageErrorBuilder: (context, error, stackTrace) =>
+                            const SizedBox.shrink(),
+                      ),
+                    ),
+                    if (captionText != null &&
+                        captionText.trim().isNotEmpty) ...[
+                      const SizedBox(height: 4.0),
+                      Text(
+                        captionText.trim(),
+                        style: baseStyle.copyWith(
+                          fontSize: (baseStyle.fontSize ?? 14.0) - 2.0,
+                          color: Colors.white60,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      );
+        );
+      } else if (h1Content != null) {
+        spans.add(
+          TextSpan(
+            text: h1Content.replaceAll('**', ''),
+            style: baseStyle.copyWith(
+              fontSize: (baseStyle.fontSize ?? 14.0) + 4.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        );
+        spans.add(const TextSpan(text: '\n'));
+      } else if (boldContent != null) {
+        spans.add(
+          TextSpan(
+            text: boldContent,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        );
+      }
       lastMatchEnd = match.end;
     }
 

@@ -185,6 +185,7 @@ class McqQuestion {
 class TutorialContent {
   final String id;
   final String content;
+  final String assetUrl;
   final String contentType;
   final String contentRole;
   final McqQuestion? question;
@@ -192,6 +193,7 @@ class TutorialContent {
   TutorialContent({
     required this.id,
     required this.content,
+    required this.assetUrl,
     required this.contentType,
     required this.contentRole,
     this.question,
@@ -205,6 +207,7 @@ class TutorialContent {
     return TutorialContent(
       id: json['id'] as String? ?? '',
       content: json['content'] as String? ?? '',
+      assetUrl: json['asseturl'] as String? ?? '',
       contentType:
           json['contenttype'] as String? ??
           json['content_type'] as String? ??
@@ -257,6 +260,7 @@ class TutorialSection {
           TutorialContent(
             id: ids.join('_'),
             content: textBuffer!.toString(),
+            assetUrl: '',
             contentType: 'merged_text',
             contentRole: '',
           ),
@@ -268,11 +272,15 @@ class TutorialSection {
 
     for (final item in contents) {
       if (item.isText) {
+        String content = item.content;
+        if (item.contentType == "heading") {
+          content = "<h1>$content</h1>";
+        }
         textBuffer ??= StringBuffer();
         if (textBuffer!.isNotEmpty) {
           textBuffer!.write('\n');
         }
-        textBuffer!.write(item.content);
+        textBuffer!.write(content);
         ids.add(item.id);
       } else {
         flushTextBuffer();
@@ -332,4 +340,3 @@ class RehearseQuestion {
     );
   }
 }
-
