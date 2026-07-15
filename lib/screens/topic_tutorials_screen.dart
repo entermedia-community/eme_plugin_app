@@ -5,13 +5,35 @@ import 'package:testu_cl/widgets/common_widgets.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../models/topic.dart';
+import '../models/tutorial.dart';
+import '../services/topic_service.dart';
 import '../utils/language_helper.dart';
 import '../widgets/tutorial_card.dart';
 
-class TopicTutorialsScreen extends StatelessWidget {
+class TopicTutorialsScreen extends StatefulWidget {
   final Topic topic;
 
   const TopicTutorialsScreen({super.key, required this.topic});
+
+  @override
+  State<TopicTutorialsScreen> createState() => _TopicTutorialsScreenState();
+}
+
+class _TopicTutorialsScreenState extends State<TopicTutorialsScreen> {
+  final TopicService _topicService = TopicService();
+  late Future<List<Tutorial>> _tutorialsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTutorials();
+  }
+
+  void _loadTutorials() {
+    setState(() {
+      _tutorialsFuture = _topicService.fetchTutorialsForTopic(widget.topic.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +84,7 @@ class TopicTutorialsScreen extends StatelessWidget {
 
                               // Section Title
                               Text(
-                                '${topic.tutorial.length} ${LanguageHelper.translate('tutorials')}',
+                                '${widget.topic.totalTutorials} ${LanguageHelper.translate('tutorials')}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -71,19 +93,91 @@ class TopicTutorialsScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 16),
 
-                              // List of tutorials
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: topic.tutorial.length,
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(height: 16),
-                                itemBuilder: (context, index) {
-                                  final tutorial = topic.tutorial[index];
-                                  // We render the TutorialCard widget
-                                  return TutorialCard(
-                                    tutorial: tutorial,
-                                    isListMode: true,
+                              // Dynamic List of tutorials loaded from API
+                              FutureBuilder<List<Tutorial>>(
+                                future: _tutorialsFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 40.0,
+                                      ),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Color(0xFF38B6FF),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF161C24),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.error_outline,
+                                            color: Color(0xFFF50057),
+                                            size: 36,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'Failed to load tutorials: ${snapshot.error}',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          ElevatedButton.icon(
+                                            onPressed: _loadTutorials,
+                                            icon: const Icon(Icons.refresh),
+                                            label: const Text('Retry'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+
+                                  final tutorials = snapshot.data ?? [];
+                                  if (tutorials.isEmpty) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 20.0,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          'No tutorials available.',
+                                          style: TextStyle(
+                                            color: Colors.white60,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  return ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: tutorials.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 16),
+                                    itemBuilder: (context, index) {
+                                      final tutorial = tutorials[index];
+                                      return TutorialCard(
+                                        tutorial: tutorial,
+                                        isListMode: true,
+                                      );
+                                    },
                                   );
                                 },
                               ),
@@ -128,7 +222,7 @@ class TopicTutorialsScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              topic.title,
+              widget.topic.title,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               style: const TextStyle(
@@ -168,7 +262,7 @@ class TopicTutorialsScreen extends StatelessWidget {
                 ),
                 child: FadeInImage.memoryNetwork(
                   placeholder: kTransparentImage,
-                  image: topic.thumbnail,
+                  image: widget.topic.thumbnail,
                   imageErrorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey,
@@ -180,7 +274,7 @@ class TopicTutorialsScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  topic.title,
+                  widget.topic.title,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -209,24 +303,24 @@ class TopicTutorialsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   CommonWidgets.buildCompetenceBadge(
-                    efficiency: topic.progress.getEfficiency(),
+                    efficiency: widget.topic.progress.getEfficiency(),
                   ),
                 ],
               ),
               Row(
                 children: [
                   CommonWidgets.buildProgressColumn(
-                    topic.progress,
+                    widget.topic.progress,
                     Efficiency.beginner,
                   ),
                   const SizedBox(width: 24),
                   CommonWidgets.buildProgressColumn(
-                    topic.progress,
+                    widget.topic.progress,
                     Efficiency.competent,
                   ),
                   const SizedBox(width: 24),
                   CommonWidgets.buildProgressColumn(
-                    topic.progress,
+                    widget.topic.progress,
                     Efficiency.expert,
                   ),
                 ],
@@ -246,7 +340,7 @@ class TopicTutorialsScreen extends StatelessWidget {
               children: [
                 TextSpan(text: 'An average of '),
                 TextSpan(
-                  text: '${topic.answersForgotten.toStringAsFixed(2)}%',
+                  text: '${widget.topic.answersForgotten.toStringAsFixed(2)}%',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
@@ -254,7 +348,7 @@ class TopicTutorialsScreen extends StatelessWidget {
                 ),
                 TextSpan(text: ' answers forgotten over '),
                 TextSpan(
-                  text: topic.forgottenPeriod.toString(),
+                  text: widget.topic.forgottenPeriod.toString(),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,

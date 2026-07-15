@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:testu_cl/services/auth_service.dart';
 import '../models/topic.dart';
+import '../models/tutorial.dart';
 
 class TopicService {
   final http.Client _client;
@@ -20,11 +22,16 @@ class TopicService {
     final uri = Uri.parse(targetUrl);
 
     try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
       final response = await _client.get(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
         },
       );
 
@@ -32,13 +39,8 @@ class TopicService {
         final decoded = json.decode(response.body);
         List<dynamic> jsonList;
 
-        if (decoded is List) {
-          jsonList = decoded;
-        } else if (decoded is Map<String, dynamic>) {
-          jsonList =
-              decoded['topics'] as List<dynamic>? ??
-              decoded['data'] as List<dynamic>? ??
-              [];
+        if (decoded is Map<String, dynamic>) {
+          jsonList = decoded['topics'] as List<dynamic>? ?? [];
         } else {
           throw FormatException('Unexpected response format from $targetUrl');
         }
@@ -55,11 +57,55 @@ class TopicService {
       if (kDebugMode) {
         print('TopicService error fetching from $targetUrl: $e');
       }
-      if (fallbackToMock) {
-        if (kDebugMode) {
-          print('TopicService falling back to mockTopics');
+      rethrow;
+    }
+  }
+
+  /// Fetches tutorials for a given [topicId].
+  /// URL: $baseUrl/tutorials.json?entitytopic=$topicId
+  Future<List<Tutorial>> fetchTutorialsForTopic(String topicId) async {
+    final targetUrl = "$baseUrl/tutorials.json?entitytopic=$topicId";
+    final uri = Uri.parse(targetUrl);
+
+    try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
+      final response = await _client.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        List<dynamic> jsonList;
+
+        if (decoded is List) {
+          jsonList = decoded;
+        } else if (decoded is Map<String, dynamic>) {
+          jsonList = decoded['tutorials'] as List<dynamic>? ??
+              decoded['data'] as List<dynamic>? ??
+              [];
+        } else {
+          throw FormatException('Unexpected response format from $targetUrl');
         }
-        return mockTopics;
+
+        return jsonList
+            .map((item) => Tutorial.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception(
+          'Failed to fetch tutorials. Server returned HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('TopicService error fetching tutorials from $targetUrl: $e');
       }
       rethrow;
     }

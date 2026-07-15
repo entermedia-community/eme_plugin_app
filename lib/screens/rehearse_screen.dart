@@ -23,8 +23,9 @@ class RehearseQuestion {
 }
 
 List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
-  if (tutorial.category.contains('MATEMÁTICA') ||
-      tutorial.title.contains('MATHEMATICAL')) {
+  if (tutorial.topicId.contains('MATEMÁTICA') ||
+      tutorial.title.toUpperCase().contains('MATEMÁTICA') ||
+      tutorial.title.toUpperCase().contains('MATHEMATICAL')) {
     return [
       const RehearseQuestion(
         text:
@@ -53,8 +54,9 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
         difficulty: 'Intermediate',
       ),
     ];
-  } else if (tutorial.category.contains('CIENCIAS') ||
-      tutorial.title.contains('PHYSICS')) {
+  } else if (tutorial.topicId.contains('CIENCIAS') ||
+      tutorial.title.toUpperCase().contains('CIENCIAS') ||
+      tutorial.title.toUpperCase().contains('PHYSICS')) {
     return [
       const RehearseQuestion(
         text:
@@ -95,8 +97,9 @@ List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
         difficulty: 'Expert',
       ),
     ];
-  } else if (tutorial.category.contains('LENGUAJE') ||
-      tutorial.title.contains('LANGUAGE')) {
+  } else if (tutorial.topicId.contains('LENGUAJE') ||
+      tutorial.title.toUpperCase().contains('LENGUAJE') ||
+      tutorial.title.toUpperCase().contains('LANGUAGE')) {
     return [
       const RehearseQuestion(
         text:

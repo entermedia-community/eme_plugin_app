@@ -14,17 +14,17 @@ class TutorialProgress {
 
   factory TutorialProgress.fromJson(Map<String, dynamic> json) {
     return TutorialProgress(
-      beginnerProgress: (json['beginnerProgress'] as num?)?.toDouble() ?? 0.0,
-      competentProgress: (json['competentProgress'] as num?)?.toDouble() ?? 0.0,
-      expertProgress: (json['expertProgress'] as num?)?.toDouble() ?? 0.0,
+      beginnerProgress: (json['beginnerprogress'] as num?)?.toDouble() ?? 0.0,
+      competentProgress: (json['competentprogress'] as num?)?.toDouble() ?? 0.0,
+      expertProgress: (json['expertprogress'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'beginnerProgress': beginnerProgress,
-      'competentProgress': competentProgress,
-      'expertProgress': expertProgress,
+      'beginnerprogress': beginnerProgress,
+      'competentprogress': competentProgress,
+      'expertprogress': expertProgress,
     };
   }
 
@@ -51,15 +51,18 @@ class TutorialProgress {
 }
 
 class Tutorial {
+  final String id;
   final String title;
-  final String category;
-  final TutorialProgress progress;
+  final String topicId;
   final double answersForgotten;
   final DateTime lastReviewed;
 
+  final TutorialProgress progress;
+
   Tutorial({
+    required this.id,
     required this.title,
-    required this.category,
+    required this.topicId,
     required this.progress,
     required this.answersForgotten,
     required this.lastReviewed,
@@ -67,8 +70,9 @@ class Tutorial {
 
   factory Tutorial.fromJson(Map<String, dynamic> json) {
     return Tutorial(
+      id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      category: json['category'] as String? ?? '',
+      topicId: json['entitytopicid'] as String? ?? '',
       progress: json['progress'] != null
           ? TutorialProgress.fromJson(json['progress'] as Map<String, dynamic>)
           : TutorialProgress(
@@ -76,20 +80,21 @@ class Tutorial {
               competentProgress: 0,
               expertProgress: 0,
             ),
-      answersForgotten: (json['answersForgotten'] as num?)?.toDouble() ?? 0.0,
-      lastReviewed: json['lastReviewed'] != null
-          ? DateTime.tryParse(json['lastReviewed'].toString()) ?? DateTime.now()
+      answersForgotten: (json['answersforgotten'] as num?)?.toDouble() ?? 0.0,
+      lastReviewed: json['lastreviewed'] != null
+          ? DateTime.tryParse(json['lastreviewed'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'title': title,
-      'category': category,
+      'entitytopicid': topicId,
       'progress': progress.toJson(),
-      'answersForgotten': answersForgotten,
-      'lastReviewed': lastReviewed.toIso8601String(),
+      'answersforgotten': answersForgotten,
+      'lastreviewed': lastReviewed.toIso8601String(),
     };
   }
 
@@ -105,112 +110,3 @@ class Tutorial {
     return normalizedNow.difference(normalizedFrom).inDays;
   }
 }
-
-// Mock Data
-final List<Tutorial> mockTutorials = [
-  // Ciberseguridad Tutorials (Indices 0 - 3)
-  Tutorial(
-    title: 'Conceptos Básicos de Ciberseguridad',
-    category: 'Ciberseguridad',
-    progress: TutorialProgress(
-      beginnerProgress: 0.8,
-      competentProgress: 0.7,
-      expertProgress: 0.6,
-    ),
-    answersForgotten: 0.15,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Ingeniería Social y Phishing',
-    category: 'Ciberseguridad',
-    progress: TutorialProgress(
-      beginnerProgress: 0.5,
-      competentProgress: 0.2,
-      expertProgress: 0.1,
-    ),
-    answersForgotten: 0.2,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Buenas Prácticas de Contraseñas',
-    category: 'Ciberseguridad',
-
-    progress: TutorialProgress(
-      beginnerProgress: 1.0,
-      competentProgress: 1.0,
-      expertProgress: 1.0,
-    ),
-    answersForgotten: 0.30,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Seguridad en Dispositivos Móviles',
-    category: 'Ciberseguridad',
-
-    progress: TutorialProgress(
-      beginnerProgress: 0.7,
-      competentProgress: 0.5,
-      expertProgress: 0.3,
-    ),
-    answersForgotten: 0.7,
-
-    lastReviewed: DateTime.now(),
-  ),
-
-  // Derechos Humanos Tutorials (Indices 4 - 7)
-  Tutorial(
-    title: 'Fundamentos de los Derechos Humanos',
-    category: 'Derechos Humanos',
-
-    progress: TutorialProgress(
-      beginnerProgress: 1.0,
-      competentProgress: 1.0,
-      expertProgress: 1.0,
-    ),
-    answersForgotten: 0.45,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Derechos Humanos en el Entorno Laboral',
-    category: 'Derechos Humanos',
-
-    progress: TutorialProgress(
-      beginnerProgress: 0.8,
-      competentProgress: 0.7,
-      expertProgress: 0.6,
-    ),
-    answersForgotten: 0.12,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Diversidad, Equidad e Inclusión',
-    category: 'Derechos Humanos',
-
-    progress: TutorialProgress(
-      beginnerProgress: 1.0,
-      competentProgress: 1.0,
-      expertProgress: 1.0,
-    ),
-    answersForgotten: 0.30,
-
-    lastReviewed: DateTime.now(),
-  ),
-  Tutorial(
-    title: 'Prevención del Acoso y Canales de Denuncia',
-    category: 'Derechos Humanos',
-
-    progress: TutorialProgress(
-      beginnerProgress: 0.5,
-      competentProgress: 0.4,
-      expertProgress: 0.3,
-    ),
-    answersForgotten: 0.5,
-
-    lastReviewed: DateTime.now(),
-  ),
-];

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(String) onLoginSuccess;
@@ -16,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'demo@emeworld.com');
+  final _emailController = TextEditingController(text: 'support@openedit.org');
   final _otpController = TextEditingController();
   final _otpFocusNode = FocusNode();
 
@@ -85,70 +86,71 @@ class _LoginScreenState extends State<LoginScreen>
       _otpError = null;
     });
 
-    // Simulate network delay for sending OTP
-    await Future.delayed(const Duration(milliseconds: 1200));
+    try {
+      await AuthService.sendMagicLink(_emailController.text.trim());
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _isLoading = false;
-      _isOtpStage = true;
-      _otpController.clear();
-    });
+      setState(() {
+        _isLoading = false;
+        _isOtpStage = true;
+        _otpController.clear();
+      });
 
-    _startResendTimer();
+      _startResendTimer();
 
-    // Show simulated OTP in SnackBar
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.vpn_key_rounded, color: Color(0xFF38B6FF)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(
+                Icons.mark_email_read_rounded,
+                color: Color(0xFF38B6FF),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  isResend
+                      ? 'Verification code resent to your email!'
+                      : 'Verification code sent to your email!',
                   style: const TextStyle(color: Colors.white, fontSize: 14),
-                  children: [
-                    TextSpan(
-                      text: isResend
-                          ? 'Verification code resent! Use: '
-                          : 'Verification code sent to your email! Use: ',
-                    ),
-                    const TextSpan(
-                      text: '123456',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF38B6FF),
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
                 ),
               ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF161C24),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: const Color(0xFF38B6FF).withValues(alpha: 0.3),
+              width: 1,
             ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF161C24),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: const Color(0xFF38B6FF).withValues(alpha: 0.3),
-            width: 1,
           ),
         ),
-      ),
-    );
+      );
 
-    // Auto-focus the OTP input field after transition
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_otpFocusNode.canRequestFocus) {
-        _otpFocusNode.requestFocus();
-      }
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_otpFocusNode.canRequestFocus) {
+          _otpFocusNode.requestFocus();
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+          backgroundColor: const Color(0xFFF50057),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _verifyOtp() async {
@@ -164,17 +166,29 @@ class _LoginScreenState extends State<LoginScreen>
       _otpError = null;
     });
 
-    // Simulate verification delay
-    await Future.delayed(const Duration(milliseconds: 1200));
+    try {
+      final success = await AuthService.loginWithOtp(
+        _emailController.text.trim(),
+        _otpController.text.trim(),
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (_otpController.text == '123456') {
-      widget.onLoginSuccess(_emailController.text);
-    } else {
+      if (success) {
+        widget.onLoginSuccess(_emailController.text.trim());
+      } else {
+        setState(() {
+          _isLoading = false;
+          _otpError = 'Invalid verification code. Please try again.';
+          _otpController.clear();
+        });
+        _otpFocusNode.requestFocus();
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _otpError = 'Invalid verification code. Please try again.';
+        _otpError = e.toString().replaceAll('Exception: ', '');
         _otpController.clear();
       });
       _otpFocusNode.requestFocus();
@@ -249,7 +263,9 @@ class _LoginScreenState extends State<LoginScreen>
                           filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF161C24).withValues(alpha: 0.65),
+                              color: const Color(
+                                0xFF161C24,
+                              ).withValues(alpha: 0.65),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.08),
@@ -275,8 +291,9 @@ class _LoginScreenState extends State<LoginScreen>
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color(0xFF38B6FF)
-                                                .withValues(alpha: 0.2),
+                                            color: const Color(
+                                              0xFF38B6FF,
+                                            ).withValues(alpha: 0.2),
                                             blurRadius: 15,
                                             spreadRadius: 2,
                                           ),
@@ -346,10 +363,13 @@ class _LoginScreenState extends State<LoginScreen>
                                           height: 24,
                                           child: Checkbox(
                                             value: _rememberMe,
-                                            activeColor: const Color(0xFF38B6FF),
+                                            activeColor: const Color(
+                                              0xFF38B6FF,
+                                            ),
                                             checkColor: Colors.black,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             side: BorderSide(
                                               color: Colors.white.withValues(
@@ -376,7 +396,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   ] else ...[
                                     // OTP Input Stage
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
                                           'Verification Code',
@@ -398,8 +419,11 @@ class _LoginScreenState extends State<LoginScreen>
                                           },
                                           child: const Row(
                                             children: [
-                                              Icon(Icons.edit,
-                                                  color: Color(0xFF38B6FF), size: 14),
+                                              Icon(
+                                                Icons.edit,
+                                                color: Color(0xFF38B6FF),
+                                                size: 14,
+                                              ),
                                               SizedBox(width: 4),
                                               Text(
                                                 'Edit Email',
@@ -426,7 +450,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     _buildOtpInput(),
                                     if (_otpError != null)
                                       Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
+                                        padding: const EdgeInsets.only(
+                                          top: 8.0,
+                                        ),
                                         child: Text(
                                           _otpError!,
                                           style: const TextStyle(
@@ -437,7 +463,8 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                     const SizedBox(height: 20),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           _timerSeconds > 0
@@ -450,7 +477,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         ),
                                         if (_timerSeconds == 0)
                                           GestureDetector(
-                                            onTap: () => _sendOtp(isResend: true),
+                                            onTap: () =>
+                                                _sendOtp(isResend: true),
                                             child: const Text(
                                               'Resend Code',
                                               style: TextStyle(
@@ -472,13 +500,15 @@ class _LoginScreenState extends State<LoginScreen>
                                           child: CircularProgressIndicator(
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              Color(0xFF38B6FF),
-                                            ),
+                                                  Color(0xFF38B6FF),
+                                                ),
                                           ),
                                         )
                                       : Container(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(14),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
                                             gradient: const LinearGradient(
                                               colors: [
                                                 Color(0xFF38B6FF),
@@ -489,8 +519,9 @@ class _LoginScreenState extends State<LoginScreen>
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: const Color(0xFF38B6FF)
-                                                    .withValues(alpha: 0.25),
+                                                color: const Color(
+                                                  0xFF38B6FF,
+                                                ).withValues(alpha: 0.25),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -499,11 +530,13 @@ class _LoginScreenState extends State<LoginScreen>
                                           child: ElevatedButton(
                                             onPressed: _submit,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.transparent,
+                                              backgroundColor:
+                                                  Colors.transparent,
                                               shadowColor: Colors.transparent,
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 16,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 16,
+                                                  ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(14),
@@ -565,9 +598,7 @@ class _LoginScreenState extends State<LoginScreen>
               maxLength: 6,
               showCursor: false,
               enableInteractiveSelection: false,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
                 counterText: '',
                 border: InputBorder.none,
@@ -598,7 +629,8 @@ class _LoginScreenState extends State<LoginScreen>
                 char = _otpController.text[index];
               }
 
-              final isFocused = _otpFocusNode.hasFocus &&
+              final isFocused =
+                  _otpFocusNode.hasFocus &&
                   (_otpController.text.length == index ||
                       (index == 5 && _otpController.text.length == 6));
 
@@ -621,10 +653,12 @@ class _LoginScreenState extends State<LoginScreen>
                     boxShadow: isFocused
                         ? [
                             BoxShadow(
-                              color: const Color(0xFF38B6FF).withValues(alpha: 0.2),
+                              color: const Color(
+                                0xFF38B6FF,
+                              ).withValues(alpha: 0.2),
                               blurRadius: 8,
                               spreadRadius: 1,
-                            )
+                            ),
                           ]
                         : null,
                   ),

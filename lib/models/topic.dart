@@ -1,127 +1,64 @@
-import 'dart:math';
-
 import 'tutorial.dart';
 
 enum Efficiency { beginner, competent, expert }
 
 class Topic {
+  final String id;
   final String title;
+  final String description;
   final String thumbnail;
   final int completedTutorials;
+  final int totalTutorials;
+  final double answersForgotten;
+  final int forgottenPeriod;
+
+  final TutorialProgress progress;
+
   final List<Tutorial> tutorial;
 
   const Topic({
+    required this.id,
     required this.title,
+    required this.description,
     required this.thumbnail,
+    required this.totalTutorials,
     required this.completedTutorials,
-    required this.tutorial,
+    required this.answersForgotten,
+    required this.forgottenPeriod,
+    required this.progress,
+    this.tutorial = const [],
   });
 
   factory Topic.fromJson(Map<String, dynamic> json) {
-    var tutorialListJson =
-        json['tutorial'] as List<dynamic>? ??
-        json['tutorials'] as List<dynamic>? ??
-        [];
-    List<Tutorial> tutorials = tutorialListJson
-        .map((item) => Tutorial.fromJson(item as Map<String, dynamic>))
-        .toList();
-
     return Topic(
+      id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
       thumbnail: json['thumbnail'] as String? ?? '',
-      completedTutorials: (json['completedTutorials'] as num?)?.toInt() ?? 0,
-      tutorial: tutorials,
+      completedTutorials: (json['completed'] as num?)?.toInt() ?? 0,
+      totalTutorials: (json['tutorials'] as num?)?.toInt() ?? 0,
+      answersForgotten: (json['answersForgotten'] as num?)?.toDouble() ?? 0,
+      forgottenPeriod: (json['forgottenPeriod'] as num?)?.toInt() ?? 0,
+      progress: json['progress'] != null
+          ? TutorialProgress.fromJson(json['progress'] as Map<String, dynamic>)
+          : TutorialProgress(
+              beginnerProgress: 0,
+              competentProgress: 0,
+              expertProgress: 0,
+            ),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
+      'description': description,
       'thumbnail': thumbnail,
       'completedTutorials': completedTutorials,
-      'tutorial': tutorial.map((t) => t.toJson()).toList(),
+      'totalTutorials': totalTutorials,
+      'answersForgotten': answersForgotten,
+      'forgottenperiod': forgottenPeriod,
+      'progress': progress,
     };
   }
-
-  // Efficiency calculations
-  TutorialProgress get progress {
-    if (tutorial.isEmpty) {
-      return TutorialProgress(
-        beginnerProgress: 0,
-        competentProgress: 0,
-        expertProgress: 0,
-      );
-    }
-    double beginnerProgress = 0;
-    double competentProgress = 0;
-    double expertProgress = 0;
-    //
-    for (var t in tutorial) {
-      beginnerProgress += t.progress.beginnerProgress;
-      competentProgress += t.progress.competentProgress;
-      expertProgress += t.progress.expertProgress;
-    }
-
-    return TutorialProgress(
-      beginnerProgress: beginnerProgress / tutorial.length,
-      competentProgress: competentProgress / tutorial.length,
-      expertProgress: expertProgress / tutorial.length,
-    );
-  }
-
-  double get answersForgotten {
-    if (tutorial.isEmpty) {
-      return 0;
-    }
-    double answersForgotten = 0;
-    for (var t in tutorial) {
-      answersForgotten += t.answersForgotten;
-    }
-    return (answersForgotten / tutorial.length);
-  }
-
-  int get forgottenPeriod {
-    int days = 0;
-    for (var t in tutorial) {
-      days = max(days, t.forgottenPeriod);
-    }
-    return days;
-  }
-
-  int get lastReviewedDays {
-    int days = 0;
-    for (var t in tutorial) {
-      days = min(days, t.forgottenPeriod);
-    }
-    return days;
-  }
 }
-
-// Mock topics grouping the original mockTutorials and adding additional detail tutorials
-// Mock topics grouping the original mockTutorials and adding additional detail tutorials
-final List<Topic> mockTopics = [
-  Topic(
-    title: 'Introducción a la Ciberseguridad',
-    thumbnail:
-        'https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/Ciberseguridad/Ciberseguridad.png/image200x200.webp',
-    completedTutorials: 1,
-    tutorial: [
-      mockTutorials[0],
-      mockTutorials[1],
-      mockTutorials[2],
-      mockTutorials[3],
-    ],
-  ),
-  Topic(
-    title: 'Derechos Humanos DDHH en MinSUR',
-    thumbnail:
-        'https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/Humanos/Humanos.png/image200x200.webp',
-    completedTutorials: 2,
-    tutorial: [
-      mockTutorials[4],
-      mockTutorials[5],
-      mockTutorials[6],
-      mockTutorials[7],
-    ],
-  ),
-];

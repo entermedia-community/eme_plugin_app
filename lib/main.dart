@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'services/auth_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AuthService.init();
   runApp(const MyApp());
 }
 
@@ -68,17 +71,25 @@ class AppEntry extends StatefulWidget {
 }
 
 class _AppEntryState extends State<AppEntry> {
-  bool _isLoggedIn = false;
-  String _username = '';
+  late bool _isLoggedIn;
+  late String _username;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoggedIn = AuthService.isLoggedIn;
+    _username = AuthService.userId ?? '';
+  }
 
   void _handleLogin(String email) {
     setState(() {
       _isLoggedIn = true;
-      _username = email;
+      _username = AuthService.userId ?? email;
     });
   }
 
-  void _handleLogout() {
+  void _handleLogout() async {
+    await AuthService.logout();
     setState(() {
       _isLoggedIn = false;
       _username = '';

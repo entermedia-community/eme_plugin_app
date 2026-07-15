@@ -97,7 +97,7 @@ class TopicsCard extends StatelessWidget {
                                 LanguageHelper.translate(
                                   'tutorials_count',
                                   placeholders: {
-                                    'count': topic.tutorial.length.toString(),
+                                    'count': topic.totalTutorials.toString(),
                                   },
                                 ),
                                 style: const TextStyle(
@@ -107,12 +107,9 @@ class TopicsCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                LanguageHelper.translate(
-                                  'last_reviewed',
-                                  placeholders: {
-                                    'd': topic.lastReviewedDays.toString(),
-                                  },
-                                ),
+                                topic.description,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.white38,
