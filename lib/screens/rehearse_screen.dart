@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
 import 'package:testu_cl/services/topic_service.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
+import 'package:testu_cl/widgets/fullscreen_mediaviewer.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../models/tutorial.dart';
@@ -113,11 +114,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
               sectionContentBuffer.write("\n\n");
             }
             sectionContentBuffer.write(item.content);
-          } else if (item.isAsset && item.assetUrl.isNotEmpty) {
+          } else if (item.isAsset && item.assetThumbnail.isNotEmpty) {
             if (sectionContentBuffer.isNotEmpty) {
               sectionContentBuffer.write("\n\n");
             }
-            sectionContentBuffer.write("<img src='${item.assetUrl}' />");
+            sectionContentBuffer.write("<img src='${item.assetThumbnail}' />");
+            if (item.assetUrl.isNotEmpty) {
+              sectionContentBuffer.write("<asset>${item.assetUrl}</asset>");
+            }
             if (item.content.isNotEmpty) {
               sectionContentBuffer.write("<caption>${item.content}</caption>");
             }
@@ -477,14 +481,23 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: FadeInImage.memoryNetwork(
-                        placeholder: kTransparentImage,
-                        image: imgSrc,
-                        fit: BoxFit.cover,
-                        imageErrorBuilder: (context, error, stackTrace) =>
-                            const SizedBox.shrink(),
+                    InkWell(
+                      onTap: () {
+                        FullScreenMediaViewer.open(
+                          context,
+                          url: imgSrc,
+                          caption: captionText,
+                        );
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image: imgSrc,
+                          fit: BoxFit.cover,
+                          imageErrorBuilder: (context, error, stackTrace) =>
+                              const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                     if (captionText != null &&

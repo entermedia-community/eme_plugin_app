@@ -185,6 +185,7 @@ class McqQuestion {
 class TutorialContent {
   final String id;
   final String content;
+  final String assetThumbnail;
   final String assetUrl;
   final String contentType;
   final String contentRole;
@@ -194,6 +195,7 @@ class TutorialContent {
     required this.id,
     required this.content,
     required this.assetUrl,
+    required this.assetThumbnail,
     required this.contentType,
     required this.contentRole,
     this.question,
@@ -208,6 +210,7 @@ class TutorialContent {
       id: json['id'] as String? ?? '',
       content: json['content'] as String? ?? '',
       assetUrl: json['asseturl'] as String? ?? '',
+      assetThumbnail: json['assethumbnail'] as String? ?? '',
       contentType:
           json['contenttype'] as String? ??
           json['content_type'] as String? ??
@@ -261,6 +264,7 @@ class TutorialSection {
             id: ids.join('_'),
             content: textBuffer!.toString(),
             assetUrl: '',
+            assetThumbnail: '',
             contentType: 'merged_text',
             contentRole: '',
           ),
