@@ -848,51 +848,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // Widget _buildMetricCol({
-  //   required String label,
-  //   required String value,
-  //   required IconData icon,
-  //   required Color color,
-  // }) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.start,
-  //     children: [
-  //       Container(
-  //         width: 30,
-  //         height: 30,
-  //         decoration: BoxDecoration(
-  //           shape: BoxShape.circle,
-  //           color: color.withValues(alpha: 0.1),
-  //         ),
-  //         child: Icon(icon, color: color, size: 15),
-  //       ),
-  //       const SizedBox(width: 12),
-  //       Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             label,
-  //             style: const TextStyle(
-  //               color: Colors.white30,
-  //               fontSize: 11,
-  //               fontWeight: FontWeight.w500,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 2),
-  //           Text(
-  //             value,
-  //             style: const TextStyle(
-  //               color: Colors.white,
-  //               fontSize: 15,
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: const Color(0xFF0F1319),

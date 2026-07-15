@@ -30,7 +30,8 @@ class ChatMessage {
   final String sender; // 'ai' or 'user'
   final String text;
   final DateTime timestamp;
-  final String messageType; //text, image, video, audio, question, answer, explanation, learn_more_content
+  final String
+  messageType; //text, image, video, audio, question, answer, explanation, learn_more_content
   final String? sectionTitle;
   final String? sectionContentText;
   bool isLearnedMoreExpanded;
@@ -95,8 +96,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
     });
 
     try {
-      final detail =
-          await TopicService().fetchTutorialDetail(widget.tutorial.id);
+      final detail = await TopicService().fetchTutorialDetail(
+        widget.tutorial.id,
+      );
 
       final List<RehearseQuestion> parsedQuestions = [];
       _messages.clear();
@@ -127,8 +129,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
               RehearseQuestion.fromMcq(
                 item.question!,
                 sectionTitle: section.title.isNotEmpty ? section.title : null,
-                sectionContentText:
-                    sectionText.isNotEmpty ? sectionText : null,
+                sectionContentText: sectionText.isNotEmpty ? sectionText : null,
               ),
             );
           }
@@ -189,7 +190,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
   String _getFollowUpForQuestion(RehearseQuestion question, String userQuery) {
     return "Regarding '${question.text}': $userQuery\n\nNote: Always adhere to relevant guidelines and domain standards.";
   }
-
 
   @override
   void dispose() {
@@ -372,53 +372,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
     }
   }
 
-  // Dynamic Metrics Functions
-  // int _getBeginnerTotal() =>
-  //     _questions.where((q) => q.difficulty == 'Beginner').length;
-  // int _getIntermediateTotal() =>
-  //     _questions.where((q) => q.difficulty == 'Intermediate').length;
-  // int _getExpertTotal() =>
-  //     _questions.where((q) => q.difficulty == 'Expert').length;
-
-  // int _getBeginnerCorrect() {
-  //   int count = 0;
-  //   _selectedAnswers.forEach((index, userSelect) {
-  //     if (index < _questions.length &&
-  //         _questions[index].difficulty == 'Beginner') {
-  //       if (userSelect == _questions[index].correctAnswerIndex) {
-  //         count++;
-  //       }
-  //     }
-  //   });
-  //   return count;
-  // }
-
-  // int _getIntermediateCorrect() {
-  //   int count = 0;
-  //   _selectedAnswers.forEach((index, userSelect) {
-  //     if (index < _questions.length &&
-  //         _questions[index].difficulty == 'Intermediate') {
-  //       if (userSelect == _questions[index].correctAnswerIndex) {
-  //         count++;
-  //       }
-  //     }
-  //   });
-  //   return count;
-  // }
-
-  // int _getExpertCorrect() {
-  //   int count = 0;
-  //   _selectedAnswers.forEach((index, userSelect) {
-  //     if (index < _questions.length &&
-  //         _questions[index].difficulty == 'Expert') {
-  //       if (userSelect == _questions[index].correctAnswerIndex) {
-  //         count++;
-  //       }
-  //     }
-  //   });
-  //   return count;
-  // }
-
   double _calculateScorePercentage() {
     int correctCount = 0;
     for (int i = 0; i < _questions.length; i++) {
@@ -482,7 +435,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
     for (final Match match in regExp.allMatches(processed)) {
       if (match.start > lastMatchEnd) {
-        spans.add(TextSpan(text: processed.substring(lastMatchEnd, match.start)));
+        spans.add(
+          TextSpan(text: processed.substring(lastMatchEnd, match.start)),
+        );
       }
       spans.add(
         TextSpan(
@@ -1057,7 +1012,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF27121),
               ),
-              child: const Text('Go Back', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Go Back',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -1142,48 +1100,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
             ],
           ),
         ),
-
-        // // Progress bar indicators
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-        //   child: Column(
-        //     children: [
-        //       Row(
-        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //         children: [
-        //           Text(
-        //             'Question ${_currentIndex + 1} of ${_questions.length}',
-        //             style: const TextStyle(
-        //               color: Colors.white70,
-        //               fontWeight: FontWeight.bold,
-        //               fontSize: 13,
-        //             ),
-        //           ),
-        //           Text(
-        //             '${(progress * 100).toInt()}% Complete',
-        //             style: TextStyle(
-        //               color: Colors.white.withValues(alpha: 0.4),
-        //               fontWeight: FontWeight.bold,
-        //               fontSize: 11,
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //       const SizedBox(height: 8),
-        //       ClipRRect(
-        //         borderRadius: BorderRadius.circular(8),
-        //         child: LinearProgressIndicator(
-        //           value: progress,
-        //           minHeight: 8,
-        //           backgroundColor: Colors.white.withValues(alpha: 0.04),
-        //           valueColor: AlwaysStoppedAnimation<Color>(
-        //             const Color(0xFFF27121),
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
 
         // Chat Conversation Log Area
         Expanded(
@@ -1279,7 +1195,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                 onPressed: () {
                                   final secTitle =
                                       (message.sectionTitle != null &&
-                                              message.sectionTitle!.isNotEmpty)
+                                          message.sectionTitle!.isNotEmpty)
                                       ? message.sectionTitle!
                                       : "Section Notes";
                                   _showLearnMoreModal(

@@ -115,8 +115,4 @@ class AuthService {
   static Future<bool> loginWithOtp(String email, String otp) async {
     return _authenticate({'email': email, 'templogincode': otp});
   }
-
-  // static Future<bool> loginWithPassword(String email, String password) async {
-  //   return _authenticate({'email': email, 'password': password});
-  // }
 }
