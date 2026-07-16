@@ -114,14 +114,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
               sectionContentBuffer.write("\n\n");
             }
             sectionContentBuffer.write(item.content);
-          } else if (item.isAsset && item.assetThumbnail.isNotEmpty) {
+          } else if (item.isAsset &&
+              item.assetThumbnail.isNotEmpty &&
+              item.assetUrl.isNotEmpty) {
             if (sectionContentBuffer.isNotEmpty) {
               sectionContentBuffer.write("\n\n");
             }
-            sectionContentBuffer.write("<img src='${item.assetThumbnail}' />");
-            if (item.assetUrl.isNotEmpty) {
-              sectionContentBuffer.write("<asset>${item.assetUrl}</asset>");
-            }
+            sectionContentBuffer.write("<asset>${item.assetUrl}</asset>");
+            sectionContentBuffer.write("<thumb>${item.assetThumbnail}</thumb>");
             if (item.content.isNotEmpty) {
               sectionContentBuffer.write("<caption>${item.content}</caption>");
             }
@@ -436,26 +436,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
         .replaceAll(RegExp(r'</?h[2-6]\s*>', caseSensitive: false), '\n')
         .replaceAll(RegExp(r'</?(div|ul|ol|p)\s*>', caseSensitive: false), '')
         .replaceAll(RegExp(r'</?(strong|b)\s*>', caseSensitive: false), '**')
-        .replaceAllMapped(
-          RegExp(
-            r'''<img\s+src=['"]?([^'"\s>]+)['"]?\s*/?>''',
-            caseSensitive: false,
-          ),
-          (match) => '[img src="${match.group(1)}"]',
-        )
+        .replaceAll(RegExp(r'<thumb\s*>', caseSensitive: false), '[thumb]')
+        .replaceAll(RegExp(r'</thumb\s*>', caseSensitive: false), '[/thumb]')
+        .replaceAll(RegExp(r'<asset\s*>', caseSensitive: false), '[asset]')
+        .replaceAll(RegExp(r'</asset\s*>', caseSensitive: false), '[/asset]')
         .replaceAll(RegExp(r'<caption\s*>', caseSensitive: false), '[caption]')
         .replaceAll(
           RegExp(r'</caption\s*>', caseSensitive: false),
           '[/caption]',
         )
-        .replaceAll(RegExp(r'<asset\s*>', caseSensitive: false), '[asset]')
-        .replaceAll(RegExp(r'</asset\s*>', caseSensitive: false), '[/asset]')
         .replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll(RegExp(r'\n\n+'), '\n\n');
 
     final List<InlineSpan> spans = [];
     final RegExp regExp = RegExp(
-      r'\[img src="([^"]+)"\](?:\s*\[caption\](.*?)\[/caption\])?|\[asset\](.*?)\[/asset\]|\[h1\](.*?)\[/h1\]|\*\*(.*?)\*\*',
+      r'\[asset\](.*?)\[/asset\]\s*\[thumb\](.*?)\[/thumb\]\s*(?:\[caption\](.*?)\[/caption\]\s*)?|\[h1\](.*?)\[/h1\]|\*\*(.*?)\*\*',
       dotAll: true,
     );
     int lastMatchEnd = 0;
@@ -467,13 +462,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
         );
       }
 
-      final String? assetThumb = match.group(1);
-      final String? captionText = match.group(2);
-      final String? assetFull = match.group(3);
+      final String? assetUrl = match.group(1);
+      final String? assetThumb = match.group(2);
+      final String? captionText = match.group(3);
       final String? h1Content = match.group(4);
       final String? boldContent = match.group(5);
 
-      if (assetThumb != null && assetFull != null) {
+      if (assetThumb != null && assetUrl != null) {
         spans.add(
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
@@ -488,7 +483,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       onTap: () {
                         FullScreenMediaViewer.open(
                           context,
-                          url: assetFull,
+                          url: assetUrl,
                           caption: captionText,
                         );
                       },
@@ -515,6 +510,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 8.0),
                   ],
                 ),
               ),
