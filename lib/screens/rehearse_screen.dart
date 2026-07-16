@@ -1229,7 +1229,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         child: FadeInImage.memoryNetwork(
                           placeholder: kTransparentImage,
                           image:
-                              "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/ai/ai.png/image200x200.webp",
+                              "https://minsur.genailabs.tech/site/mediadb/services/module/asset/generated/Sources/Iris_Avatar_Minsur/Iris_Avatar_Minsur.png/image200x200.webp",
                         ),
                       ),
                       const SizedBox(width: 12),
