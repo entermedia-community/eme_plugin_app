@@ -467,14 +467,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
         );
       }
 
-      final String? imgSrc = match.group(1);
-      debugPrint('imgSrc: $imgSrc');
+      final String? assetThumb = match.group(1);
       final String? captionText = match.group(2);
-      final String? assetText = match.group(3);
+      final String? assetFull = match.group(3);
       final String? h1Content = match.group(4);
       final String? boldContent = match.group(5);
 
-      if (imgSrc != null) {
+      if (assetThumb != null && assetFull != null) {
         spans.add(
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
@@ -489,7 +488,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       onTap: () {
                         FullScreenMediaViewer.open(
                           context,
-                          url: imgSrc,
+                          url: assetFull,
                           caption: captionText,
                         );
                       },
@@ -497,7 +496,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         borderRadius: BorderRadius.circular(8.0),
                         child: FadeInImage.memoryNetwork(
                           placeholder: kTransparentImage,
-                          image: imgSrc,
+                          image: assetThumb,
                           fit: BoxFit.cover,
                           imageErrorBuilder: (context, error, stackTrace) =>
                               const SizedBox.shrink(),
