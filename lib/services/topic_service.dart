@@ -11,7 +11,7 @@ class TopicService {
 
   TopicService({
     http.Client? client,
-    this.baseUrl = 'http://localhost.com:8080/mediadb/services/topic',
+    this.baseUrl = 'https://minsur.genailabs.tech/mediadb/services/topic',
   }) : _client = client ?? http.Client();
 
   /// Fetches topics and nested tutorials from the specified API endpoint.
@@ -146,10 +146,11 @@ class TopicService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('TopicService error fetching tutorial detail from $targetUrl: $e');
+        print(
+          'TopicService error fetching tutorial detail from $targetUrl: $e',
+        );
       }
       rethrow;
     }
   }
 }
-
