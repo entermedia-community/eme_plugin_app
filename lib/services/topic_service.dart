@@ -11,7 +11,7 @@ class TopicService {
 
   TopicService({
     http.Client? client,
-    this.baseUrl = 'https://minsur.genailabs.tech/mediadb/services/topic',
+    this.baseUrl = 'https://minsur.genailabs.tech/site/mediadb/services/topic',
   }) : _client = client ?? http.Client();
 
   /// Fetches topics and nested tutorials from the specified API endpoint.

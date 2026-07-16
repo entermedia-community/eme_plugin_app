@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static const String baseUrl =
-      'https://minsur.genailabs.tech/mediadb/services';
+      'https://minsur.genailabs.tech/site/mediadb/services';
 
   static String? _token;
   static String? _userId;
