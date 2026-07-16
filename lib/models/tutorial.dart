@@ -210,7 +210,7 @@ class TutorialContent {
       id: json['id'] as String? ?? '',
       content: json['content'] as String? ?? '',
       assetUrl: json['asseturl'] as String? ?? '',
-      assetThumbnail: json['assethumbnail'] as String? ?? '',
+      assetThumbnail: json['assetthumbnail'] as String? ?? '',
       contentType:
           json['contenttype'] as String? ??
           json['content_type'] as String? ??

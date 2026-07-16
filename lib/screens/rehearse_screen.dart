@@ -448,12 +448,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
           RegExp(r'</caption\s*>', caseSensitive: false),
           '[/caption]',
         )
+        .replaceAll(RegExp(r'<asset\s*>', caseSensitive: false), '[asset]')
+        .replaceAll(RegExp(r'</asset\s*>', caseSensitive: false), '[/asset]')
         .replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll(RegExp(r'\n\n+'), '\n\n');
 
     final List<InlineSpan> spans = [];
     final RegExp regExp = RegExp(
-      r'\[img src="([^"]+)"\](?:\s*\[caption\](.*?)\[/caption\])?|\[h1\](.*?)\[/h1\]|\*\*(.*?)\*\*',
+      r'\[img src="([^"]+)"\](?:\s*\[caption\](.*?)\[/caption\])?|\[asset\](.*?)\[/asset\]|\[h1\](.*?)\[/h1\]|\*\*(.*?)\*\*',
       dotAll: true,
     );
     int lastMatchEnd = 0;
@@ -466,9 +468,11 @@ class _RehearseScreenState extends State<RehearseScreen> {
       }
 
       final String? imgSrc = match.group(1);
+      debugPrint('imgSrc: $imgSrc');
       final String? captionText = match.group(2);
-      final String? h1Content = match.group(3);
-      final String? boldContent = match.group(4);
+      final String? assetText = match.group(3);
+      final String? h1Content = match.group(4);
+      final String? boldContent = match.group(5);
 
       if (imgSrc != null) {
         spans.add(
