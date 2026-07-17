@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/user.dart';
 
 class AuthService {
   static const String baseUrl =
@@ -8,16 +10,60 @@ class AuthService {
 
   static String? _token;
   static String? _userId;
+  static User? _currentUser;
 
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('entermediakey');
     _userId = prefs.getString('user');
+
+    if (isLoggedIn) {
+      try {
+        await fetchUser();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error fetching user on startup: $e');
+        }
+      }
+    }
   }
 
   static bool get isLoggedIn => _token != null && _token!.isNotEmpty;
   static String? get token => _token;
   static String? get userId => _userId;
+  static User? get currentUser => _currentUser;
+
+  static Future<User?> fetchUser() async {
+    if (_token == null || _token!.isEmpty) return null;
+
+    final url = Uri.parse('$baseUrl/authentication/user.json');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': _token!,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final userJson = data['user'] as Map<String, dynamic>;
+        _currentUser = User.fromJson(userJson);
+        if (_currentUser!.id.isNotEmpty) {
+          _userId = _currentUser!.id;
+        }
+        return _currentUser;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to fetch user: $e');
+      }
+    }
+    return null;
+  }
 
   static Future<Map<String, String>> getCredentials() async {
     final prefs = await SharedPreferences.getInstance();
@@ -40,6 +86,7 @@ class AuthService {
     await prefs.remove('entermediakey');
     _token = null;
     _userId = null;
+    _currentUser = null;
   }
 
   static Future<void> sendMagicLink(String email) async {
@@ -95,6 +142,14 @@ class AuthService {
 
           if (userId.isNotEmpty && key.isNotEmpty) {
             await saveCredentials(userId, key);
+
+            final userJson = results?['user'];
+            if (userJson is Map<String, dynamic>) {
+              _currentUser = User.fromJson(userJson);
+            } else {
+              await fetchUser();
+            }
+
             return true;
           } else {
             throw Exception('Authentication response missing user ID or key');
