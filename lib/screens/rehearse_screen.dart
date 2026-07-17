@@ -10,23 +10,6 @@ import 'package:transparent_image/transparent_image.dart';
 
 import '../models/tutorial.dart';
 
-List<RehearseQuestion> getQuestionsForTutorial(Tutorial tutorial) {
-  return [
-    const RehearseQuestion(
-      text:
-          "According to the new OSHA standards, what is the primary requirement for employers regarding incident energy?",
-      options: [
-        "To rely solely on general language for hazard-free workplaces",
-        "To allow contractors to decide on implementation methods without employer oversight",
-        "To perform estimations for incident energy through an arc flash study",
-        "To eliminate the need for specific regulations in electrical power generation",
-      ],
-      correctAnswerIndex: 2,
-      difficulty: "Beginner",
-    ),
-  ];
-}
-
 class ChatMessage {
   final String sender; // 'ai' or 'user'
   final String text;
@@ -143,10 +126,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
         }
       }
 
-      if (parsedQuestions.isEmpty) {
-        parsedQuestions.addAll(getQuestionsForTutorial(widget.tutorial));
-      }
-
       setState(() {
         _questions = parsedQuestions;
         _isLoading = false;
@@ -167,9 +146,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
         }
       });
     } catch (e) {
-      final fallbackQuestions = getQuestionsForTutorial(widget.tutorial);
       setState(() {
-        _questions = fallbackQuestions;
+        _questions = [];
         _isLoading = false;
         _initializeChat();
       });

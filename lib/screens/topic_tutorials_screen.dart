@@ -1,8 +1,7 @@
 import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
-import 'package:testu_cl/widgets/common_widgets.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'package:testu_cl/widgets/topics_card.dart';
 
 import '../models/topic.dart';
 import '../models/tutorial.dart';
@@ -79,7 +78,7 @@ class _TopicTutorialsScreenState extends State<TopicTutorialsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Topic Overview Details
-                              _buildTopicBanner(context, mainColor),
+                              TopicCard(topic: widget.topic),
                               const SizedBox(height: 32),
 
                               // Section Title
@@ -107,8 +106,8 @@ class _TopicTutorialsScreenState extends State<TopicTutorialsScreen> {
                                         child: CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                            Color(0xFF38B6FF),
-                                          ),
+                                                Color(0xFF38B6FF),
+                                              ),
                                         ),
                                       ),
                                     );
@@ -230,132 +229,6 @@ class _TopicTutorialsScreenState extends State<TopicTutorialsScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopicBanner(BuildContext context, Color mainColor) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161C24).withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.06),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                ),
-                child: FadeInImage.memoryNetwork(
-                  placeholder: kTransparentImage,
-                  image: widget.topic.thumbnail,
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey,
-                      child: const Icon(Icons.error, color: Colors.white),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  widget.topic.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    LanguageHelper.translate('average_rank').toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white54,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  CommonWidgets.buildCompetenceBadge(
-                    efficiency: widget.topic.progress.getEfficiency(),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  CommonWidgets.buildProgressColumn(
-                    widget.topic.progress,
-                    Efficiency.beginner,
-                  ),
-                  const SizedBox(width: 24),
-                  CommonWidgets.buildProgressColumn(
-                    widget.topic.progress,
-                    Efficiency.competent,
-                  ),
-                  const SizedBox(width: 24),
-                  CommonWidgets.buildProgressColumn(
-                    widget.topic.progress,
-                    Efficiency.expert,
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-          Text.rich(
-            textAlign: TextAlign.center,
-            TextSpan(
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.7),
-              ),
-              children: [
-                TextSpan(text: 'An average of '),
-                TextSpan(
-                  text: '${widget.topic.answersForgotten.toStringAsFixed(2)}%',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
-                TextSpan(text: ' answers forgotten over '),
-                TextSpan(
-                  text: widget.topic.forgottenPeriod.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
-                TextSpan(text: ' days'),
-              ],
             ),
           ),
         ],

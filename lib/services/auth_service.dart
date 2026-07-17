@@ -7,6 +7,7 @@ import '../models/user.dart';
 class AuthService {
   static const String baseUrl =
       'https://minsur.genailabs.tech/site/mediadb/services';
+  // 'http://localhost.com:8080/site/mediadb/services';
 
   static String? _token;
   static String? _userId;
@@ -50,6 +51,7 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
+        debugPrint("data: $data");
         final userJson = data['user'] as Map<String, dynamic>;
         _currentUser = User.fromJson(userJson);
         if (_currentUser!.id.isNotEmpty) {

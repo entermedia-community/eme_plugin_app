@@ -195,7 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                       separatorBuilder: (context, index) =>
                                           const SizedBox(height: 16),
                                       itemBuilder: (context, index) {
-                                        return TopicsCard(topic: topics[index]);
+                                        return TopicCard(topic: topics[index]);
                                       },
                                     );
                                   },
@@ -442,12 +442,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildOverviewCard() {
     final user = AuthService.currentUser;
-    final String displayName = user != null &&
-            (user.firstName.isNotEmpty || user.lastName.isNotEmpty)
+    final String displayName =
+        user != null && (user.firstName.isNotEmpty || user.lastName.isNotEmpty)
         ? '${user.firstName} ${user.lastName}'.trim()
         : (user?.screenName.isNotEmpty == true
-            ? user!.screenName
-            : (widget.username.isNotEmpty ? widget.username : 'John Smith'));
+              ? user!.screenName
+              : (widget.username.isNotEmpty ? widget.username : 'John Smith'));
 
     final String portraitUrl = user?.assetPortrait.isNotEmpty == true
         ? user!.assetPortrait
@@ -496,10 +496,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                         image: portraitUrl,
                         imageErrorBuilder: (context, error, stackTrace) =>
                             const Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.white54,
-                        ),
+                              Icons.person,
+                              size: 40,
+                              color: Colors.white54,
+                            ),
                       ),
                     ),
                   ),

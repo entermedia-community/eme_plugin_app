@@ -6,10 +6,10 @@ import 'package:transparent_image/transparent_image.dart';
 import '../screens/topic_tutorials_screen.dart';
 import '../utils/language_helper.dart';
 
-class TopicsCard extends StatelessWidget {
+class TopicCard extends StatelessWidget {
   final Topic topic;
 
-  const TopicsCard({super.key, required this.topic});
+  const TopicCard({super.key, required this.topic});
 
   @override
   Widget build(BuildContext context) {
