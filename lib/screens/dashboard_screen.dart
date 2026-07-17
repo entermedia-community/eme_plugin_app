@@ -7,6 +7,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/topic.dart';
+import '../services/auth_service.dart';
 import '../services/topic_service.dart';
 import '../utils/language_helper.dart';
 
@@ -440,6 +441,18 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildOverviewCard() {
+    final user = AuthService.currentUser;
+    final String displayName = user != null &&
+            (user.firstName.isNotEmpty || user.lastName.isNotEmpty)
+        ? '${user.firstName} ${user.lastName}'.trim()
+        : (user?.screenName.isNotEmpty == true
+            ? user!.screenName
+            : (widget.username.isNotEmpty ? widget.username : 'John Smith'));
+
+    final String portraitUrl = user?.assetPortrait.isNotEmpty == true
+        ? user!.assetPortrait
+        : "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp";
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -480,8 +493,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Center(
                       child: FadeInImage.memoryNetwork(
                         placeholder: kTransparentImage,
-                        image:
-                            "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
+                        image: portraitUrl,
+                        imageErrorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.white54,
+                        ),
                       ),
                     ),
                   ),
@@ -490,9 +508,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'John Smith',
-                          style: TextStyle(
+                        Text(
+                          displayName,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

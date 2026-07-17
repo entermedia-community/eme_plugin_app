@@ -69,6 +69,7 @@ class TopicsCard extends StatelessWidget {
                                 ),
                               );
                             },
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
