@@ -20,7 +20,7 @@ class FeedManager {
   }
 
   Future<int?> getTotal() async {
-    return  (await HiveManager.instance.getData("total", feedsBox));
+    return (await HiveManager.instance.getData("total", feedsBox));
   }
 
   updateTotal(int total) async {
@@ -40,21 +40,21 @@ class FeedManager {
     final Map<String, dynamic> parsed = json.decode(responseBody);
     List<emData> results =
         parsed["uploads"].map<emData>((json) => emData.fromJson(json)).toList();
-    await updateTotal(int.parse( parsed["total"]));
+    await updateTotal(int.parse(parsed["total"]));
     return results;
   }
 
   saveCache(String cacheString) async {
     Map<String, dynamic> cache = json.decode(cacheString);
     await HiveManager.instance.clear(feedsBox);
-    await updateTotal(int.parse( cache["total"]));
+    await updateTotal(int.parse(cache["total"]));
     await HiveManager.instance.saveData(
         "lastsync", DateTime.now().millisecondsSinceEpoch.toString(), feedsBox);
     List<emData> results =
         cache["uploads"].map<emData>((json) => emData.fromJson(json)).toList();
     for (var element in results) {
       await HiveManager.instance
-          .saveData(element.id!, element.properties, feedsBox);
+          .saveData(element.id, element.properties, feedsBox);
     }
   }
 

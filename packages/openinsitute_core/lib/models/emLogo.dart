@@ -3,21 +3,21 @@ import 'dart:math';
 
 //A render accident that become the logo - Mando - Oct 14th 2020
 class EmLogo extends StatelessWidget {
-  const EmLogo();
+  const EmLogo({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(
+          const Icon(
             Icons.table_rows_rounded,
             color: Colors.white,
           ),
           Expanded(
             child: Transform.rotate(
               angle: 90 * pi / 180,
-              child: Icon(
+              child: const Icon(
                 Icons.table_rows_rounded,
                 color: Colors.white,
               ),

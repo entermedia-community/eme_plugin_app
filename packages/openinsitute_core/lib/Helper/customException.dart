@@ -4,13 +4,15 @@ class CustomException implements Exception {
 
   CustomException([this._message, this._prefix]);
 
+  @override
   String toString() {
     return "$_prefix$_message";
   }
 }
 
 class FetchDataException extends CustomException {
-  FetchDataException([String message = "Unknown Comm Err0r"]) : super(message, "Error During Communication: ");
+  FetchDataException([String message = "Unknown Comm Err0r"])
+      : super(message, "Error During Communication: ");
 }
 
 class BadRequestException extends CustomException {

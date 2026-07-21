@@ -76,11 +76,11 @@ class DataModule {
   List<emData> getAllHits() {
     List<emData> list = [];
     // List list = List.generate(box.keys.length, ,{"growable":true});
-    box.keys.forEach((element) {
+    for (var element in box.keys) {
       emData newdata =
           emData.fromJson(box.get(element) as Map<String, dynamic>);
       list.add(newdata);
-    });
+    }
     return list;
   }
 
@@ -99,9 +99,9 @@ class DataModule {
       };
 
       List<emData> tosave = await getRemoteData(simplesearch);
-      tosave.forEach((element) {
+      for (var element in tosave) {
         box.put(element.id, element.properties);
-      });
+      }
       //check if there are more pages of hits and run next search
     } else {
       DateTime lastsync = box.get("lastsync");
