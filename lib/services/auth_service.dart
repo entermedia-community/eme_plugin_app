@@ -6,8 +6,8 @@ import '../models/user.dart';
 
 class AuthService {
   static const String baseUrl =
-      'https://minsur.genailabs.tech/site/mediadb/services';
-  // 'http://localhost.com:8080/site/mediadb/services';
+      // 'https://minsur.genailabs.tech/site/mediadb/services';
+      'http://localhost.com:8080/site/mediadb/services';
 
   static String? _token;
   static String? _userId;

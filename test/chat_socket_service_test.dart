@@ -1,0 +1,116 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:testu_cl/models/chat_message.dart';
+import 'package:testu_cl/services/chat_socket_service.dart';
+
+void main() {
+  group('ChatMessage Tests', () {
+    test('ChatMessage.fromJson parses chat.js response payload correctly', () {
+      final jsonMap = {
+        'messageid': 'msg_123',
+        'channel': 'channel_general',
+        'user': 'user_456',
+        'name': 'John Doe',
+        'topic': 'General Chat',
+        'message': 'Hello World',
+        'command': 'messagereceived',
+        'replytoid': 'msg_122',
+        'functionname': 'onMessage',
+        'nextfunctionname': 'onNextMessage',
+        'createdat': 1690000000000,
+      };
+
+      final msg = ChatMessage.fromJson(jsonMap);
+
+      expect(msg.messageId, equals('msg_123'));
+      expect(msg.channel, equals('channel_general'));
+      expect(msg.userId, equals('user_456'));
+      expect(msg.userName, equals('John Doe'));
+      expect(msg.topic, equals('General Chat'));
+      expect(msg.message, equals('Hello World'));
+      expect(msg.command, equals('messagereceived'));
+      expect(msg.replyToId, equals('msg_122'));
+      expect(msg.functionName, equals('onMessage'));
+      expect(msg.nextFunctionName, equals('onNextMessage'));
+      expect(msg.createdAt, equals(1690000000000));
+      expect(msg.isMessageRemoved, isFalse);
+      expect(msg.isKeepAlive, isFalse);
+    });
+
+    test('ChatMessage.fromJson handles messageremoved command', () {
+      final jsonMap = {
+        'messageid': 'msg_123',
+        'command': 'messageremoved',
+      };
+
+      final msg = ChatMessage.fromJson(jsonMap);
+
+      expect(msg.messageId, equals('msg_123'));
+      expect(msg.isMessageRemoved, isTrue);
+    });
+
+    test('ChatMessage.toJson generates expected payload', () {
+      const msg = ChatMessage(
+        messageId: 'msg_999',
+        channel: 'channel_test',
+        userId: 'user_1',
+        message: 'Test message',
+      );
+
+      final jsonMap = msg.toJson();
+
+      expect(jsonMap['messageid'], equals('msg_999'));
+      expect(jsonMap['channel'], equals('channel_test'));
+      expect(jsonMap['userid'], equals('user_1'));
+      expect(jsonMap['message'], equals('Test message'));
+    });
+  });
+
+  group('ChatSocketService Singleton & State Tests', () {
+    test('ChatSocketService returns singleton instance', () {
+      final s1 = ChatSocketService();
+      final s2 = ChatSocketService();
+      expect(identical(s1, s2), isTrue);
+    });
+
+    test('Initial connectionState is disconnected', () {
+      final service = ChatSocketService();
+      expect(service.connectionState, equals(SocketConnectionState.disconnected));
+      expect(service.isConnected, isFalse);
+    });
+
+    test('KeepAlive payload structure matches requirement', () {
+      final keepAlivePayload = <String, dynamic>{
+        'command': 'keepalive',
+        'userid': 'test_user',
+        'channel': 'test_channel',
+      };
+      final msg = ChatMessage.fromJson(keepAlivePayload);
+      expect(msg.command, equals('keepalive'));
+      expect(msg.userId, equals('test_user'));
+      expect(msg.channel, equals('test_channel'));
+      expect(msg.isKeepAlive, isTrue);
+    });
+
+    test('entermedia.key token parameter can be formatted in URI parameters', () {
+      final queryParameters = <String, String>{
+        'sessionid': '0.12345',
+        'userid': 'admin',
+        'channel': 'channel_1',
+        'entermedia.key': 'testkey123',
+      };
+
+      final uri = Uri(
+        scheme: 'ws',
+        host: 'localhost.com',
+        port: 8080,
+        path: '/entermedia/services/websocket/org/entermediadb/websocket/chat/ChatConnection',
+        queryParameters: queryParameters,
+      );
+
+      expect(uri.queryParameters['entermedia.key'], equals('testkey123'));
+      expect(uri.queryParameters['userid'], equals('admin'));
+      expect(uri.queryParameters['channel'], equals('channel_1'));
+      expect(uri.host, equals('localhost.com'));
+    });
+  });
+}

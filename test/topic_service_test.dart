@@ -283,6 +283,51 @@ void main() {
         expect(mcqItem.question!.correctAnswerIndex, equals(2));
       },
     );
+
+    test('fetchTutorChannels parses response correctly', () async {
+      final mockResponseData = {
+        "response": {"status": "ok", "userid": "admin"},
+        "channels": [
+          {
+            "id": "AZ-Aa2jqS4Q4NNw_6QkY",
+            "channeltype": "agenttutorchat",
+            "chatapplicationid": "site/find",
+            "name": "",
+            "dataid": "AZ-AEabUFpZTNQV7lyIV",
+            "searchtype": "entitytutorial",
+            "user": "admin",
+            "refreshdate": "2026-07-20 22:45:49 +0600",
+            "date": ""
+          }
+        ]
+      };
+
+      final mockClient = MockClient((request) async {
+        expect(
+          request.url.toString(),
+          contains(
+            '/views/modules/entitytutorial/editors/aichatsearch/tutorsessions.json?tutorialid=AZ-AEabUFpZTNQV7lyIV',
+          ),
+        );
+        return http.Response(
+          json.encode(mockResponseData),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      });
+
+      final service = TopicService(client: mockClient);
+      final channels =
+          await service.fetchTutorChannels('AZ-AEabUFpZTNQV7lyIV');
+
+      expect(channels.length, equals(1));
+      expect(channels.first.id, equals('AZ-Aa2jqS4Q4NNw_6QkY'));
+      expect(channels.first.channelType, equals('agenttutorchat'));
+      expect(channels.first.chatApplicationId, equals('site/find'));
+      expect(channels.first.dataId, equals('AZ-AEabUFpZTNQV7lyIV'));
+      expect(channels.first.searchType, equals('entitytutorial'));
+      expect(channels.first.user, equals('admin'));
+    });
   });
 }
 

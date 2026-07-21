@@ -1,34 +1,21 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:testu_cl/models/chat_message.dart' as socket_msg;
 import 'package:testu_cl/models/topic.dart';
+import 'package:testu_cl/models/chat_message.dart';
+import 'package:testu_cl/services/auth_service.dart';
+import 'package:testu_cl/services/chat_socket_service.dart';
 import 'package:testu_cl/services/topic_service.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
 import 'package:testu_cl/widgets/fullscreen_mediaviewer.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../models/tutor_channel.dart';
 import '../models/tutorial.dart';
-
-class ChatMessage {
-  final String sender; // 'ai' or 'user'
-  final String text;
-  final DateTime timestamp;
-  final String
-  messageType; //text, image, video, audio, question, answer, explanation, learn_more_content
-  final String? sectionTitle;
-  final String? sectionContentText;
-  bool isLearnedMoreExpanded;
-
-  ChatMessage({
-    required this.sender,
-    required this.text,
-    required this.messageType,
-    this.sectionTitle,
-    this.sectionContentText,
-    this.isLearnedMoreExpanded = false,
-  }) : timestamp = DateTime.now();
-}
 
 class RehearseScreen extends StatefulWidget {
   final Tutorial tutorial;
@@ -41,7 +28,9 @@ class RehearseScreen extends StatefulWidget {
 
 class _RehearseScreenState extends State<RehearseScreen> {
   bool _isLoading = true;
+  List<TutorChannel> _tutorChannels = [];
   List<RehearseQuestion> _questions = [];
+  StreamSubscription<socket_msg.ChatMessage>? _socketSubscription;
 
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _followUpController = TextEditingController();
@@ -68,6 +57,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
   String? _tempConfidenceLevel;
   String _stage = 'question_asked';
 
+  String? _lastAnswerMessageId;
+
   @override
   void initState() {
     super.initState();
@@ -80,104 +71,73 @@ class _RehearseScreenState extends State<RehearseScreen> {
     });
 
     try {
-      final detail = await TopicService().fetchTutorialDetail(
+      _messages.clear();
+      _questions.clear();
+
+      final channels = await TopicService().fetchTutorChannels(
         widget.tutorial.id,
       );
+      _tutorChannels = channels;
 
-      final List<RehearseQuestion> parsedQuestions = [];
-      _messages.clear();
+      if (_tutorChannels.isNotEmpty) {
+        final lastActiveChannel = _tutorChannels.last;
+        final userId = AuthService.userId ?? lastActiveChannel.user;
 
-      for (final section in detail.sections) {
-        // Collect text and assets for this section to reveal on "Learn More"
-        final StringBuffer sectionContentBuffer = StringBuffer();
-        final mergedContents = section.getMergedContents();
-        for (final item in mergedContents) {
-          if (item.isText && item.content.isNotEmpty) {
-            if (sectionContentBuffer.isNotEmpty) {
-              sectionContentBuffer.write("\n\n");
-            }
-            sectionContentBuffer.write(item.content);
-          } else if (item.isAsset &&
-              item.assetThumbnail.isNotEmpty &&
-              item.assetUrl.isNotEmpty) {
-            if (sectionContentBuffer.isNotEmpty) {
-              sectionContentBuffer.write("\n\n");
-            }
-            sectionContentBuffer.write("<asset>${item.assetUrl}</asset>");
-            sectionContentBuffer.write("<thumb>${item.assetThumbnail}</thumb>");
-            if (item.content.isNotEmpty) {
-              sectionContentBuffer.write("<caption>${item.content}</caption>");
-            }
+        await ChatSocketService().connect(
+          userId: userId,
+          channel: lastActiveChannel.id,
+        );
+
+        _socketSubscription?.cancel();
+        _socketSubscription = ChatSocketService().messageStream.listen((
+          incomingMsg,
+        ) {
+          debugPrint("ChatSocketService incomingMsg: ${incomingMsg.toJson()}");
+          if (incomingMsg.isKeepAlive || incomingMsg.isMessageRemoved) return;
+          if (incomingMsg.message != null && incomingMsg.message!.isNotEmpty) {
+            if (!mounted) return;
+            setState(() {
+              _messages.add(incomingMsg);
+
+              if (incomingMsg.messageType == MessageType.question) {
+                final question = RehearseQuestion.fromChatMessage(incomingMsg);
+                _questions.add(question);
+                _currentIndex = _questions.length - 1;
+                _tempSelectedAnswerIndex = null;
+                _tempConfidenceLevel = null;
+                _stage = 'select_option';
+              } else if (incomingMsg.messageType == MessageType.end) {
+                _isFinished = true;
+              }
+            });
+            _scrollToBottom();
           }
-        }
+        });
 
-        final sectionText = sectionContentBuffer.toString();
-
-        for (final item in section.contents) {
-          if (item.isMcq && item.question != null) {
-            parsedQuestions.add(
-              RehearseQuestion.fromMcq(
-                item.question!,
-                sectionTitle: section.title.isNotEmpty ? section.title : null,
-                sectionContentText: sectionText.isNotEmpty ? sectionText : null,
-              ),
-            );
-          }
-        }
+        await TopicService().startTutorial(
+          widget.tutorial.id,
+          lastActiveChannel.id,
+        );
       }
 
       setState(() {
-        _questions = parsedQuestions;
         _isLoading = false;
-        if (_questions.isNotEmpty) {
-          final firstQ = _questions[0];
-          final String titleHeader =
-              (firstQ.sectionTitle != null && firstQ.sectionTitle!.isNotEmpty)
-              ? "📌 **${firstQ.sectionTitle}**\n\n"
-              : "";
-          _messages.add(
-            ChatMessage(
-              sender: 'ai',
-              text:
-                  "${titleHeader}Here is your question:\n\n**Question 1 (${firstQ.difficulty})**:\n${firstQ.text}",
-              messageType: 'question',
-            ),
-          );
-        }
       });
     } catch (e) {
       setState(() {
         _questions = [];
         _isLoading = false;
-        _initializeChat();
       });
     }
   }
 
   void _initializeChat() {
     _messages.clear();
-    if (_questions.isNotEmpty) {
-      _messages.add(
-        ChatMessage(
-          sender: 'ai',
-          text:
-              "Hello! Let's practice. Here is your first question:\n\n**Question 1 (${_questions[0].difficulty})**:\n${_questions[0].text}",
-          messageType: 'question',
-        ),
-      );
-    }
-  }
-
-  String _getExplanationForQuestion(RehearseQuestion question) {
-    return "Great job reviewing this question! The correct answer choice is: '${question.options[question.correctAnswerIndex]}'.";
-  }
-
-  String _getFollowUpForQuestion(RehearseQuestion question, String userQuery) {
-    return "Regarding '${question.text}': $userQuery\n\nNote: Always adhere to relevant guidelines and domain standards.";
   }
 
   @override
   void dispose() {
+    _socketSubscription?.cancel();
     _scrollController.dispose();
     _followUpController.dispose();
     super.dispose();
@@ -227,42 +187,43 @@ class _RehearseScreenState extends State<RehearseScreen> {
       return;
     }
 
-    final activeQuestion = _questions[_currentIndex];
-    final selectedOptionText =
-        activeQuestion.options[_tempSelectedAnswerIndex!];
+    final activeQuestion =
+        _questions.isNotEmpty && _currentIndex < _questions.length
+            ? _questions[_currentIndex]
+            : null;
     final confidence = _tempConfidenceLevel!;
+    final answerMsgId = 'ans_${DateTime.now().millisecondsSinceEpoch}';
+    _lastAnswerMessageId = answerMsgId;
+
+    final selectedText =
+        (activeQuestion != null &&
+                _tempSelectedAnswerIndex! < activeQuestion.options.length)
+            ? activeQuestion.options[_tempSelectedAnswerIndex!]
+            : 'Option ${_tempSelectedAnswerIndex! + 1}';
+
+    final answerPayload = jsonEncode({
+      'option': _tempSelectedAnswerIndex,
+      'confidence': confidence,
+      if (activeQuestion?.questionId != null)
+        'questionid': activeQuestion!.questionId,
+    });
+
+    ChatSocketService().sendMessage(
+      message: answerPayload,
+      replyToId: activeQuestion?.messageId,
+      messageType: MessageType.answer,
+    );
 
     setState(() {
       _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
       _confidenceLevels[_currentIndex] = confidence;
 
-      // Add user selection message
       _messages.add(
         ChatMessage(
-          sender: 'user',
-          text:
-              "I select: **$selectedOptionText**\nConfidence level: **$confidence**",
-          messageType: 'answer',
-        ),
-      );
-
-      // Generate AI explanation
-      final isCorrect =
-          _tempSelectedAnswerIndex == activeQuestion.correctAnswerIndex;
-      final correctText = isCorrect ? "Correct! 🎉" : "Incorrect.";
-      final explanationText = _getExplanationForQuestion(activeQuestion);
-
-      final aiText = isCorrect
-          ? "**$correctText**\n\n$explanationText"
-          : "**$correctText** The correct answer is **${activeQuestion.options[activeQuestion.correctAnswerIndex]}**.\n\n$explanationText";
-
-      _messages.add(
-        ChatMessage(
-          sender: 'ai',
-          text: aiText,
-          messageType: 'explanation',
-          sectionTitle: activeQuestion.sectionTitle,
-          sectionContentText: activeQuestion.sectionContentText,
+          messageId: answerMsgId,
+          userId: AuthService.userId ?? 'user',
+          message: 'Selected: $selectedText (Confidence: $confidence)',
+          messageType: MessageType.answer,
         ),
       );
 
@@ -276,85 +237,49 @@ class _RehearseScreenState extends State<RehearseScreen> {
     if (text.isEmpty) return;
     _followUpController.clear();
 
+    final userMsgId = 'user_comment_${DateTime.now().millisecondsSinceEpoch}';
+
+    ChatSocketService().sendMessage(
+      message: text,
+      messageType: MessageType.usercomment,
+    );
+
     setState(() {
       _messages.add(
-        ChatMessage(sender: 'user', text: text, messageType: 'follow_up'),
+        ChatMessage(
+          messageId: userMsgId,
+          userId: AuthService.userId ?? 'user',
+          message: text,
+          messageType: MessageType.usercomment,
+        ),
       );
     });
     _scrollToBottom();
-
-    // Simulate AI typing delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      setState(() {
-        final answer = _getFollowUpForQuestion(_questions[_currentIndex], text);
-        _messages.add(
-          ChatMessage(
-            sender: 'ai',
-            text: answer,
-            messageType: 'follow_up_reply',
-          ),
-        );
-      });
-      _scrollToBottom();
-    });
   }
 
   void _nextQuestion() {
-    if (_currentIndex < _questions.length - 1) {
-      setState(() {
-        _currentIndex++;
-        _tempSelectedAnswerIndex = null;
-        _tempConfidenceLevel = null;
-        _stage = 'question_asked';
+    final lastQuestion =
+        _questions.isNotEmpty && _currentIndex < _questions.length
+            ? _questions[_currentIndex]
+            : null;
+    final lastQuestionId =
+        lastQuestion?.questionId ?? lastQuestion?.messageId ?? '';
+    final lastAnswerId = _lastAnswerMessageId ?? '';
 
-        final nextQ = _questions[_currentIndex];
-        final String titleHeader =
-            (nextQ.sectionTitle != null && nextQ.sectionTitle!.isNotEmpty)
-            ? "📌 **${nextQ.sectionTitle}**\n\n"
-            : "";
+    ChatSocketService().sendMessage(
+      message: jsonEncode({
+        'questionid': lastQuestionId,
+        'answerid': lastAnswerId,
+      }),
+      messageType: MessageType.questioncontinue,
+    );
 
-        _messages.add(
-          ChatMessage(
-            sender: 'ai',
-            text:
-                "${titleHeader}Moving on to the next question:\n\n**Question ${_currentIndex + 1} (${nextQ.difficulty})**:\n${nextQ.text}",
-            messageType: 'question',
-          ),
-        );
-      });
-      _scrollToBottom();
-    } else {
-      // Validate that all questions have selected answers (should be true in this flow)
-      bool allAnswered = true;
-      for (int i = 0; i < _questions.length; i++) {
-        if (_selectedAnswers[i] == null) {
-          allAnswered = false;
-          break;
-        }
-      }
-
-      if (!allAnswered) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: const Color(0xFFF50057),
-            content: const Text(
-              'Please answer all questions before finishing.',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-        return;
-      }
-
-      setState(() {
-        _isFinished = true;
-      });
-    }
+    setState(() {
+      _tempSelectedAnswerIndex = null;
+      _tempConfidenceLevel = null;
+      _stage = 'question_asked';
+    });
+    _scrollToBottom();
   }
 
   double _calculateScorePercentage() {
@@ -623,7 +548,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
     );
   }
 
-  Widget _buildBottomPanel(RehearseQuestion question) {
+  Widget _buildBottomPanel(RehearseQuestion? question) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -641,7 +566,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_stage == 'question_asked') ...[
+            if (_stage == 'question_asked' || question == null) ...[
               Row(
                 children: [
                   Expanded(
@@ -1045,7 +970,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   Widget _buildQuizView() {
-    if (_isLoading) {
+    if (_isLoading || _messages.isEmpty) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1053,7 +978,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
             CircularProgressIndicator(color: Color(0xFFF27121)),
             SizedBox(height: 16),
             Text(
-              'Loading tutorial questions...',
+              'Connecting to tutor session...',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
@@ -1061,38 +986,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
       );
     }
 
-    if (_questions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.info_outline, color: Colors.white54, size: 48),
-            const SizedBox(height: 16),
-            const Text(
-              'No rehearsal questions available for this tutorial.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF27121),
-              ),
-              child: const Text(
-                'Go Back',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final activeQuestion = _questions[_currentIndex];
+    final activeQuestion = _questions.isNotEmpty
+        ? _questions[_currentIndex]
+        : null;
 
     // Compute dynamic session metrics
     // final easyTotal = _getBeginnerTotal();
@@ -1257,7 +1153,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
                                 height: 1.4,
                               ),
                             ),
-                            if (message.messageType == 'explanation' &&
+                            if ((message.messageType == MessageType.agentcomment ||
+                                    message.messageType == MessageType.question) &&
                                 message.sectionContentText != null &&
                                 message.sectionContentText!.isNotEmpty) ...[
                               const SizedBox(height: 12),
@@ -1304,7 +1201,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                               ),
                             ],
                             if (isLast &&
-                                message.messageType == 'question' &&
+                                message.messageType == MessageType.question &&
                                 _stage != 'select_option') ...[
                               const SizedBox(height: 16),
                               SizedBox(

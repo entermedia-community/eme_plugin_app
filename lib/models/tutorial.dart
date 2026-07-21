@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/topic.dart';
+import 'chat_message.dart';
 
 class TutorialProgress {
   final double beginnerProgress;
@@ -319,6 +321,9 @@ class RehearseQuestion {
   final String difficulty; // "Beginner", "Intermediate", "Expert"
   final String? sectionTitle;
   final String? sectionContentText;
+  final String? questionId;
+  final String? messageId;
+  final MessageType? messageType;
 
   const RehearseQuestion({
     required this.text,
@@ -327,6 +332,9 @@ class RehearseQuestion {
     required this.difficulty,
     this.sectionTitle,
     this.sectionContentText,
+    this.questionId,
+    this.messageId,
+    this.messageType,
   });
 
   factory RehearseQuestion.fromMcq(
@@ -341,6 +349,82 @@ class RehearseQuestion {
       difficulty: mcq.difficultyDisplay,
       sectionTitle: sectionTitle,
       sectionContentText: sectionContentText,
+    );
+  }
+
+  factory RehearseQuestion.fromChatMessage(ChatMessage chatMsg) {
+    String text = chatMsg.message ?? '';
+    List<String> options = [];
+    int correctIndex = 0;
+    String difficulty = 'Beginner';
+    String? secTitle;
+    String? secContent;
+    String? qId;
+
+    if (chatMsg.message != null && chatMsg.message!.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(chatMsg.message!);
+        if (decoded is Map<String, dynamic>) {
+          text = decoded['question']?.toString() ??
+              decoded['text']?.toString() ??
+              decoded['title']?.toString() ??
+              text;
+          qId = (decoded['id'] ?? decoded['questionid'] ?? decoded['question_id'])
+              ?.toString();
+
+          final rawOpts = decoded['options'];
+          if (rawOpts is List) {
+            options = rawOpts.map((e) => e.toString()).toList();
+          } else if (rawOpts is Map) {
+            options = rawOpts.values.map((e) => e.toString()).toList();
+          }
+
+          final rawCorrect = decoded['correctoption'] ??
+              decoded['correct_option'] ??
+              decoded['correctAnswerIndex'];
+          if (rawCorrect is int) {
+            correctIndex = rawCorrect;
+          } else if (rawCorrect is String) {
+            final parsedInt = int.tryParse(rawCorrect);
+            if (parsedInt != null) {
+              correctIndex = parsedInt;
+            } else if (options.isNotEmpty) {
+              final idx = options.indexWhere(
+                (opt) => opt.toLowerCase() == rawCorrect.toLowerCase(),
+              );
+              if (idx != -1) correctIndex = idx;
+            }
+          }
+
+          difficulty = (decoded['difficulty'] ??
+                  decoded['cognitivelevel'] ??
+                  'Beginner')
+              .toString();
+          if (difficulty.isNotEmpty) {
+            difficulty =
+                difficulty[0].toUpperCase() + difficulty.substring(1);
+          }
+
+          secTitle = (decoded['sectiontitle'] ?? decoded['section_title'])
+              ?.toString();
+          secContent = (decoded['sectioncontent'] ?? decoded['section_content'])
+              ?.toString();
+        }
+      } catch (_) {
+        // Plain text fallback
+      }
+    }
+
+    return RehearseQuestion(
+      text: text,
+      options: options,
+      correctAnswerIndex: correctIndex,
+      difficulty: difficulty,
+      sectionTitle: secTitle,
+      sectionContentText: secContent,
+      questionId: qId ?? chatMsg.messageId,
+      messageId: chatMsg.messageId,
+      messageType: chatMsg.messageType,
     );
   }
 }
