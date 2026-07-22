@@ -79,6 +79,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
       );
       _tutorChannels = channels;
 
+      debugPrint("_tutorChannels: ${_tutorChannels.length}");
+
       if (_tutorChannels.isNotEmpty) {
         final lastActiveChannel = _tutorChannels.last;
         final userId = AuthService.userId ?? lastActiveChannel.user;
@@ -97,15 +99,39 @@ class _RehearseScreenState extends State<RehearseScreen> {
           if (incomingMsg.message != null && incomingMsg.message!.isNotEmpty) {
             if (!mounted) return;
             setState(() {
-              _messages.add(incomingMsg);
+              final msgId = incomingMsg.messageId;
+              final existingIndex = (msgId != null && msgId.isNotEmpty)
+                  ? _messages.indexWhere(
+                      (m) =>
+                          m.messageId == msgId &&
+                          m.functionName == incomingMsg.functionName,
+                    )
+                  : -1;
+
+              if (existingIndex != -1) {
+                _messages[existingIndex] = incomingMsg;
+              } else {
+                _messages.add(incomingMsg);
+              }
 
               if (incomingMsg.messageType == MessageType.question) {
+                debugPrint("$incomingMsg");
                 final question = RehearseQuestion.fromChatMessage(incomingMsg);
-                _questions.add(question);
-                _currentIndex = _questions.length - 1;
-                _tempSelectedAnswerIndex = null;
-                _tempConfidenceLevel = null;
-                _stage = 'select_option';
+                final qExistingIndex = (msgId != null && msgId.isNotEmpty)
+                    ? _questions.indexWhere(
+                        (q) => q.messageId == msgId || q.questionId == msgId,
+                      )
+                    : -1;
+
+                if (qExistingIndex != -1) {
+                  _questions[qExistingIndex] = question;
+                } else {
+                  _questions.add(question);
+                  _currentIndex = _questions.length - 1;
+                  _tempSelectedAnswerIndex = null;
+                  _tempConfidenceLevel = null;
+                  _stage = 'select_option';
+                }
               } else if (incomingMsg.messageType == MessageType.end) {
                 _isFinished = true;
               }
@@ -189,17 +215,17 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
     final activeQuestion =
         _questions.isNotEmpty && _currentIndex < _questions.length
-            ? _questions[_currentIndex]
-            : null;
+        ? _questions[_currentIndex]
+        : null;
     final confidence = _tempConfidenceLevel!;
     final answerMsgId = 'ans_${DateTime.now().millisecondsSinceEpoch}';
     _lastAnswerMessageId = answerMsgId;
 
     final selectedText =
         (activeQuestion != null &&
-                _tempSelectedAnswerIndex! < activeQuestion.options.length)
-            ? activeQuestion.options[_tempSelectedAnswerIndex!]
-            : 'Option ${_tempSelectedAnswerIndex! + 1}';
+            _tempSelectedAnswerIndex! < activeQuestion.options.length)
+        ? activeQuestion.options[_tempSelectedAnswerIndex!]
+        : 'Option ${_tempSelectedAnswerIndex! + 1}';
 
     final answerPayload = jsonEncode({
       'option': _tempSelectedAnswerIndex,
@@ -214,6 +240,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
       messageType: MessageType.answer,
     );
 
+    final bool isCorrect =
+        activeQuestion != null &&
+        _tempSelectedAnswerIndex == activeQuestion.correctAnswerIndex;
+
     setState(() {
       _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
       _confidenceLevels[_currentIndex] = confidence;
@@ -222,8 +252,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
         ChatMessage(
           messageId: answerMsgId,
           userId: AuthService.userId ?? 'user',
-          message: 'Selected: $selectedText (Confidence: $confidence)',
+          message: selectedText,
           messageType: MessageType.answer,
+          rawJson: {
+            'iscorrect': isCorrect,
+            'selected_option': selectedText,
+            'confidence': confidence,
+            'option_index': _tempSelectedAnswerIndex,
+          },
         ),
       );
 
@@ -260,8 +296,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
   void _nextQuestion() {
     final lastQuestion =
         _questions.isNotEmpty && _currentIndex < _questions.length
-            ? _questions[_currentIndex]
-            : null;
+        ? _questions[_currentIndex]
+        : null;
     final lastQuestionId =
         lastQuestion?.questionId ?? lastQuestion?.messageId ?? '';
     final lastAnswerId = _lastAnswerMessageId ?? '';
@@ -548,6 +584,553 @@ class _RehearseScreenState extends State<RehearseScreen> {
     );
   }
 
+  Widget _buildMessageContainer({required bool isAI, required Widget child}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: isAI ? MainAxisAlignment.start : MainAxisAlignment.end,
+      children: [
+        if (isAI) ...[
+          Container(
+            width: 32,
+            height: 32,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
+              border: Border.all(
+                color: const Color(0xFFFFFFFF).withValues(alpha: 0.4),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image:
+                  "https://minsur.genailabs.tech/site/mediadb/services/module/asset/generated/Sources/Iris_Avatar_Minsur/Iris_Avatar_Minsur.png/image200x200.webp",
+            ),
+          ),
+          const SizedBox(width: 12),
+        ],
+        Flexible(
+          child: Container(
+            decoration: BoxDecoration(
+              color: isAI
+                  ? const Color(0xFF161C24).withValues(alpha: 0.8)
+                  : const Color(0xFFF27121).withValues(alpha: 0.15),
+              borderRadius: isAI
+                  ? const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    )
+                  : const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(4),
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+              border: Border.all(
+                color: isAI
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : const Color(0xFFF27121).withValues(alpha: 0.4),
+                width: 1.5,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: child,
+          ),
+        ),
+        if (!isAI) ...[
+          const SizedBox(width: 12),
+          Container(
+            width: 32,
+            height: 32,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
+              border: Border.all(
+                color: const Color(0xFFFFFFFF).withValues(alpha: 0.4),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image:
+                  "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  List<Widget> _buildChatMessageItem(ChatMessage message, bool isLast) {
+    switch (message.messageType) {
+      case MessageType.welcome:
+        return [
+          _buildWelcomeMessage(message, isLast),
+          _buildButtonMessage(
+            actionButtonLabel: "Next Question",
+            onPressed: () => _nextQuestion(),
+          ),
+        ];
+      case MessageType.usercomment:
+        return [_buildUserCommentMessage(message)];
+      case MessageType.agentcomment:
+        return [_buildAgentCommentMessage(message)];
+      case MessageType.end:
+        return [_buildEndMessage(message)];
+      case MessageType.question:
+        return [_buildQuestionMessage(message, isLast)];
+      case MessageType.answer:
+        return [_buildAnswerMessage(message)];
+      case MessageType.questioncontinue:
+        return [
+          _buildButtonMessage(
+            actionButtonLabel: "Next Question",
+            onPressed: () => _nextQuestion(),
+          ),
+        ];
+      case MessageType.text:
+      default:
+        return [_buildTextMessage(message)];
+    }
+  }
+
+  Widget _buildWelcomeMessage(ChatMessage message, bool isLast) {
+    return _buildMessageContainer(
+      isAI: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildRichText(
+            message.text,
+            const TextStyle(fontSize: 14, color: Colors.white, height: 1.4),
+          ),
+          if (isLast) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: 130,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  _nextQuestion();
+                },
+                icon: const Icon(
+                  Icons.play_arrow_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  message.actionButtonLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF27121),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserCommentMessage(ChatMessage message) {
+    return _buildMessageContainer(
+      isAI: false,
+      child: _buildRichText(
+        message.text,
+        const TextStyle(fontSize: 14, color: Colors.white, height: 1.4),
+      ),
+    );
+  }
+
+  Widget _buildAgentCommentMessage(ChatMessage message) {
+    return _buildMessageContainer(
+      isAI: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildRichText(
+            message.text,
+            TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.85),
+              height: 1.4,
+            ),
+          ),
+          if (message.sectionContentText != null &&
+              message.sectionContentText!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                final secTitle =
+                    (message.sectionTitle != null &&
+                        message.sectionTitle!.isNotEmpty)
+                    ? message.sectionTitle!
+                    : "Section Notes";
+                _showLearnMoreModal(
+                  context,
+                  secTitle,
+                  message.sectionContentText!,
+                );
+              },
+              icon: const Icon(
+                Icons.menu_book_rounded,
+                size: 16,
+                color: Color(0xFF38B6FF),
+              ),
+              label: const Text(
+                'Learn More',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF38B6FF),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: const Color(0xFF38B6FF).withValues(alpha: 0.4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEndMessage(ChatMessage message) {
+    return _buildMessageContainer(
+      isAI: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.check_circle_outline_rounded,
+                color: Color(0xFF38EF7D),
+                size: 18,
+              ),
+              SizedBox(width: 6),
+              Text(
+                'COMPLETED',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF38EF7D),
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          _buildRichText(
+            message.text,
+            const TextStyle(fontSize: 14, color: Colors.white, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextMessage(ChatMessage message) {
+    return _buildMessageContainer(
+      isAI: message.isAI,
+      child: _buildRichText(
+        message.text,
+        TextStyle(
+          fontSize: 14,
+          color: message.isAI
+              ? Colors.white.withValues(alpha: 0.85)
+              : Colors.white,
+          height: 1.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestionMessage(ChatMessage message, bool isLast) {
+    final question = RehearseQuestion.fromChatMessage(message);
+    final optionLetters = ['A', 'B', 'C', 'D'];
+
+    return _buildMessageContainer(
+      isAI: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Question text (RichText)
+          _buildRichText(
+            question.text,
+            const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              height: 1.4,
+            ),
+          ),
+          if (question.options.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            // Options (Plain text interactive MCQ)
+            Column(
+              children: List.generate(question.options.length, (optIndex) {
+                final optionText = question.options[optIndex];
+                final letter = optIndex < optionLetters.length
+                    ? optionLetters[optIndex]
+                    : '${optIndex + 1}';
+                final isSelected = _tempSelectedAnswerIndex == optIndex;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: InkWell(
+                    onTap: () {
+                      _selectOption(optIndex);
+                      if (_stage != 'select_option') {
+                        setState(() {
+                          _stage = 'select_option';
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFFF27121).withValues(alpha: 0.2)
+                            : Colors.white.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFFF27121)
+                              : Colors.white.withValues(alpha: 0.08),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 22,
+                            height: 22,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected
+                                  ? const Color(0xFFF27121)
+                                  : Colors.white.withValues(alpha: 0.1),
+                            ),
+                            child: Text(
+                              letter,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.white70,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              optionText,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.white70,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+          if (message.sectionContentText != null &&
+              message.sectionContentText!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                final secTitle =
+                    (message.sectionTitle != null &&
+                        message.sectionTitle!.isNotEmpty)
+                    ? message.sectionTitle!
+                    : "Section Notes";
+                _showLearnMoreModal(
+                  context,
+                  secTitle,
+                  message.sectionContentText!,
+                );
+              },
+              icon: const Icon(
+                Icons.menu_book_rounded,
+                size: 16,
+                color: Color(0xFF38B6FF),
+              ),
+              label: const Text(
+                'Learn More',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF38B6FF),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: const Color(0xFF38B6FF).withValues(alpha: 0.4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+          if (isLast && _stage != 'select_option') ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: 130,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _stage = 'select_option';
+                    _scrollToBottom();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF27121),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Answer',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnswerMessage(ChatMessage message) {
+    final bool isCorrect = message.isCorrect ?? true;
+    final Color statusColor = isCorrect
+        ? const Color(0xFF38EF7D)
+        : const Color(0xFFF50057);
+    final IconData statusIcon = isCorrect
+        ? Icons.check_circle_rounded
+        : Icons.cancel_rounded;
+
+    return _buildMessageContainer(
+      isAI: false,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(statusIcon, color: statusColor, size: 20),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              message.selectedOptionText,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButtonMessage({
+    required String actionButtonLabel,
+    required Function() onPressed,
+  }) {
+    return _buildMessageContainer(
+      isAI: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            height: 1,
+            width: double.infinity,
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF27121),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              actionButtonLabel,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBottomPanel(RehearseQuestion? question) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -629,99 +1212,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 ],
               ),
             ] else if (_stage == 'select_option') ...[
-              const Padding(
-                padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
-                child: Text(
-                  'SELECT YOUR ANSWER',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white38,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-              ...List.generate(question.options.length, (optIndex) {
-                final optionText = question.options[optIndex];
-                final optionLetters = ['A', 'B', 'C', 'D'];
-                final isSelected = _tempSelectedAnswerIndex == optIndex;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: InkWell(
-                    onTap: () => _selectOption(optIndex),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFF27121).withValues(alpha: 0.15)
-                            : const Color(0xFF161C24).withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFFF27121)
-                              : Colors.white.withValues(alpha: 0.06),
-                          width: 1.5,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isSelected
-                                  ? const Color(
-                                      0xFFF27121,
-                                    ).withValues(alpha: 0.2)
-                                  : Colors.white.withValues(alpha: 0.05),
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(
-                                        0xFFF27121,
-                                      ).withValues(alpha: 0.4)
-                                    : Colors.white.withValues(alpha: 0.1),
-                                width: 1,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              optionLetters[optIndex],
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? const Color(0xFFF27121)
-                                    : Colors.white60,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              optionText,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.white70,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-              const SizedBox(height: 16),
               const Padding(
                 padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
                 child: Text(
@@ -1075,204 +1565,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final message = _messages[index];
-              final isAI = message.sender == 'ai';
               final isLast = index == _messages.length - 1;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: isAI
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.end,
-                  children: [
-                    if (isAI) ...[
-                      Container(
-                        width: 32,
-                        height: 32,
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
-                          border: Border.all(
-                            color: const Color(
-                              0xFFFFFFFF,
-                            ).withValues(alpha: 0.4),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: FadeInImage.memoryNetwork(
-                          placeholder: kTransparentImage,
-                          image:
-                              "https://minsur.genailabs.tech/site/mediadb/services/module/asset/generated/Sources/Iris_Avatar_Minsur/Iris_Avatar_Minsur.png/image200x200.webp",
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
-                    Flexible(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isAI
-                              ? const Color(0xFF161C24).withValues(alpha: 0.8)
-                              : const Color(0xFFF27121).withValues(alpha: 0.15),
-                          borderRadius: isAI
-                              ? const BorderRadius.only(
-                                  topLeft: Radius.circular(4),
-                                  topRight: Radius.circular(16),
-                                  bottomLeft: Radius.circular(16),
-                                  bottomRight: Radius.circular(16),
-                                )
-                              : const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  topRight: Radius.circular(4),
-                                  bottomLeft: Radius.circular(16),
-                                  bottomRight: Radius.circular(16),
-                                ),
-                          border: Border.all(
-                            color: isAI
-                                ? Colors.white.withValues(alpha: 0.06)
-                                : const Color(
-                                    0xFFF27121,
-                                  ).withValues(alpha: 0.4),
-                            width: 1.5,
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildRichText(
-                              message.text,
-                              TextStyle(
-                                fontSize: 14,
-                                color: isAI
-                                    ? Colors.white.withValues(alpha: 0.85)
-                                    : Colors.white,
-                                height: 1.4,
-                              ),
-                            ),
-                            if ((message.messageType == MessageType.agentcomment ||
-                                    message.messageType == MessageType.question) &&
-                                message.sectionContentText != null &&
-                                message.sectionContentText!.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              OutlinedButton.icon(
-                                onPressed: () {
-                                  final secTitle =
-                                      (message.sectionTitle != null &&
-                                          message.sectionTitle!.isNotEmpty)
-                                      ? message.sectionTitle!
-                                      : "Section Notes";
-                                  _showLearnMoreModal(
-                                    context,
-                                    secTitle,
-                                    message.sectionContentText!,
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.menu_book_rounded,
-                                  size: 16,
-                                  color: Color(0xFF38B6FF),
-                                ),
-                                label: const Text(
-                                  'Learn More',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF38B6FF),
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: const Color(
-                                      0xFF38B6FF,
-                                    ).withValues(alpha: 0.4),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 8,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            if (isLast &&
-                                message.messageType == MessageType.question &&
-                                _stage != 'select_option') ...[
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                width: 150,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _stage = 'select_option';
-                                      _scrollToBottom();
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFF27121),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Answer',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (!isAI) ...[
-                      const SizedBox(width: 12),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
-                          border: Border.all(
-                            color: const Color(
-                              0xFFFFFFFF,
-                            ).withValues(alpha: 0.4),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: FadeInImage.memoryNetwork(
-                          placeholder: kTransparentImage,
-                          image:
-                              "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                child: Column(children: _buildChatMessageItem(message, isLast)),
               );
             },
           ),

@@ -319,8 +319,6 @@ class RehearseQuestion {
   final List<String> options;
   final int correctAnswerIndex;
   final String difficulty; // "Beginner", "Intermediate", "Expert"
-  final String? sectionTitle;
-  final String? sectionContentText;
   final String? questionId;
   final String? messageId;
   final MessageType? messageType;
@@ -330,47 +328,29 @@ class RehearseQuestion {
     required this.options,
     required this.correctAnswerIndex,
     required this.difficulty,
-    this.sectionTitle,
-    this.sectionContentText,
     this.questionId,
     this.messageId,
     this.messageType,
   });
-
-  factory RehearseQuestion.fromMcq(
-    McqQuestion mcq, {
-    String? sectionTitle,
-    String? sectionContentText,
-  }) {
-    return RehearseQuestion(
-      text: mcq.question,
-      options: mcq.optionsList,
-      correctAnswerIndex: mcq.correctAnswerIndex,
-      difficulty: mcq.difficultyDisplay,
-      sectionTitle: sectionTitle,
-      sectionContentText: sectionContentText,
-    );
-  }
 
   factory RehearseQuestion.fromChatMessage(ChatMessage chatMsg) {
     String text = chatMsg.message ?? '';
     List<String> options = [];
     int correctIndex = 0;
     String difficulty = 'Beginner';
-    String? secTitle;
-    String? secContent;
     String? qId;
 
     if (chatMsg.message != null && chatMsg.message!.isNotEmpty) {
       try {
-        final decoded = jsonDecode(chatMsg.message!);
-        if (decoded is Map<String, dynamic>) {
-          text = decoded['question']?.toString() ??
+        final qdecoded = jsonDecode(chatMsg.message!);
+        if (qdecoded is Map<String, dynamic>) {
+          final decoded = qdecoded['question'] as Map<String, dynamic>;
+          text =
+              decoded['question']?.toString() ??
               decoded['text']?.toString() ??
               decoded['title']?.toString() ??
               text;
-          qId = (decoded['id'] ?? decoded['questionid'] ?? decoded['question_id'])
-              ?.toString();
+          qId = (decoded['id'])?.toString();
 
           final rawOpts = decoded['options'];
           if (rawOpts is List) {
@@ -379,36 +359,18 @@ class RehearseQuestion {
             options = rawOpts.values.map((e) => e.toString()).toList();
           }
 
-          final rawCorrect = decoded['correctoption'] ??
-              decoded['correct_option'] ??
-              decoded['correctAnswerIndex'];
-          if (rawCorrect is int) {
-            correctIndex = rawCorrect;
-          } else if (rawCorrect is String) {
-            final parsedInt = int.tryParse(rawCorrect);
-            if (parsedInt != null) {
-              correctIndex = parsedInt;
-            } else if (options.isNotEmpty) {
-              final idx = options.indexWhere(
-                (opt) => opt.toLowerCase() == rawCorrect.toLowerCase(),
-              );
-              if (idx != -1) correctIndex = idx;
-            }
+          final rawCorrect = decoded['correctoption'];
+          if (rawCorrect != null) {
+            final idx = options.indexWhere(
+              (opt) => opt.toLowerCase() == rawCorrect.toLowerCase(),
+            );
+            if (idx != -1) correctIndex = idx;
           }
 
-          difficulty = (decoded['difficulty'] ??
-                  decoded['cognitivelevel'] ??
-                  'Beginner')
-              .toString();
+          difficulty = (decoded['cognitivelevel'] ?? 'Beginner').toString();
           if (difficulty.isNotEmpty) {
-            difficulty =
-                difficulty[0].toUpperCase() + difficulty.substring(1);
+            difficulty = difficulty[0].toUpperCase() + difficulty.substring(1);
           }
-
-          secTitle = (decoded['sectiontitle'] ?? decoded['section_title'])
-              ?.toString();
-          secContent = (decoded['sectioncontent'] ?? decoded['section_content'])
-              ?.toString();
         }
       } catch (_) {
         // Plain text fallback
@@ -420,8 +382,6 @@ class RehearseQuestion {
       options: options,
       correctAnswerIndex: correctIndex,
       difficulty: difficulty,
-      sectionTitle: secTitle,
-      sectionContentText: secContent,
       questionId: qId ?? chatMsg.messageId,
       messageId: chatMsg.messageId,
       messageType: chatMsg.messageType,

@@ -3,13 +3,14 @@ import '../services/auth_service.dart';
 
 enum MessageType {
   welcome,
+  text,
   question,
   answer,
+  asset,
   questioncontinue,
   usercomment,
   end,
   agentcomment,
-  unknown,
 }
 
 class ChatMessage {
@@ -53,6 +54,19 @@ class ChatMessage {
     }
 
     final rawMessageType = json['messagetype']?.toString().toLowerCase();
+    final messageType = MessageType.values.firstWhere(
+      (element) => element.name.toLowerCase() == rawMessageType,
+      orElse: () => MessageType.text,
+    );
+
+    Map<String, dynamic> rawJson;
+    if (messageType == MessageType.question ||
+        messageType == MessageType.asset) {
+      final jsonStr = json['message']?.toString() ?? "{}";
+      rawJson = Map<String, dynamic>.from(jsonDecode(jsonStr));
+    } else {
+      rawJson = Map<String, dynamic>.from(json);
+    }
 
     return ChatMessage(
       messageId: (json['messageid'] ?? json['id'])?.toString(),
@@ -61,17 +75,14 @@ class ChatMessage {
       userName: json['name']?.toString(),
       topic: json['topic']?.toString(),
       message: json['message']?.toString(),
-      messageType: MessageType.values.firstWhere(
-        (element) => element.name.toLowerCase() == rawMessageType,
-        orElse: () => MessageType.unknown,
-      ),
+      messageType: messageType,
       command: json['command']?.toString(),
       replyToId: (json['replytoid'] ?? json['replyToId'])?.toString(),
       functionName: (json['functionname'] ?? json['functionName'])?.toString(),
       nextFunctionName: (json['nextfunctionname'] ?? json['nextFunctionName'])
           ?.toString(),
       createdAt: parsedCreatedAt,
-      rawJson: Map<String, dynamic>.from(json),
+      rawJson: rawJson,
     );
   }
 
@@ -146,6 +157,46 @@ class ChatMessage {
     return null;
   }
 
+  bool? get isCorrect {
+    if (rawJson['iscorrect'] is bool) return rawJson['iscorrect'] as bool;
+    if (rawJson['correct'] is bool) return rawJson['correct'] as bool;
+    if (rawJson['success'] is bool) return rawJson['success'] as bool;
+    if (rawJson['is_correct'] is bool) return rawJson['is_correct'] as bool;
+    return null;
+  }
+
+  String get selectedOptionText {
+    if (rawJson['selected_option'] != null) {
+      return rawJson['selected_option'].toString();
+    }
+    if (rawJson['option_text'] != null) {
+      return rawJson['option_text'].toString();
+    }
+    if (message != null) {
+      if (message!.startsWith('Selected: ')) {
+        final endIdx = message!.indexOf(' (Confidence:');
+        if (endIdx != -1) {
+          return message!.substring('Selected: '.length, endIdx);
+        }
+        return message!.substring('Selected: '.length);
+      }
+      return message!;
+    }
+    return '';
+  }
+
+  String get actionButtonLabel {
+    if (rawJson['button_text'] != null) {
+      return rawJson['button_text'].toString();
+    }
+    if (rawJson['label'] != null) {
+      return rawJson['label'].toString();
+    }
+    if (messageType == MessageType.welcome) return 'Start';
+    if (messageType == MessageType.questioncontinue) return 'Continue';
+    return text.isNotEmpty ? text : 'Action';
+  }
+
   ChatMessage copyWith({
     String? messageId,
     String? channel,
@@ -178,4 +229,3 @@ class ChatMessage {
     );
   }
 }
-

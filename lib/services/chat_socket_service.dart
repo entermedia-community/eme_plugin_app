@@ -376,6 +376,7 @@ class ChatSocketService {
       'sessionid': sessionId,
       'userid': userId,
       if (channel != null && channel.isNotEmpty) 'channel': channel,
+      'channeltype': 'agenttutorchat',
       if (entermediakey != null && entermediakey.isNotEmpty)
         'entermedia.key': entermediakey,
     };
