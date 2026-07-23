@@ -209,7 +209,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   void _submitAnswer() {
-    if (_tempSelectedAnswerIndex == null || _tempConfidenceLevel == null) {
+    if (_tutorChannels.isEmpty ||
+        _tempSelectedAnswerIndex == null ||
+        _tempConfidenceLevel == null) {
       return;
     }
 
@@ -217,55 +219,21 @@ class _RehearseScreenState extends State<RehearseScreen> {
         _questions.isNotEmpty && _currentIndex < _questions.length
         ? _questions[_currentIndex]
         : null;
-    final confidence = _tempConfidenceLevel!;
-    final answerMsgId = 'ans_${DateTime.now().millisecondsSinceEpoch}';
-    _lastAnswerMessageId = answerMsgId;
 
-    final selectedText =
-        (activeQuestion != null &&
-            _tempSelectedAnswerIndex! < activeQuestion.options.length)
-        ? activeQuestion.options[_tempSelectedAnswerIndex!]
-        : 'Option ${_tempSelectedAnswerIndex! + 1}';
-
-    final answerPayload = jsonEncode({
-      'option': _tempSelectedAnswerIndex,
-      'confidence': confidence,
-      if (activeQuestion?.questionId != null)
-        'questionid': activeQuestion!.questionId,
-    });
-
-    ChatSocketService().sendMessage(
-      message: answerPayload,
-      replyToId: activeQuestion?.messageId,
-      messageType: MessageType.answer,
-    );
-
-    final bool isCorrect =
-        activeQuestion != null &&
-        _tempSelectedAnswerIndex == activeQuestion.correctAnswerIndex;
-
+    if (activeQuestion == null) {
+      return;
+    }
     setState(() {
-      _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
-      _confidenceLevels[_currentIndex] = confidence;
-
-      _messages.add(
-        ChatMessage(
-          messageId: answerMsgId,
-          userId: AuthService.userId ?? 'user',
-          message: selectedText,
-          messageType: MessageType.answer,
-          rawJson: {
-            'iscorrect': isCorrect,
-            'selected_option': selectedText,
-            'confidence': confidence,
-            'option_index': _tempSelectedAnswerIndex,
-          },
-        ),
-      );
-
       _stage = 'explain_and_followup';
     });
-    _scrollToBottom();
+
+    TopicService().submitAnswer(
+      questionId: activeQuestion.questionId!,
+      selectedOption:
+          "option_${String.fromCharCode(97 + _tempSelectedAnswerIndex!)}",
+      confidence: _tempConfidenceLevel!.toLowerCase().replaceAll(" ", ""),
+      channel: _tutorChannels.last.id,
+    );
   }
 
   void _sendFollowUp() {
@@ -1016,46 +984,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
               ),
             ),
           ],
-          if (isLast && _stage != 'select_option') ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: 130,
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _stage = 'select_option';
-                    _scrollToBottom();
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF27121),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'Answer',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 14,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -1298,11 +1226,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                         ),
                 ),
                 child: ElevatedButton(
-                  onPressed:
-                      (_tempSelectedAnswerIndex != null &&
-                          _tempConfidenceLevel != null)
-                      ? _submitAnswer
-                      : null,
+                  onPressed: _submitAnswer,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,

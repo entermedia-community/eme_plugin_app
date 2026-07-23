@@ -8,19 +8,15 @@ import '../models/tutorial.dart';
 
 class TopicService {
   final http.Client _client;
-  final String baseUrl;
+  final String siteRoot;
 
   TopicService({
     http.Client? client,
-    // this.baseUrl = 'https://minsur.genailabs.tech/site/mediadb/services/topic',
-    this.baseUrl = 'http://localhost.com:8080/site/mediadb/services/topic',
+    this.siteRoot = 'http://localhost.com:8080/site',
   }) : _client = client ?? http.Client();
 
-  /// Fetches topics and nested tutorials from the specified API endpoint.
-  /// If [endpointUrl] is provided, it overrides [baseUrl].
-  /// If fetching fails and [fallbackToMock] is true, [mockTopics] will be returned.
   Future<List<Topic>> fetchTopics({bool fallbackToMock = true}) async {
-    final targetUrl = "$baseUrl/topics.json";
+    final targetUrl = "$siteRoot/mediadb/services/topic/topics.json";
     final uri = Uri.parse(targetUrl);
 
     try {
@@ -63,10 +59,9 @@ class TopicService {
     }
   }
 
-  /// Fetches tutorials for a given [topicId].
-  /// URL: $baseUrl/tutorials.json?entitytopic=$topicId
   Future<List<Tutorial>> fetchTutorialsForTopic(String topicId) async {
-    final targetUrl = "$baseUrl/tutorials.json?entitytopic=$topicId";
+    final targetUrl =
+        "$siteRoot/mediadb/services/topic/tutorials.json?entitytopic=$topicId";
     final uri = Uri.parse(targetUrl);
 
     try {
@@ -114,10 +109,9 @@ class TopicService {
     }
   }
 
-  /// Fetches detailed sections, contents, and questions for a given tutorial ID.
-  /// URL: $baseUrl/tutorial.json?entitytutorial=$tutorialId
   Future<TutorialDetail> fetchTutorialDetail(String tutorialId) async {
-    final targetUrl = "$baseUrl/tutorial.json?entitytutorial=$tutorialId";
+    final targetUrl =
+        "$siteRoot/mediadb/services/topic/tutorial.json?entitytutorial=$tutorialId";
     final uri = Uri.parse(targetUrl);
 
     try {
@@ -156,12 +150,9 @@ class TopicService {
     }
   }
 
-  /// Fetches tutor session channels for a given tutorial ID.
-  /// URL: $baseUrl/views/modules/entitytutorial/editors/aichatsearch/tutorsessions.json?tutorialid=$tutorialId
   Future<List<TutorChannel>> fetchTutorChannels(String tutorialId) async {
-    String siteBaseUrl = 'http://localhost.com:8080/site/find';
     final targetUrl =
-        "$siteBaseUrl/views/modules/entitytutorial/editors/aichatsearch/tutorsessions.json?tutorialid=$tutorialId";
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/tutorsessions.json?tutorialid=$tutorialId";
     final uri = Uri.parse(targetUrl);
 
     try {
@@ -204,20 +195,62 @@ class TopicService {
   }
 
   Future<void> startTutorial(String tutorialId, String channel) async {
-    String siteBaseUrl = 'http://localhost.com:8080/site/find';
     final targetUrl =
-        "$siteBaseUrl/views/modules/entitytutorial/editors/aichatsearch/index.html";
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/index.html";
     final uri = Uri.parse(targetUrl);
 
     try {
       final Map<String, String> credentials =
           await AuthService.getCredentials();
       final String token = credentials['entermediakey']!;
-      debugPrint("Postinng to $uri");
       final response = await _client.post(
         uri,
         body:
             'context_tutorialid=$tutorialId&functionname=chat_tutor_welcome&currentscenario=chat_tutor',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to fetch tutor channels. Server returned HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('TopicService error fetching tutor channels from $targetUrl: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> submitAnswer({
+    required String channel,
+    required String questionId,
+    required String selectedOption,
+    required String confidence,
+  }) async {
+    final targetUrl =
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/index.html";
+    final uri = Uri.parse(targetUrl);
+    try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
+
+      String body = 'currentscenario=chat_tutor&functionname=chat_tutor_answer';
+      body += '&context_channelid=$channel';
+      body += '&context_questionid=$questionId';
+      body += '&context_selectedoption=$selectedOption';
+      body += '&context_confidence=$confidence';
+
+      final response = await _client.post(
+        uri,
+        body: body,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
