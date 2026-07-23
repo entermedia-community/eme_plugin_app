@@ -68,12 +68,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
       _isLoading = true;
     });
 
-    debugPrint("=============");
-    debugPrint("=============");
-    debugPrint("=============");
-    debugPrint("=============");
-    debugPrint("=============");
-
     try {
       _messages.clear();
       _questions.clear();
@@ -170,7 +164,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 }
               } else if (incomingMsg.messageType == MessageType.end) {
                 setState(() {
-                  _stage = 'finishef';
+                  _stage = 'finished';
                 });
                 _isFinished = true;
               } else {
@@ -182,12 +176,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
             _scrollToBottom();
           }
         });
-
-        debugPrint("=============");
-        debugPrint("=============");
-        debugPrint("=============");
-        debugPrint("=============");
-        debugPrint("=============");
 
         await TopicService().startTutorial(
           tutorialId: widget.tutorial.id,
