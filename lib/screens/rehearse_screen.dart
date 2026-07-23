@@ -11,6 +11,7 @@ import 'package:testu_cl/services/chat_socket_service.dart';
 import 'package:testu_cl/services/topic_service.dart';
 import 'package:testu_cl/widgets/common_widgets.dart';
 import 'package:testu_cl/widgets/fullscreen_mediaviewer.dart';
+import 'package:testu_cl/widgets/asset_message_widget.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../models/tutor_channel.dart';
@@ -66,6 +67,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    debugPrint("=============");
+    debugPrint("=============");
+    debugPrint("=============");
+    debugPrint("=============");
+    debugPrint("=============");
 
     try {
       _messages.clear();
@@ -125,11 +132,20 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     messageType: incomingMsg.messageType ?? MessageType.text,
                     userId: incomingMsg.userId,
                     interactive: incomingMsg.interactive,
-                    channel: incomingMsg.channel ?? _messages.last.channel,
+                    channel:
+                        incomingMsg.channel ??
+                        (_messages.isNotEmpty ? _messages.last.channel : null),
                     sectionId:
-                        incomingMsg.sectionId ?? _messages.last.sectionId,
+                        incomingMsg.sectionId ??
+                        (_messages.isNotEmpty
+                            ? _messages.last.sectionId
+                            : null),
                     componentId:
-                        incomingMsg.componentId ?? _messages.last.componentId,
+                        incomingMsg.componentId ??
+                        (_messages.isNotEmpty
+                            ? _messages.last.componentId
+                            : null),
+                    rawJson: incomingMsg.rawJson,
                   ),
                 );
               }
@@ -166,6 +182,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
             _scrollToBottom();
           }
         });
+
+        debugPrint("=============");
+        debugPrint("=============");
+        debugPrint("=============");
+        debugPrint("=============");
+        debugPrint("=============");
 
         await TopicService().startTutorial(
           tutorialId: widget.tutorial.id,
@@ -696,10 +718,19 @@ class _RehearseScreenState extends State<RehearseScreen> {
             onPressed: () => _tutorialContinue(),
           ),
         ];
+      case MessageType.asset:
+        return [_buildAssetMessage(message)];
       case MessageType.text:
       default:
         return [_buildTextMessage(message)];
     }
+  }
+
+  Widget _buildAssetMessage(ChatMessage message) {
+    return _buildMessageContainer(
+      isAI: message.isAI,
+      child: AssetMessageWidget(message: message),
+    );
   }
 
   Widget _buildWelcomeMessage(ChatMessage message, bool isLast) {

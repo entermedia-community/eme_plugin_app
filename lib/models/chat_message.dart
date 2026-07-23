@@ -66,13 +66,17 @@ class ChatMessage {
 
     String mainMessage = json['message']?.toString() ?? '';
 
-    Map<String, dynamic> rawJson;
+    Map<String, dynamic> rawJson = Map<String, dynamic>.from(json);
     if (messageType == MessageType.question ||
         messageType == MessageType.asset) {
       final jsonStr = json['message']?.toString() ?? "{}";
-      rawJson = Map<String, dynamic>.from(jsonDecode(jsonStr));
+      try {
+        final decoded = jsonDecode(jsonStr);
+        if (decoded is Map<String, dynamic>) {
+          rawJson.addAll(decoded);
+        }
+      } catch (_) {}
     } else {
-      rawJson = Map<String, dynamic>.from(json);
       String messageStr = json['message']?.toString() ?? "{}";
       try {
         final messageJson = jsonDecode(messageStr);
@@ -163,6 +167,29 @@ class ChatMessage {
               decoded['section_content']?.toString();
         }
       } catch (_) {}
+    }
+    return null;
+  }
+
+  String? get assetThumbnail {
+    final thumb = rawJson['assetthumbnail'];
+    return thumb?.toString();
+  }
+
+  String? get assetUrl {
+    final url = rawJson['asseturl'];
+    return url?.toString();
+  }
+
+  String? get assetCaption {
+    final cap = rawJson['content'];
+    if (cap != null && cap.toString().isNotEmpty) {
+      return cap.toString();
+    }
+    if (message != null &&
+        message!.isNotEmpty &&
+        !message!.trim().startsWith('{')) {
+      return message;
     }
     return null;
   }

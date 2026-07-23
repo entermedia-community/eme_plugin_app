@@ -78,6 +78,22 @@ void main() {
       expect(copiedMsg.interactive, isFalse);
       expect(copiedMsg.selectedOptionIndex, equals(2));
     });
+
+    test('ChatMessage parses MessageType.asset and extracts thumbnail and url', () {
+      final jsonMap = {
+        'messageid': 'asset_001',
+        'messagetype': 'asset',
+        'message':
+            '{"assetthumbnail": "https://example.com/thumb.png", "asseturl": "https://example.com/full.png", "caption": "Test Asset"}',
+      };
+
+      final msg = ChatMessage.fromJson(jsonMap);
+
+      expect(msg.messageType, equals(MessageType.asset));
+      expect(msg.assetThumbnail, equals('https://example.com/thumb.png'));
+      expect(msg.assetUrl, equals('https://example.com/full.png'));
+      expect(msg.assetCaption, equals('Test Asset'));
+    });
   });
 
   group('ChatSocketService Singleton & State Tests', () {
