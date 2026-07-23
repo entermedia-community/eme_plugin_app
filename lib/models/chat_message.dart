@@ -16,31 +16,31 @@ enum MessageType {
 class ChatMessage {
   final String? messageId;
   final String? channel;
+  final String? sectionId;
+  final String? componentId;
   final String? userId;
   final String? userName;
-  final String? topic;
   final String? message;
   final MessageType? messageType;
   final String? command;
   final String? replyToId;
-  final String? functionName;
-  final String? nextFunctionName;
   final int? createdAt;
+  final bool? interactive;
   final Map<String, dynamic> rawJson;
 
   const ChatMessage({
     this.messageId,
     this.channel,
+    this.sectionId,
+    this.componentId,
     this.userId,
     this.userName,
-    this.topic,
     this.message,
     this.messageType,
     this.command,
     this.replyToId,
-    this.functionName,
-    this.nextFunctionName,
     this.createdAt,
+    this.interactive = false,
     this.rawJson = const {},
   });
 
@@ -59,6 +59,13 @@ class ChatMessage {
       orElse: () => MessageType.text,
     );
 
+    bool interactive = false;
+    if (messageType == MessageType.question || json['interactive'] == "yes") {
+      interactive = true;
+    }
+
+    String mainMessage = json['message']?.toString() ?? '';
+
     Map<String, dynamic> rawJson;
     if (messageType == MessageType.question ||
         messageType == MessageType.asset) {
@@ -66,21 +73,25 @@ class ChatMessage {
       rawJson = Map<String, dynamic>.from(jsonDecode(jsonStr));
     } else {
       rawJson = Map<String, dynamic>.from(json);
+      String messageStr = json['message']?.toString() ?? "{}";
+      try {
+        final messageJson = jsonDecode(messageStr);
+        mainMessage = messageJson['content']?.toString() ?? '';
+      } catch (_) {}
     }
 
     return ChatMessage(
       messageId: (json['messageid'] ?? json['id'])?.toString(),
       channel: json['channel']?.toString(),
+      sectionId: json['sectionid']?.toString(),
+      componentId: json['componentid']?.toString(),
+      interactive: interactive,
       userId: (json['user'] ?? json['userid'])?.toString(),
       userName: json['name']?.toString(),
-      topic: json['topic']?.toString(),
-      message: json['message']?.toString(),
+      message: mainMessage,
       messageType: messageType,
       command: json['command']?.toString(),
       replyToId: (json['replytoid'] ?? json['replyToId'])?.toString(),
-      functionName: (json['functionname'] ?? json['functionName'])?.toString(),
-      nextFunctionName: (json['nextfunctionname'] ?? json['nextFunctionName'])
-          ?.toString(),
       createdAt: parsedCreatedAt,
       rawJson: rawJson,
     );
@@ -90,15 +101,14 @@ class ChatMessage {
     final map = <String, dynamic>{
       if (messageId != null) 'messageid': messageId,
       if (channel != null) 'channel': channel,
+      if (sectionId != null) 'sectionid': sectionId,
+      if (componentId != null) 'componentid': componentId,
       if (userId != null) 'userid': userId,
       if (userName != null) 'name': userName,
-      if (topic != null) 'topic': topic,
       if (message != null) 'message': message,
       if (messageType != null) 'messagetype': messageType!.name,
       if (command != null) 'command': command,
       if (replyToId != null) 'replytoid': replyToId,
-      if (functionName != null) 'functionname': functionName,
-      if (nextFunctionName != null) 'nextfunctionname': nextFunctionName,
       if (createdAt != null) 'createdat': createdAt,
     };
     return map;
@@ -197,34 +207,41 @@ class ChatMessage {
     return text.isNotEmpty ? text : 'Action';
   }
 
+  int? get selectedOptionIndex {
+    if (rawJson['selected_option_index'] is int) {
+      return rawJson['selected_option_index'] as int;
+    }
+    return null;
+  }
+
   ChatMessage copyWith({
     String? messageId,
     String? channel,
+    String? sectionId,
+    String? componentId,
     String? userId,
     String? userName,
-    String? topic,
     String? message,
     MessageType? messageType,
     String? command,
     String? replyToId,
-    String? functionName,
-    String? nextFunctionName,
     int? createdAt,
+    bool? interactive,
     Map<String, dynamic>? rawJson,
   }) {
     return ChatMessage(
       messageId: messageId ?? this.messageId,
       channel: channel ?? this.channel,
+      sectionId: sectionId ?? this.sectionId,
+      componentId: componentId ?? this.componentId,
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
-      topic: topic ?? this.topic,
       message: message ?? this.message,
       messageType: messageType ?? this.messageType,
       command: command ?? this.command,
       replyToId: replyToId ?? this.replyToId,
-      functionName: functionName ?? this.functionName,
-      nextFunctionName: nextFunctionName ?? this.nextFunctionName,
       createdAt: createdAt ?? this.createdAt,
+      interactive: interactive ?? this.interactive,
       rawJson: rawJson ?? this.rawJson,
     );
   }

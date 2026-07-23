@@ -25,22 +25,16 @@ void main() {
       expect(msg.channel, equals('channel_general'));
       expect(msg.userId, equals('user_456'));
       expect(msg.userName, equals('John Doe'));
-      expect(msg.topic, equals('General Chat'));
       expect(msg.message, equals('Hello World'));
       expect(msg.command, equals('messagereceived'));
       expect(msg.replyToId, equals('msg_122'));
-      expect(msg.functionName, equals('onMessage'));
-      expect(msg.nextFunctionName, equals('onNextMessage'));
       expect(msg.createdAt, equals(1690000000000));
       expect(msg.isMessageRemoved, isFalse);
       expect(msg.isKeepAlive, isFalse);
     });
 
     test('ChatMessage.fromJson handles messageremoved command', () {
-      final jsonMap = {
-        'messageid': 'msg_123',
-        'command': 'messageremoved',
-      };
+      final jsonMap = {'messageid': 'msg_123', 'command': 'messageremoved'};
 
       final msg = ChatMessage.fromJson(jsonMap);
 
@@ -63,6 +57,27 @@ void main() {
       expect(jsonMap['userid'], equals('user_1'));
       expect(jsonMap['message'], equals('Test message'));
     });
+
+    test('ChatMessage copyWith preserves interactive state and selectedOptionIndex', () {
+      const msg = ChatMessage(
+        messageId: 'q_1',
+        messageType: MessageType.question,
+        interactive: true,
+      );
+
+      final nonInteractiveMsg = msg.copyWith(
+        interactive: false,
+        rawJson: {'selected_option_index': 2},
+      );
+
+      expect(msg.interactive, isTrue);
+      expect(nonInteractiveMsg.interactive, isFalse);
+      expect(nonInteractiveMsg.selectedOptionIndex, equals(2));
+
+      final copiedMsg = nonInteractiveMsg.copyWith(messageId: 'q_1_updated');
+      expect(copiedMsg.interactive, isFalse);
+      expect(copiedMsg.selectedOptionIndex, equals(2));
+    });
   });
 
   group('ChatSocketService Singleton & State Tests', () {
@@ -74,7 +89,10 @@ void main() {
 
     test('Initial connectionState is disconnected', () {
       final service = ChatSocketService();
-      expect(service.connectionState, equals(SocketConnectionState.disconnected));
+      expect(
+        service.connectionState,
+        equals(SocketConnectionState.disconnected),
+      );
       expect(service.isConnected, isFalse);
     });
 
@@ -103,7 +121,8 @@ void main() {
         scheme: 'ws',
         host: 'localhost.com',
         port: 8080,
-        path: '/entermedia/services/websocket/org/entermediadb/websocket/chat/ChatConnection',
+        path:
+            '/entermedia/services/websocket/org/entermediadb/websocket/chat/ChatConnection',
         queryParameters: queryParameters,
       );
 

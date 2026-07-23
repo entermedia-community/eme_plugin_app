@@ -194,7 +194,10 @@ class TopicService {
     }
   }
 
-  Future<void> startTutorial(String tutorialId, String channel) async {
+  Future<void> startTutorial({
+    required String tutorialId,
+    required String channel,
+  }) async {
     final targetUrl =
         "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/index.html";
     final uri = Uri.parse(targetUrl);
@@ -228,11 +231,61 @@ class TopicService {
     }
   }
 
+  Future<void> continueTutorial({
+    required String tutorialId,
+    String? channel,
+    String? sectionId,
+    String? componentId,
+  }) async {
+    final targetUrl =
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/index.html";
+    final uri = Uri.parse(targetUrl);
+
+    try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
+
+      String body =
+          'functionname=chat_tutor_continue&currentscenario=chat_tutor';
+      body += '&context_tutorialid=$tutorialId';
+      if (channel != null) body += '&context_channelid=$channel';
+      if (sectionId != null) body += '&context_sectionid=$sectionId';
+      if (componentId != null) body += '&context_componentid=$componentId';
+
+      debugPrint("Continuing with: $body");
+
+      final response = await _client.post(
+        uri,
+        body: body,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to fetch tutor channels. Server returned HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('TopicService error fetching tutor channels from $targetUrl: $e');
+      }
+      rethrow;
+    }
+  }
+
   Future<void> submitAnswer({
     required String channel,
     required String questionId,
     required String selectedOption,
     required String confidence,
+    required String sectionId,
+    required String componentId,
   }) async {
     final targetUrl =
         "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/index.html";
@@ -247,6 +300,8 @@ class TopicService {
       body += '&context_questionid=$questionId';
       body += '&context_selectedoption=$selectedOption';
       body += '&context_confidence=$confidence';
+      body += '&context_sectionid=$sectionId';
+      body += '&context_componentid=$componentId';
 
       final response = await _client.post(
         uri,

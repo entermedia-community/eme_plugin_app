@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:testu_cl/models/chat_message.dart' as socket_msg;
-import 'package:testu_cl/models/topic.dart';
 import 'package:testu_cl/models/chat_message.dart';
+import 'package:testu_cl/models/topic.dart';
 import 'package:testu_cl/services/auth_service.dart';
 import 'package:testu_cl/services/chat_socket_service.dart';
 import 'package:testu_cl/services/topic_service.dart';
@@ -55,9 +54,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   final List<ChatMessage> _messages = [];
   int? _tempSelectedAnswerIndex;
   String? _tempConfidenceLevel;
-  String _stage = 'question_asked';
-
-  String? _lastAnswerMessageId;
+  String _stage = 'welcome';
 
   @override
   void initState() {
@@ -101,17 +98,40 @@ class _RehearseScreenState extends State<RehearseScreen> {
             setState(() {
               final msgId = incomingMsg.messageId;
               final existingIndex = (msgId != null && msgId.isNotEmpty)
-                  ? _messages.indexWhere(
-                      (m) =>
-                          m.messageId == msgId &&
-                          m.functionName == incomingMsg.functionName,
-                    )
+                  ? _messages.indexWhere((m) => m.messageId == msgId)
                   : -1;
 
               if (existingIndex != -1) {
+                // final oldMsg = _messages[existingIndex];
+                // if (oldMsg.interactive == false) {
+                //   final updatedRaw = Map<String, dynamic>.from(
+                //     incomingMsg.rawJson,
+                //   );
+                //   if (oldMsg.rawJson.containsKey('selected_option_index')) {
+                //     updatedRaw['selected_option_index'] =
+                //         oldMsg.rawJson['selected_option_index'];
+                //   }
+                //   incomingMsg = incomingMsg.copyWith(
+                //     interactive: false,
+                //     rawJson: updatedRaw,
+                //   );
+                // }
                 _messages[existingIndex] = incomingMsg;
               } else {
-                _messages.add(incomingMsg);
+                _messages.add(
+                  ChatMessage(
+                    messageId: incomingMsg.messageId,
+                    message: incomingMsg.message,
+                    messageType: incomingMsg.messageType ?? MessageType.text,
+                    userId: incomingMsg.userId,
+                    interactive: incomingMsg.interactive,
+                    channel: incomingMsg.channel ?? _messages.last.channel,
+                    sectionId:
+                        incomingMsg.sectionId ?? _messages.last.sectionId,
+                    componentId:
+                        incomingMsg.componentId ?? _messages.last.componentId,
+                  ),
+                );
               }
 
               if (incomingMsg.messageType == MessageType.question) {
@@ -133,7 +153,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   _stage = 'select_option';
                 }
               } else if (incomingMsg.messageType == MessageType.end) {
+                setState(() {
+                  _stage = 'finishef';
+                });
                 _isFinished = true;
+              } else {
+                setState(() {
+                  _stage = 'explain_and_followup';
+                });
               }
             });
             _scrollToBottom();
@@ -141,8 +168,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
         });
 
         await TopicService().startTutorial(
-          widget.tutorial.id,
-          lastActiveChannel.id,
+          tutorialId: widget.tutorial.id,
+          channel: lastActiveChannel.id,
         );
       }
 
@@ -223,8 +250,29 @@ class _RehearseScreenState extends State<RehearseScreen> {
     if (activeQuestion == null) {
       return;
     }
+
     setState(() {
+      _selectedAnswers[_currentIndex] = _tempSelectedAnswerIndex;
       _stage = 'explain_and_followup';
+
+      final targetId = activeQuestion.messageId ?? activeQuestion.questionId;
+      if (targetId != null && targetId.isNotEmpty) {
+        final msgIdx = _messages.indexWhere(
+          (m) =>
+              m.messageId == targetId ||
+              m.rawJson['id']?.toString() == targetId,
+        );
+        if (msgIdx != -1) {
+          final updatedRaw = Map<String, dynamic>.from(
+            _messages[msgIdx].rawJson,
+          );
+          updatedRaw['selected_option_index'] = _tempSelectedAnswerIndex;
+          _messages[msgIdx] = _messages[msgIdx].copyWith(
+            interactive: false,
+            rawJson: updatedRaw,
+          );
+        }
+      }
     });
 
     TopicService().submitAnswer(
@@ -232,7 +280,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
       selectedOption:
           "option_${String.fromCharCode(97 + _tempSelectedAnswerIndex!)}",
       confidence: _tempConfidenceLevel!.toLowerCase().replaceAll(" ", ""),
-      channel: _tutorChannels.last.id,
+      channel: _messages.last.channel!,
+      sectionId: _messages.last.sectionId!,
+      componentId: _messages.last.componentId!,
     );
   }
 
@@ -246,6 +296,10 @@ class _RehearseScreenState extends State<RehearseScreen> {
     ChatSocketService().sendMessage(
       message: text,
       messageType: MessageType.usercomment,
+      extraData: {
+        'context_sectionid': _messages.last.sectionId,
+        'context_componentid': _messages.last.componentId,
+      },
     );
 
     setState(() {
@@ -255,34 +309,22 @@ class _RehearseScreenState extends State<RehearseScreen> {
           userId: AuthService.userId ?? 'user',
           message: text,
           messageType: MessageType.usercomment,
+          channel: _messages.last.channel,
+          sectionId: _messages.last.sectionId,
+          componentId: _messages.last.componentId,
         ),
       );
     });
     _scrollToBottom();
   }
 
-  void _nextQuestion() {
-    final lastQuestion =
-        _questions.isNotEmpty && _currentIndex < _questions.length
-        ? _questions[_currentIndex]
-        : null;
-    final lastQuestionId =
-        lastQuestion?.questionId ?? lastQuestion?.messageId ?? '';
-    final lastAnswerId = _lastAnswerMessageId ?? '';
-
-    ChatSocketService().sendMessage(
-      message: jsonEncode({
-        'questionid': lastQuestionId,
-        'answerid': lastAnswerId,
-      }),
-      messageType: MessageType.questioncontinue,
+  Future<void> _tutorialContinue() async {
+    await TopicService().continueTutorial(
+      tutorialId: widget.tutorial.id,
+      channel: _messages.last.channel,
+      sectionId: _messages.last.sectionId,
+      componentId: _messages.last.componentId,
     );
-
-    setState(() {
-      _tempSelectedAnswerIndex = null;
-      _tempConfidenceLevel = null;
-      _stage = 'question_asked';
-    });
     _scrollToBottom();
   }
 
@@ -636,13 +678,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   List<Widget> _buildChatMessageItem(ChatMessage message, bool isLast) {
     switch (message.messageType) {
       case MessageType.welcome:
-        return [
-          _buildWelcomeMessage(message, isLast),
-          _buildButtonMessage(
-            actionButtonLabel: "Next Question",
-            onPressed: () => _nextQuestion(),
-          ),
-        ];
+        return [_buildWelcomeMessage(message, isLast)];
       case MessageType.usercomment:
         return [_buildUserCommentMessage(message)];
       case MessageType.agentcomment:
@@ -656,8 +692,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
       case MessageType.questioncontinue:
         return [
           _buildButtonMessage(
-            actionButtonLabel: "Next Question",
-            onPressed: () => _nextQuestion(),
+            actionButtonLabel: "Continue",
+            onPressed: () => _tutorialContinue(),
           ),
         ];
       case MessageType.text:
@@ -669,48 +705,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
   Widget _buildWelcomeMessage(ChatMessage message, bool isLast) {
     return _buildMessageContainer(
       isAI: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildRichText(
-            message.text,
-            const TextStyle(fontSize: 14, color: Colors.white, height: 1.4),
-          ),
-          if (isLast) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: 130,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  _nextQuestion();
-                },
-                icon: const Icon(
-                  Icons.play_arrow_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  message.actionButtonLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF27121),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
+      child: _buildRichText(
+        message.text,
+        const TextStyle(fontSize: 14, color: Colors.white, height: 1.4),
       ),
     );
   }
@@ -841,6 +838,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
   Widget _buildQuestionMessage(ChatMessage message, bool isLast) {
     final question = RehearseQuestion.fromChatMessage(message);
     final optionLetters = ['A', 'B', 'C', 'D'];
+    final bool isInteractive = message.interactive ?? true;
+
+    int? selectedOptIndex;
+    if (message.selectedOptionIndex != null) {
+      selectedOptIndex = message.selectedOptionIndex;
+    } else if (isLast && _tempSelectedAnswerIndex != null) {
+      selectedOptIndex = _tempSelectedAnswerIndex;
+    }
 
     return _buildMessageContainer(
       isAI: true,
@@ -866,18 +871,20 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 final letter = optIndex < optionLetters.length
                     ? optionLetters[optIndex]
                     : '${optIndex + 1}';
-                final isSelected = _tempSelectedAnswerIndex == optIndex;
+                final isSelected = selectedOptIndex == optIndex;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 6.0),
                   child: InkWell(
-                    onTap: () {
-                      _selectOption(optIndex);
-                      if (_stage != 'select_option') {
-                        setState(() {
-                          _stage = 'select_option';
-                        });
-                      }
-                    },
+                    onTap: isInteractive
+                        ? () {
+                            _selectOption(optIndex);
+                            if (_stage != 'select_option') {
+                              setState(() {
+                                _stage = 'select_option';
+                              });
+                            }
+                          }
+                        : null,
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -1077,69 +1084,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_stage == 'question_asked' || question == null) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _followUpController,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                      onSubmitted: (_) => _sendFollowUp(),
-                      decoration: InputDecoration(
-                        hintText: 'Need any explanation?',
-                        hintStyle: const TextStyle(
-                          color: Colors.white38,
-                          fontSize: 14,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.04),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.08),
-                            width: 1.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.08),
-                            width: 1.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: const Color(0xFFF27121),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _sendFollowUp,
-                    icon: const Icon(Icons.send_rounded),
-                    color: const Color(0xFFF27121),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.04),
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        side: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else if (_stage == 'select_option') ...[
+            if (_stage == 'select_option') ...[
               const Padding(
                 padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
                 child: Text(
@@ -1342,7 +1287,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: _nextQuestion,
+                  onPressed: _tutorialContinue,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
@@ -1355,9 +1300,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        _currentIndex == _questions.length - 1
-                            ? 'Finish Rehearsal'
-                            : 'Next Question',
+                        'Contnue',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1366,9 +1309,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                       ),
                       const SizedBox(width: 8),
                       Icon(
-                        _currentIndex == _questions.length - 1
-                            ? Icons.check_circle_outline_rounded
-                            : Icons.arrow_forward_rounded,
+                        Icons.arrow_forward_rounded,
                         size: 16,
                         color: Colors.white,
                       ),
@@ -1403,14 +1344,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
     final activeQuestion = _questions.isNotEmpty
         ? _questions[_currentIndex]
         : null;
-
-    // Compute dynamic session metrics
-    // final easyTotal = _getBeginnerTotal();
-    // final easyCorrect = _getBeginnerCorrect();
-    // final intTotal = _getIntermediateTotal();
-    // final intCorrect = _getIntermediateCorrect();
-    // final advTotal = _getExpertTotal();
-    // final advCorrect = _getExpertCorrect();
 
     return Column(
       children: [
@@ -1492,7 +1425,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
               final isLast = index == _messages.length - 1;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: Column(children: _buildChatMessageItem(message, isLast)),
+                child: Column(
+                  children: [
+                    ..._buildChatMessageItem(message, isLast),
+                    Text(
+                      "SectionId: ${message.sectionId} ComponentId: ${message.componentId}",
+                    ),
+                  ],
+                ),
               );
             },
           ),
