@@ -28,7 +28,7 @@ class RehearseScreen extends StatefulWidget {
 
 class _RehearseScreenState extends State<RehearseScreen> {
   bool _isLoading = true;
-  List<TutorChannel> _tutorChannels = [];
+  TutorChannel? _tutorChannel;
   List<RehearseQuestion> _questions = [];
   StreamSubscription<socket_msg.ChatMessage>? _socketSubscription;
 
@@ -72,20 +72,46 @@ class _RehearseScreenState extends State<RehearseScreen> {
       _messages.clear();
       _questions.clear();
 
-      final channels = await TopicService().fetchTutorChannels(
+      final channel = await TopicService().fetchTutorChannel(
         widget.tutorial.id,
       );
-      _tutorChannels = channels;
+      if (channel == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-      debugPrint("_tutorChannels: ${_tutorChannels.length}");
+      _tutorChannel = channel;
 
-      if (_tutorChannels.isNotEmpty) {
-        final lastActiveChannel = _tutorChannels.last;
-        final userId = AuthService.userId ?? lastActiveChannel.user;
+      if (_tutorChannel != null) {
+        final messageHistory = await TopicService().fetchTutorHistory(
+          channelId: _tutorChannel!.id,
+        );
+
+        String? lastFoundSectionId;
+        String? lastFoundComponentId;
+        if (messageHistory.isNotEmpty) {
+          _messages.addAll(messageHistory.reversed);
+
+          for (final msg in messageHistory.reversed) {
+            if (msg.sectionId != null && msg.sectionId!.isNotEmpty) {
+              lastFoundSectionId = msg.sectionId;
+            }
+            if (msg.componentId != null && msg.componentId!.isNotEmpty) {
+              lastFoundComponentId = msg.componentId;
+            }
+            if (lastFoundSectionId != null && lastFoundComponentId != null) {
+              break;
+            }
+          }
+        }
+
+        final userId = AuthService.userId ?? _tutorChannel!.user;
 
         await ChatSocketService().connect(
           userId: userId,
-          channel: lastActiveChannel.id,
+          channel: _tutorChannel!.id,
         );
 
         _socketSubscription?.cancel();
@@ -177,10 +203,19 @@ class _RehearseScreenState extends State<RehearseScreen> {
           }
         });
 
-        await TopicService().startTutorial(
-          tutorialId: widget.tutorial.id,
-          channel: lastActiveChannel.id,
-        );
+        if (lastFoundSectionId == null || lastFoundComponentId == null) {
+          await TopicService().startTutorial(
+            tutorialId: widget.tutorial.id,
+            channel: _tutorChannel!.id,
+          );
+        } else {
+          _messages.last.sectionId = lastFoundSectionId;
+          _messages.last.componentId = lastFoundComponentId;
+          setState(() {
+            _stage = 'explain_and_followup';
+          });
+          _scrollToBottom(jump: true);
+        }
       }
 
       setState(() {
@@ -206,9 +241,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
     super.dispose();
   }
 
-  void _scrollToBottom() {
+  void _scrollToBottom({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
+        if (jump) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+          return;
+        }
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
@@ -246,7 +285,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
   }
 
   void _submitAnswer() {
-    if (_tutorChannels.isEmpty ||
+    if (_tutorChannel == null ||
         _tempSelectedAnswerIndex == null ||
         _tempConfidenceLevel == null) {
       return;
@@ -1444,14 +1483,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
               final isLast = index == _messages.length - 1;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: Column(
-                  children: [
-                    ..._buildChatMessageItem(message, isLast),
-                    Text(
-                      "SectionId: ${message.sectionId} ComponentId: ${message.componentId}",
-                    ),
-                  ],
-                ),
+                child: Column(children: _buildChatMessageItem(message, isLast)),
               );
             },
           ),

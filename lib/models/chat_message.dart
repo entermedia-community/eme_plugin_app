@@ -16,8 +16,8 @@ enum MessageType {
 class ChatMessage {
   final String? messageId;
   final String? channel;
-  final String? sectionId;
-  final String? componentId;
+  String? sectionId;
+  String? componentId;
   final String? userId;
   final String? userName;
   final String? message;
@@ -28,7 +28,7 @@ class ChatMessage {
   final bool? interactive;
   final Map<String, dynamic> rawJson;
 
-  const ChatMessage({
+  ChatMessage({
     this.messageId,
     this.channel,
     this.sectionId,
@@ -46,14 +46,39 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     int? parsedCreatedAt;
-    final rawCreatedAt = json['createdat'] ?? json['createdAt'];
+    final rawCreatedAt = json['createdat'] ?? json['date'];
     if (rawCreatedAt is int) {
       parsedCreatedAt = rawCreatedAt;
     } else if (rawCreatedAt is String) {
       parsedCreatedAt = int.tryParse(rawCreatedAt);
     }
 
-    final rawMessageType = json['messagetype']?.toString().toLowerCase();
+    String mainMessage = json['message']?.toString() ?? '';
+
+    String? sectionId = json['sectionid'];
+    String? componentId = json['componentid'];
+    String? rawMessageType = json['messagetype']?.toString().toLowerCase();
+
+    try {
+      final messageJson = jsonDecode(mainMessage);
+      if (rawMessageType == null) {
+        if (messageJson['question'] is Map<String, dynamic>) {
+          rawMessageType = 'question';
+        } else if (messageJson['assetthumbnail'] is String) {
+          rawMessageType = 'asset';
+        } else {
+          rawMessageType = 'text';
+        }
+      }
+      if (sectionId == null && messageJson['sectionid'] is String) {
+        sectionId = messageJson['sectionid'];
+      }
+      if (componentId == null && messageJson['componentid'] is String) {
+        componentId = messageJson['componentid'];
+      }
+      mainMessage = messageJson['content']?.toString() ?? '';
+    } catch (_) {}
+
     final messageType = MessageType.values.firstWhere(
       (element) => element.name.toLowerCase() == rawMessageType,
       orElse: () => MessageType.text,
@@ -64,11 +89,10 @@ class ChatMessage {
       interactive = true;
     }
 
-    String mainMessage = json['message']?.toString() ?? '';
-
     Map<String, dynamic> rawJson = Map<String, dynamic>.from(json);
     if (messageType == MessageType.question ||
         messageType == MessageType.asset) {
+      mainMessage = json['message'];
       final jsonStr = json['message']?.toString() ?? "{}";
       try {
         final decoded = jsonDecode(jsonStr);
@@ -76,19 +100,13 @@ class ChatMessage {
           rawJson.addAll(decoded);
         }
       } catch (_) {}
-    } else {
-      String messageStr = json['message']?.toString() ?? "{}";
-      try {
-        final messageJson = jsonDecode(messageStr);
-        mainMessage = messageJson['content']?.toString() ?? '';
-      } catch (_) {}
     }
 
     return ChatMessage(
       messageId: (json['messageid'] ?? json['id'])?.toString(),
       channel: json['channel']?.toString(),
-      sectionId: json['sectionid']?.toString(),
-      componentId: json['componentid']?.toString(),
+      sectionId: sectionId,
+      componentId: componentId,
       interactive: interactive,
       userId: (json['user'] ?? json['userid'])?.toString(),
       userName: json['name']?.toString(),

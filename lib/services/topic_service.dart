@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:testu_cl/models/chat_message.dart';
 import 'package:testu_cl/services/auth_service.dart';
 import '../models/topic.dart';
 import '../models/tutor_channel.dart';
@@ -150,9 +151,9 @@ class TopicService {
     }
   }
 
-  Future<List<TutorChannel>> fetchTutorChannels(String tutorialId) async {
+  Future<TutorChannel?> fetchTutorChannel(String tutorialId) async {
     final targetUrl =
-        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/tutorsessions.json?tutorialid=$tutorialId";
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/tutorsession.json?tutorialid=$tutorialId";
     final uri = Uri.parse(targetUrl);
 
     try {
@@ -172,12 +173,8 @@ class TopicService {
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         if (decoded is Map<String, dynamic>) {
-          final channelsList = decoded['channels'] as List<dynamic>? ?? [];
-          return channelsList
-              .map(
-                (item) => TutorChannel.fromJson(item as Map<String, dynamic>),
-              )
-              .toList();
+          final channel = decoded['channel'] as dynamic;
+          return TutorChannel.fromJson(channel as Map<String, dynamic>);
         } else {
           throw FormatException('Unexpected response format from $targetUrl');
         }
@@ -189,6 +186,59 @@ class TopicService {
     } catch (e) {
       if (kDebugMode) {
         print('TopicService error fetching tutor channels from $targetUrl: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<List<ChatMessage>> fetchTutorHistory({
+    required String channelId,
+    String? fromBeforeId,
+  }) async {
+    final targetUrl =
+        "$siteRoot/find/views/modules/entitytutorial/editors/aichatsearch/tutorhistory.json?channel=$channelId${fromBeforeId != null ? '&fromid=$fromBeforeId' : ''}";
+    final url = Uri.parse(targetUrl);
+
+    try {
+      final Map<String, String> credentials =
+          await AuthService.getCredentials();
+      final String token = credentials['entermediakey']!;
+      final response = await _client.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-tokentype': 'entermedia',
+          'X-token': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (decoded is Map<String, dynamic>) {
+          final history = decoded['messages'] as dynamic;
+          final List<ChatMessage> messages = [];
+          if (history is List) {
+            for (final item in history) {
+              try {
+                messages.add(ChatMessage.fromJson(item));
+              } catch (e) {
+                debugPrint('Failed to parse chat message: $e');
+              }
+            }
+          }
+          return messages;
+        } else {
+          throw FormatException('Unexpected response format from $targetUrl');
+        }
+      } else {
+        throw Exception(
+          'Failed to fetch tutor history. Server returned HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('TopicService error fetching tutor history from $targetUrl: $e');
       }
       rethrow;
     }
