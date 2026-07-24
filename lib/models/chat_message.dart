@@ -25,7 +25,7 @@ class ChatMessage {
   final String? command;
   final String? replyToId;
   final int? createdAt;
-  final bool? interactive;
+  bool? interactive;
   final Map<String, dynamic> rawJson;
 
   ChatMessage({
@@ -43,6 +43,13 @@ class ChatMessage {
     this.interactive = false,
     this.rawJson = const {},
   });
+
+  final Map<String, String> _confidenceOptions = {
+    'noidea': 'No Idea',
+    'notsure': 'Not sure',
+    'mostlysure': 'Mostly Sure',
+    'confident': 'Confident',
+  };
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     int? parsedCreatedAt;
@@ -163,32 +170,6 @@ class ChatMessage {
 
   String get sender => isUser ? 'user' : 'ai';
 
-  String? get sectionTitle {
-    if (messageType == MessageType.question && message != null) {
-      try {
-        final decoded = jsonDecode(message!);
-        if (decoded is Map<String, dynamic>) {
-          return decoded['sectiontitle']?.toString() ??
-              decoded['section_title']?.toString();
-        }
-      } catch (_) {}
-    }
-    return null;
-  }
-
-  String? get sectionContentText {
-    if (messageType == MessageType.question && message != null) {
-      try {
-        final decoded = jsonDecode(message!);
-        if (decoded is Map<String, dynamic>) {
-          return decoded['sectioncontent']?.toString() ??
-              decoded['section_content']?.toString();
-        }
-      } catch (_) {}
-    }
-    return null;
-  }
-
   String? get assetThumbnail {
     final thumb = rawJson['assetthumbnail'];
     return thumb?.toString();
@@ -220,26 +201,6 @@ class ChatMessage {
     return null;
   }
 
-  String get selectedOptionText {
-    if (rawJson['selected_option'] != null) {
-      return rawJson['selected_option'].toString();
-    }
-    if (rawJson['option_text'] != null) {
-      return rawJson['option_text'].toString();
-    }
-    if (message != null) {
-      if (message!.startsWith('Selected: ')) {
-        final endIdx = message!.indexOf(' (Confidence:');
-        if (endIdx != -1) {
-          return message!.substring('Selected: '.length, endIdx);
-        }
-        return message!.substring('Selected: '.length);
-      }
-      return message!;
-    }
-    return '';
-  }
-
   String get actionButtonLabel {
     if (rawJson['button_text'] != null) {
       return rawJson['button_text'].toString();
@@ -255,6 +216,14 @@ class ChatMessage {
   int? get selectedOptionIndex {
     if (rawJson['selected_option_index'] is int) {
       return rawJson['selected_option_index'] as int;
+    }
+    return null;
+  }
+
+  (String, String)? get confidence {
+    if (rawJson['confidence'] is String) {
+      return (rawJson['confidence'], _confidenceOptions[rawJson['confidence']])
+          as (String, String);
     }
     return null;
   }

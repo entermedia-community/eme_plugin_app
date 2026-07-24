@@ -318,7 +318,7 @@ class RehearseQuestion {
   final String text;
   final List<String> options;
   final int correctAnswerIndex;
-  final String difficulty; // "Beginner", "Intermediate", "Expert"
+  final String difficulty; // "Beginner", "Competent", "Expert"
   final String? questionId;
   final String? messageId;
   final MessageType? messageType;

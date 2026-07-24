@@ -16,6 +16,7 @@ import 'package:transparent_image/transparent_image.dart';
 
 import '../models/tutor_channel.dart';
 import '../models/tutorial.dart';
+import '../utils/language_helper.dart';
 
 class RehearseScreen extends StatefulWidget {
   final Tutorial tutorial;
@@ -44,12 +45,12 @@ class _RehearseScreenState extends State<RehearseScreen> {
   // Map index -> confidence level string ("No Idea", "Not sure", "Mostly Sure", "Confident")
   final Map<int, String?> _confidenceLevels = {};
 
-  final List<String> _confidenceOptions = [
-    'No Idea',
-    'Not sure',
-    'Mostly Sure',
-    'Confident',
-  ];
+  final Map<String, String> _confidenceOptions = {
+    'noidea': 'No Idea',
+    'notsure': 'Not sure',
+    'mostlysure': 'Mostly Sure',
+    'confident': 'Confident',
+  };
 
   // Chat state
   final List<ChatMessage> _messages = [];
@@ -259,13 +260,13 @@ class _RehearseScreenState extends State<RehearseScreen> {
 
   Color _getConfidenceColor(String confidence) {
     switch (confidence) {
-      case 'No Idea':
+      case 'noidea':
         return const Color(0xFFF50057); // Soft red
-      case 'Not sure':
+      case 'notsure':
         return const Color(0xFFFF9F43); // Orange
-      case 'Mostly Sure':
+      case 'mostlysure':
         return const Color(0xFF38B6FF); // Light blue
-      case 'Confident':
+      case 'confident':
         return const Color(0xFF38EF7D); // Vibrant green
       default:
         return Colors.white54;
@@ -550,99 +551,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
     );
   }
 
-  void _showLearnMoreModal(BuildContext context, String title, String content) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161C24),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1.5,
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Modal top handle bar
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.menu_book_rounded,
-                    color: Color(0xFF38B6FF),
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      title.isNotEmpty ? title : 'Section Material',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white54,
-                      size: 20,
-                    ),
-                    style: IconButton.styleFrom(
-                      padding: const EdgeInsets.all(8),
-                      backgroundColor: Colors.white.withValues(alpha: 0.05),
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(color: Colors.white10, height: 24),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: _buildRichText(
-                      content,
-                      const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildMessageContainer({required bool isAI, required Widget child}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,6 +573,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
               placeholder: kTransparentImage,
               image:
                   "https://minsur.genailabs.tech/site/mediadb/services/module/asset/generated/Sources/Iris_Avatar_Minsur/Iris_Avatar_Minsur.png/image200x200.webp",
+              imageErrorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.smart_toy, color: Colors.white);
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -717,6 +628,9 @@ class _RehearseScreenState extends State<RehearseScreen> {
               placeholder: kTransparentImage,
               image:
                   "https://eme.world/mediadb/services/module/asset/generated/Entity%20Assets/profile/placeholder.jpg/image200x200.webp",
+              imageErrorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.person, color: Colors.white);
+              },
             ),
           ),
         ],
@@ -736,8 +650,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
         return [_buildEndMessage(message)];
       case MessageType.question:
         return [_buildQuestionMessage(message, isLast)];
-      case MessageType.answer:
-        return [_buildAnswerMessage(message)];
       case MessageType.questioncontinue:
         return [
           _buildButtonMessage(
@@ -794,49 +706,6 @@ class _RehearseScreenState extends State<RehearseScreen> {
               height: 1.4,
             ),
           ),
-          if (message.sectionContentText != null &&
-              message.sectionContentText!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                final secTitle =
-                    (message.sectionTitle != null &&
-                        message.sectionTitle!.isNotEmpty)
-                    ? message.sectionTitle!
-                    : "Section Notes";
-                _showLearnMoreModal(
-                  context,
-                  secTitle,
-                  message.sectionContentText!,
-                );
-              },
-              icon: const Icon(
-                Icons.menu_book_rounded,
-                size: 16,
-                color: Color(0xFF38B6FF),
-              ),
-              label: const Text(
-                'Learn More',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF38B6FF),
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: const Color(0xFF38B6FF).withValues(alpha: 0.4),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -904,6 +773,8 @@ class _RehearseScreenState extends State<RehearseScreen> {
     } else if (isLast && _tempSelectedAnswerIndex != null) {
       selectedOptIndex = _tempSelectedAnswerIndex;
     }
+
+    final color = _getConfidenceColor(message.confidence?.$1 ?? '');
 
     return _buildMessageContainer(
       isAI: true,
@@ -1005,81 +876,28 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 );
               }),
             ),
+            if (message.confidence != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "${LanguageHelper.translate('confidence')}:",
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    message.confidence!.$2,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-          if (message.sectionContentText != null &&
-              message.sectionContentText!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                final secTitle =
-                    (message.sectionTitle != null &&
-                        message.sectionTitle!.isNotEmpty)
-                    ? message.sectionTitle!
-                    : "Section Notes";
-                _showLearnMoreModal(
-                  context,
-                  secTitle,
-                  message.sectionContentText!,
-                );
-              },
-              icon: const Icon(
-                Icons.menu_book_rounded,
-                size: 16,
-                color: Color(0xFF38B6FF),
-              ),
-              label: const Text(
-                'Learn More',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF38B6FF),
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: const Color(0xFF38B6FF).withValues(alpha: 0.4),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnswerMessage(ChatMessage message) {
-    final bool isCorrect = message.isCorrect ?? true;
-    final Color statusColor = isCorrect
-        ? const Color(0xFF38EF7D)
-        : const Color(0xFFF50057);
-    final IconData statusIcon = isCorrect
-        ? Icons.check_circle_rounded
-        : Icons.cancel_rounded;
-
-    return _buildMessageContainer(
-      isAI: false,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(statusIcon, color: statusColor, size: 20),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              message.selectedOptionText,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: statusColor,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -1156,14 +974,14 @@ class _RehearseScreenState extends State<RehearseScreen> {
                 ),
               ),
               Row(
-                children: _confidenceOptions.map((confidence) {
-                  final color = _getConfidenceColor(confidence);
-                  final isSelected = _tempConfidenceLevel == confidence;
+                children: _confidenceOptions.entries.map((entry) {
+                  final color = _getConfidenceColor(entry.key);
+                  final isSelected = _tempConfidenceLevel == entry.key;
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: InkWell(
-                        onTap: () => _selectConfidence(confidence),
+                        onTap: () => _selectConfidence(entry.key),
                         borderRadius: BorderRadius.circular(10),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1183,7 +1001,7 @@ class _RehearseScreenState extends State<RehearseScreen> {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            confidence,
+                            entry.value,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,

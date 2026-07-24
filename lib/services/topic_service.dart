@@ -217,11 +217,33 @@ class TopicService {
         final decoded = json.decode(response.body);
         if (decoded is Map<String, dynamic>) {
           final history = decoded['messages'] as dynamic;
+          final List answers = decoded['answers'] is List
+              ? decoded['answers']
+              : [];
           final List<ChatMessage> messages = [];
           if (history is List) {
             for (final item in history) {
               try {
-                messages.add(ChatMessage.fromJson(item));
+                final message = ChatMessage.fromJson(item);
+                if (message.messageType == MessageType.question) {
+                  final answer = answers.firstWhere(
+                    (a) => a['questionid'] == message.rawJson['question']['id'],
+                  );
+                  if (answer != null) {
+                    final letterASCII = answer['selectedoption']
+                        ?.toString()
+                        .codeUnitAt(7);
+                    if (letterASCII != null) {
+                      message.rawJson['selected_option_index'] =
+                          letterASCII - 97;
+                    }
+                    if (answer['confidence'] != null) {
+                      message.rawJson['confidence'] = answer['confidence'];
+                    }
+                  }
+                  message.interactive = false;
+                }
+                messages.add(message);
               } catch (e) {
                 debugPrint('Failed to parse chat message: $e');
               }

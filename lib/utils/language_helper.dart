@@ -54,6 +54,7 @@ class LanguageHelper {
         'improve': 'Improve',
         'refresh': 'Refresh',
         'last_reviewed': 'Last reviewed {d} days ago',
+        "confidence": "Confidence",
       },
       'Español': {
         'catalog_dashboard': 'Catálogo / Tablero',
@@ -96,6 +97,7 @@ class LanguageHelper {
         'improve': 'Mejorar',
         'refresh': 'Refrescar',
         'last_reviewed': 'Última revisión {d} días atrás',
+        'confidence': 'Confianza',
       },
     };
 
